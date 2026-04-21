@@ -8,6 +8,7 @@ import {
 import {
   AppstoreOutlined,
   BookOutlined,
+  LinkOutlined,
   HomeOutlined,
   LeftOutlined,
 } from '@ant-design/icons'
@@ -24,6 +25,12 @@ const adminNavItems = [
     to: '/admin/projects',
     label: '项目管理',
     icon: <AppstoreOutlined />,
+  },
+  {
+    key: '/admin/contact-links',
+    to: '/admin/contact-links',
+    label: '联系平台',
+    icon: <LinkOutlined />,
   },
 ]
 

@@ -8,6 +8,27 @@ export interface ProjectFormOptions {
   stackOptions: string[]
 }
 
+export interface ContactLinkAdminItem {
+  id: number
+  platformName: string
+  profileUrl: string
+  iconUrl: string
+  description: string
+  published: boolean
+  sortOrder: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ContactLinkAdminPayload {
+  platformName: string
+  profileUrl: string
+  iconUrl: string
+  description: string
+  published: boolean
+  sortOrder: number
+}
+
 export interface BlogAdminItem {
   id: number
   slug: string

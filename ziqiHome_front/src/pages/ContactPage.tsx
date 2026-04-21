@@ -1,32 +1,88 @@
-import { PageHeader } from '../components/PageHeader'
-import { profileInfo } from '../data/siteContent'
-import styles from './ContactPage.module.css'
+import { useEffect, useState } from "react";
+import { PageHeader } from "../components/PageHeader";
+import { siteClient } from "../api/siteClient";
+import type { ContactLinkSummary } from "../types/content";
+import styles from "./ContactPage.module.css";
 
 export function ContactPage() {
+  const [contactLinks, setContactLinks] = useState<ContactLinkSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void loadContactLinks();
+  }, []);
+
+  async function loadContactLinks() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const data = await siteClient.listContactLinks();
+      setContactLinks(data);
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "联系方式加载失败，请稍后重试",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className={styles.page}>
       <PageHeader
         eyebrow="Contact"
         title="找我鸭"
-        description="把联系方式单独拆成页面后，顶部导航每一项都有独立去处，也更符合你现在想要的页面结构。"
+        description="这里不再放固定写死的联系方式说明，而是直接展示后台维护的公开平台入口。后续你新增 Bilibili、YouTube、GitHub 等，都可以在这里自动更新。"
       />
 
-      <section className={styles.grid}>
-        <article className={styles.card}>
-          <h3>给我发邮件</h3>
-          <p>适合聊项目、交流学习，或者单纯打个招呼。</p>
-          <a href="mailto:ziqi@example.com" className={styles.primaryLink}>
-            ziqi@example.com
-          </a>
-        </article>
+      {loading ? (
+        <section className={styles.statePanel}>
+          <p>鸡汤来喽哈哈哈！</p>
+        </section>
+      ) : error ? (
+        <section className={styles.statePanel}>
+          <p>{error}</p>
+        </section>
+      ) : contactLinks.length === 0 ? (
+        <section className={styles.statePanel}>
+          <p>哦吼？走丢了？先去别处看看吧！</p>
+        </section>
+      ) : (
+        <section className={styles.grid}>
+          {contactLinks.map((contactLink) => (
+            <article key={contactLink.id} className={styles.card}>
+              <div className={styles.cardTop}>
+                <div className={styles.iconWrap}>
+                  <img
+                    src={contactLink.iconUrl}
+                    alt={`${contactLink.platformName} 图标`}
+                    className={styles.icon}
+                  />
+                </div>
+                <div className={styles.titleWrap}>
+                  <span className={styles.eyebrow}>公开平台</span>
+                  <h3>{contactLink.platformName}</h3>
+                </div>
+              </div>
 
-        <article className={styles.card}>
-          <h3>我的状态</h3>
-          <p>{profileInfo.role}</p>
-          <p>{profileInfo.location}</p>
-          <p>主题偏向个人表达、前端学习与项目沉淀。</p>
-        </article>
-      </section>
+              <p>{contactLink.description}</p>
+
+              <a
+                href={contactLink.profileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.primaryLink}
+              >
+                访问
+              </a>
+            </article>
+          ))}
+        </section>
+      )}
     </div>
-  )
+  );
 }

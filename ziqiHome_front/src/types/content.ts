@@ -38,6 +38,14 @@ export interface ProjectSummary {
   link?: string
 }
 
+export interface ContactLinkSummary {
+  id: string
+  platformName: string
+  profileUrl: string
+  iconUrl: string
+  description: string
+}
+
 export interface LifeMoment {
   id: string
   date: string

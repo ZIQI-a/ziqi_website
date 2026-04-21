@@ -9,16 +9,6 @@
   box-shadow: var(--shadow-soft);
 }
 
-.cardTag {
-  width: fit-content;
-  min-height: 30px;
-  padding-inline: 12px;
-  border-radius: 999px;
-  background: var(--color-accent-soft) !important;
-  color: var(--color-text) !important;
-  font-weight: 700;
-}
-
 .cardTitle {
   margin: 0 !important;
   font-family: var(--font-display) !important;

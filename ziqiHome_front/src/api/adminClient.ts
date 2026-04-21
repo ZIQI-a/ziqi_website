@@ -1,6 +1,8 @@
 import type {
   BlogAdminItem,
   BlogAdminPayload,
+  ContactLinkAdminItem,
+  ContactLinkAdminPayload,
   ProjectAdminItem,
   ProjectAdminPayload,
   ProjectFormOptions,
@@ -45,6 +47,26 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const adminClient = {
+  listContactLinks() {
+    return request<ContactLinkAdminItem[]>('/api/admin/contact-links')
+  },
+  createContactLink(payload: ContactLinkAdminPayload) {
+    return request<ContactLinkAdminItem>('/api/admin/contact-links', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+  updateContactLink(id: number, payload: ContactLinkAdminPayload) {
+    return request<ContactLinkAdminItem>(`/api/admin/contact-links/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    })
+  },
+  deleteContactLink(id: number) {
+    return request<void>(`/api/admin/contact-links/${id}`, {
+      method: 'DELETE',
+    })
+  },
   listBlogs() {
     return request<BlogAdminItem[]>('/api/admin/blogs')
   },

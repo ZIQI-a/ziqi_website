@@ -1,4 +1,8 @@
-import type { BlogPostSummary, ProjectSummary } from '../types/content'
+import type {
+  BlogPostSummary,
+  ContactLinkSummary,
+  ProjectSummary,
+} from '../types/content'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 
@@ -27,6 +31,18 @@ interface SiteProjectResponse {
   link: string | null
   stack: string[]
   highlights: string[]
+  published: boolean
+  sortOrder: number
+  createdAt: string
+  updatedAt: string
+}
+
+interface SiteContactLinkResponse {
+  id: number
+  platformName: string
+  profileUrl: string
+  iconUrl: string
+  description: string
   published: boolean
   sortOrder: number
   createdAt: string
@@ -68,6 +84,16 @@ function mapProjectSummary(project: SiteProjectResponse): ProjectSummary {
   }
 }
 
+function mapContactLinkSummary(contactLink: SiteContactLinkResponse): ContactLinkSummary {
+  return {
+    id: String(contactLink.id),
+    platformName: contactLink.platformName,
+    profileUrl: contactLink.profileUrl,
+    iconUrl: contactLink.iconUrl,
+    description: contactLink.description,
+  }
+}
+
 /**
  * 公开站点只消费后端已经筛过 published 的接口，避免前台再接触管理端数据形态。
  */
@@ -79,5 +105,9 @@ export const siteClient = {
   async listProjects() {
     const data = await request<SiteProjectResponse[]>('/api/site/projects')
     return data.map(mapProjectSummary)
+  },
+  async listContactLinks() {
+    const data = await request<SiteContactLinkResponse[]>('/api/site/contact-links')
+    return data.map(mapContactLinkSummary)
   },
 }
