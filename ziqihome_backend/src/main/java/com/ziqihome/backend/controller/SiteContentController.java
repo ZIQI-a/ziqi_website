@@ -1,8 +1,10 @@
 package com.ziqihome.backend.controller;
 
 import com.ziqihome.backend.dto.blog.BlogPostResponse;
+import com.ziqihome.backend.dto.contact.ContactLinkResponse;
 import com.ziqihome.backend.dto.project.ProjectResponse;
 import com.ziqihome.backend.service.BlogPostService;
+import com.ziqihome.backend.service.ContactLinkService;
 import com.ziqihome.backend.service.ProjectService;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,10 +17,16 @@ public class SiteContentController {
 
   private final BlogPostService blogPostService;
   private final ProjectService projectService;
+  private final ContactLinkService contactLinkService;
 
-  public SiteContentController(BlogPostService blogPostService, ProjectService projectService) {
+  public SiteContentController(
+      BlogPostService blogPostService,
+      ProjectService projectService,
+      ContactLinkService contactLinkService
+  ) {
     this.blogPostService = blogPostService;
     this.projectService = projectService;
+    this.contactLinkService = contactLinkService;
   }
 
   @GetMapping("/blogs")
@@ -29,5 +37,10 @@ public class SiteContentController {
   @GetMapping("/projects")
   public List<ProjectResponse> listSiteProjects() {
     return projectService.listPublishedProjects();
+  }
+
+  @GetMapping("/contact-links")
+  public List<ContactLinkResponse> listSiteContactLinks() {
+    return contactLinkService.listPublishedContactLinks();
   }
 }

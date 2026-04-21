@@ -1,8 +1,11 @@
 spring:
+  config:
+    # 本地开发时优先读取仓库外的私有覆盖配置，避免把账号密码提交进 Git。
+    import: optional:file:./application-local.yml
   datasource:
     url: ${DB_URL:jdbc:mysql://localhost:3306/ziqihome?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai}
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:ziqi0522@}
+    password: ${DB_PASSWORD:}
   jpa:
     hibernate:
       ddl-auto: validate

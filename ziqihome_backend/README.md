@@ -1,6 +1,6 @@
 # ZiqiHome Backend
 
-`ziqihome_backend` 是个人网站内容管理后端，当前只覆盖博客和项目两个内容域，目标是把静态数据迁移到可维护的 MySQL 持久化结构中。
+`ziqihome_backend` 是个人网站内容管理后端，当前覆盖博客、项目和联系方式三个内容域，目标是把静态数据迁移到可维护的 MySQL 持久化结构中。
 
 ## 技术栈
 
@@ -45,7 +45,7 @@ mvn spring-boot:run
 - `src/main/java`：后端业务代码
 - `src/main/resources/db/migration`：Flyway 迁移脚本和初始化数据
 - `src/test`：后端接口和服务层测试
-- `harness/`：后端协作约束、接口契约和建模文档
+- `docs/`：后端协作约束、接口契约和建模文档
 
 ## 当前项目管理补充接口
 
