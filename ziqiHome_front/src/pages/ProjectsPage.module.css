@@ -1,0 +1,24 @@
+.page {
+  display: grid;
+  gap: 28px;
+}
+
+.statePanel {
+  padding: 28px 24px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.statePanel p {
+  margin: 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+
+.list {
+  display: grid;
+  gap: 18px;
+}

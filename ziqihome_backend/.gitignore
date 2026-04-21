@@ -1,0 +1,14 @@
+/target/
+/.idea/
+/.mvn/
+*.iml
+*.log
+
+# Local collaboration docs and agent constraints are kept outside commits
+AGENTS.md
+docs/
+
+# Local environment overrides
+.env
+.env.*
+application-local.yml

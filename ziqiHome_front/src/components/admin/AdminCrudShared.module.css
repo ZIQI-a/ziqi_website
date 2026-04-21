@@ -1,0 +1,220 @@
+.page {
+  display: grid;
+}
+
+.panel {
+  border: 1px solid var(--color-line) !important;
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent) !important;
+  box-shadow: var(--shadow-soft);
+}
+
+.panel :global(.ant-card-body) {
+  padding: 24px;
+}
+
+.errorText {
+  margin-bottom: 16px !important;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(187, 64, 64, 0.14);
+  color: #ffc0c0 !important;
+}
+
+.loadingWrap {
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+}
+
+.emptyState {
+  padding-block: 30px;
+}
+
+.table :global(.ant-table),
+.table :global(.ant-table-container),
+.table :global(.ant-table-cell-fix-left),
+.table :global(.ant-table-cell-fix-right) {
+  background: transparent !important;
+}
+
+.table :global(.ant-table-thead > tr > th) {
+  background: color-mix(in srgb, var(--color-surface-strong) 90%, transparent) !important;
+  color: var(--color-text-muted) !important;
+  border-bottom-color: var(--color-line) !important;
+}
+
+.table :global(.ant-table-tbody > tr > td) {
+  border-bottom-color: var(--color-line) !important;
+}
+
+.table :global(.ant-table-tbody > tr.ant-table-row:hover > td) {
+  background: color-mix(in srgb, var(--color-accent-soft) 32%, transparent) !important;
+}
+
+.table :global(.ant-table-cell),
+.table :global(.ant-typography),
+.table :global(.ant-tag) {
+  color: var(--color-text);
+}
+
+.table :global(.ant-typography.ant-typography-secondary) {
+  color: var(--color-text-muted);
+}
+
+.form :global(.ant-form-item-label > label) {
+  color: var(--color-text-muted);
+}
+
+.form :global(.ant-typography),
+.form :global(.ant-form-item-explain),
+.form :global(.ant-form-item-extra),
+.form :global(.ant-input),
+.form :global(.ant-picker-input > input),
+.form :global(.ant-input-number-input),
+.form :global(.ant-select-selection-item),
+.form :global(.ant-select-selection-placeholder),
+.form :global(.ant-drawer-title),
+.form :global(.ant-drawer-close),
+.form :global(.ant-drawer-header),
+.form :global(.ant-drawer-body) {
+  color: var(--color-text);
+}
+
+.form :global(.ant-input),
+.form :global(.ant-picker),
+.form :global(.ant-input-number),
+.form :global(.ant-select-selector),
+.form :global(.ant-input-affix-wrapper),
+.form :global(.ant-drawer-header),
+.form :global(.ant-drawer-body),
+.form :global(.ant-drawer-footer) {
+  background: color-mix(in srgb, var(--color-surface-strong) 94%, transparent) !important;
+  border-color: var(--color-line) !important;
+}
+
+.form :global(.ant-input::placeholder),
+.form :global(.ant-picker-input > input::placeholder),
+.form :global(.ant-input-number-input::placeholder),
+.form :global(.ant-select-selection-placeholder) {
+  color: rgba(212, 224, 247, 0.58) !important;
+}
+
+.form :global(.ant-picker-suffix),
+.form :global(.ant-picker-clear),
+.form :global(.ant-drawer-close .anticon) {
+  color: var(--color-text-muted) !important;
+}
+
+.form :global(.ant-switch) {
+  background: rgba(212, 224, 247, 0.22);
+}
+
+.form :global(.ant-switch.ant-switch-checked) {
+  background: var(--color-accent);
+}
+
+.form :global(.ant-switch .ant-switch-inner) {
+  color: #261805;
+}
+
+.panel :global(.ant-btn-primary),
+.panel :global(.ant-btn-primary span),
+.form :global(.ant-btn-primary),
+.form :global(.ant-btn-primary span) {
+  color: #261805;
+}
+
+.table :global(.ant-btn-dangerous) {
+  color: #ffb8b8 !important;
+  background: rgba(187, 64, 64, 0.14) !important;
+  border-color: rgba(255, 117, 117, 0.22) !important;
+  box-shadow: none !important;
+}
+
+.table :global(.ant-btn-dangerous span),
+.table :global(.ant-btn-dangerous .anticon) {
+  color: inherit !important;
+}
+
+.table :global(.ant-btn-dangerous:hover),
+.table :global(.ant-btn-dangerous:focus),
+.table :global(.ant-btn-dangerous:active),
+.table :global(.ant-btn-dangerous:not(:disabled):hover),
+.table :global(.ant-btn-dangerous:not(:disabled):focus),
+.table :global(.ant-btn-dangerous:not(:disabled):active) {
+  color: #ffd1d1 !important;
+  background: rgba(187, 64, 64, 0.18) !important;
+  border-color: rgba(255, 117, 117, 0.28) !important;
+  box-shadow: none !important;
+}
+
+.table :global(.ant-btn-dangerous::before),
+.table :global(.ant-btn-dangerous::after) {
+  display: none !important;
+}
+
+.deleteConfirm :global(.ant-popover-inner) {
+  background: color-mix(in srgb, var(--color-surface-strong) 96%, transparent) !important;
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-soft);
+}
+
+.deleteConfirm :global(.ant-popover-arrow::before) {
+  background: color-mix(in srgb, var(--color-surface-strong) 96%, transparent) !important;
+}
+
+.deleteConfirm :global(.ant-popconfirm-title),
+.deleteConfirm :global(.ant-popconfirm-description),
+.deleteConfirm :global(.ant-popconfirm-message-title),
+.deleteConfirm :global(.ant-popconfirm-message-icon),
+.deleteConfirm :global(.ant-popover-inner-content) {
+  color: var(--color-text) !important;
+}
+
+.deleteConfirm :global(.ant-btn-dangerous) {
+  color: #ffb8b8 !important;
+  background: rgba(187, 64, 64, 0.14) !important;
+  border-color: rgba(255, 117, 117, 0.22) !important;
+  box-shadow: none !important;
+}
+
+.deleteConfirm :global(.ant-btn-dangerous span),
+.deleteConfirm :global(.ant-btn-dangerous .anticon) {
+  color: inherit !important;
+}
+
+.deleteConfirm :global(.ant-btn-dangerous:hover),
+.deleteConfirm :global(.ant-btn-dangerous:focus),
+.deleteConfirm :global(.ant-btn-dangerous:active),
+.deleteConfirm :global(.ant-btn-dangerous:not(:disabled):hover),
+.deleteConfirm :global(.ant-btn-dangerous:not(:disabled):focus),
+.deleteConfirm :global(.ant-btn-dangerous:not(:disabled):active) {
+  color: #ffd1d1 !important;
+  background: rgba(187, 64, 64, 0.18) !important;
+  border-color: rgba(255, 117, 117, 0.28) !important;
+  box-shadow: none !important;
+}
+
+.deleteConfirm :global(.ant-btn-dangerous::before),
+.deleteConfirm :global(.ant-btn-dangerous::after) {
+  display: none !important;
+}
+
+.deleteConfirm :global(.ant-btn:not(.ant-btn-dangerous)),
+.deleteConfirm :global(.ant-btn:not(.ant-btn-dangerous) span),
+.panel :global(.ant-btn:not(.ant-btn-primary)),
+.panel :global(.ant-btn:not(.ant-btn-primary) span),
+.form :global(.ant-btn:not(.ant-btn-primary)),
+.form :global(.ant-btn:not(.ant-btn-primary) span) {
+  color: var(--color-text) !important;
+}
+
+.fullControl {
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  .panel :global(.ant-card-body) {
+    padding: 18px;
+  }
+}

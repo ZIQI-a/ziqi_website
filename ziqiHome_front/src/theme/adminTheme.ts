@@ -1,0 +1,103 @@
+import type { ThemeConfig } from 'antd'
+
+/**
+ * 管理端复用主站设计变量，保证后台独立接入组件库后仍保留统一的色彩语言。
+ */
+export const adminTheme: ThemeConfig = {
+  token: {
+    colorPrimary: '#ef9f22',
+    colorPrimaryBg: '#ef9f22',
+    colorPrimaryBgHover: '#f4b149',
+    colorPrimaryHover: '#f4b149',
+    colorPrimaryActive: '#d88a14',
+    colorInfo: '#ef9f22',
+    colorSuccess: '#6fcf97',
+    colorWarning: '#f2b24d',
+    colorError: '#ff8f8f',
+    colorText: 'var(--color-text)',
+    colorTextHeading: 'var(--color-text)',
+    colorTextSecondary: 'var(--color-text-muted)',
+    colorTextTertiary: 'rgba(212, 224, 247, 0.72)',
+    colorTextQuaternary: 'rgba(212, 224, 247, 0.56)',
+    colorTextLightSolid: '#261805',
+    colorBgBase: 'var(--color-bg)',
+    colorBgContainer: 'color-mix(in srgb, var(--color-surface-strong) 94%, transparent)',
+    colorBgElevated: 'color-mix(in srgb, var(--color-surface) 96%, transparent)',
+    colorFillAlter: 'color-mix(in srgb, var(--color-surface-strong) 90%, transparent)',
+    colorBorder: 'var(--color-line)',
+    colorSplit: 'var(--color-line)',
+    borderRadius: 18,
+    borderRadiusLG: 24,
+    fontFamily: 'var(--font-body)',
+    wireframe: false,
+  },
+  components: {
+    Layout: {
+      bodyBg: 'transparent',
+      headerBg: 'transparent',
+      siderBg: 'transparent',
+      triggerBg: 'transparent',
+    },
+    Menu: {
+      itemBg: 'transparent',
+      itemColor: 'var(--color-text-muted)',
+      itemSelectedBg: 'color-mix(in srgb, var(--color-accent-soft) 78%, transparent)',
+      itemSelectedColor: 'var(--color-text)',
+      itemHoverColor: 'var(--color-text)',
+      itemHoverBg: 'color-mix(in srgb, var(--color-surface) 92%, transparent)',
+      itemBorderRadius: 16,
+    },
+    Card: {
+      borderRadiusLG: 24,
+    },
+    Button: {
+      borderRadius: 999,
+      defaultBg: 'color-mix(in srgb, var(--color-surface) 92%, transparent)',
+      defaultColor: 'var(--color-text)',
+      defaultBorderColor: 'var(--color-line)',
+      colorPrimary: '#ef9f22',
+      colorPrimaryHover: '#f4b149',
+      colorPrimaryActive: '#d88a14',
+      primaryColor: '#261805',
+      primaryShadow: '0 10px 24px rgba(239, 159, 34, 0.18)',
+    },
+    Input: {
+      colorText: 'var(--color-text)',
+      colorTextPlaceholder: 'rgba(212, 224, 247, 0.58)',
+      activeBorderColor: '#ef9f22',
+      hoverBorderColor: '#f4b149',
+      activeShadow: '0 0 0 2px rgba(239, 159, 34, 0.18)',
+    },
+    InputNumber: {
+      colorText: 'var(--color-text)',
+      colorTextPlaceholder: 'rgba(212, 224, 247, 0.58)',
+      activeBorderColor: '#ef9f22',
+      hoverBorderColor: '#f4b149',
+      activeShadow: '0 0 0 2px rgba(239, 159, 34, 0.18)',
+    },
+    Select: {
+      colorText: 'var(--color-text)',
+      optionSelectedBg: 'rgba(239, 159, 34, 0.18)',
+      optionActiveBg: 'rgba(239, 159, 34, 0.12)',
+      activeBorderColor: '#ef9f22',
+      hoverBorderColor: '#f4b149',
+    },
+    Drawer: {
+      colorBgElevated: 'color-mix(in srgb, var(--color-surface-strong) 96%, transparent)',
+      colorText: 'var(--color-text)',
+      colorTextHeading: 'var(--color-text)',
+      footerPaddingBlock: 16,
+    },
+    Table: {
+      headerColor: 'var(--color-text-muted)',
+      colorText: 'var(--color-text)',
+      rowHoverBg: 'color-mix(in srgb, var(--color-accent-soft) 32%, transparent)',
+      headerBg: 'color-mix(in srgb, var(--color-surface-strong) 90%, transparent)',
+      borderColor: 'var(--color-line)',
+    },
+    Typography: {
+      titleMarginBottom: 0,
+      titleMarginTop: 0,
+    },
+  },
+}

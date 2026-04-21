@@ -1,0 +1,265 @@
+.hero {
+  position: relative;
+  min-height: min(920px, 100vh);
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: #091223;
+}
+
+.hero::before,
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  transition:
+    opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, filter;
+}
+
+/* 始终保留双背景层，只通过透明度交叉淡入淡出，避免主题切换时整张图硬替换。 */
+.hero::before {
+  background-image:
+    linear-gradient(180deg, rgba(77, 77, 79, 0.36), rgba(48, 53, 62, 0.82)),
+    radial-gradient(circle at 50% 42%, rgba(255, 83, 173, 0.18), transparent 20%),
+    radial-gradient(circle at 44% 35%, rgba(0, 225, 255, 0.16), transparent 18%),
+    var(--asset-hero-dark-image);
+  opacity: 1;
+  filter: brightness(1);
+}
+
+.hero::after {
+  background-image:
+    linear-gradient(180deg, rgba(238, 248, 255, 0.22), rgba(214, 236, 255, 0.62)),
+    radial-gradient(circle at 17% 18%, rgba(255, 255, 255, 0.48), transparent 24%),
+    radial-gradient(circle at 78% 12%, rgba(255, 210, 120, 0.14), transparent 20%),
+    var(--asset-hero-light-image);
+  opacity: 0;
+  filter: brightness(0.92) saturate(0.96);
+}
+
+[data-theme='light'] .hero::before {
+  opacity: 0;
+  filter: brightness(0.88);
+}
+
+[data-theme='light'] .hero::after {
+  opacity: 1;
+  filter: brightness(1) saturate(1);
+}
+
+.mask {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.mask::before,
+.mask::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.72s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mask::before {
+  background:
+    linear-gradient(180deg, rgba(7, 15, 32, 0.54), rgba(7, 15, 32, 0.8)),
+    radial-gradient(circle at center, transparent 8%, rgba(3, 9, 24, 0.26) 76%);
+  opacity: 1;
+}
+
+.mask::after {
+  background:
+    linear-gradient(180deg, rgba(248, 252, 255, 0.34), rgba(221, 239, 255, 0.54)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(206, 229, 247, 0.4));
+  opacity: 0;
+}
+
+[data-theme='light'] .mask::before {
+  opacity: 0;
+}
+
+[data-theme='light'] .mask::after {
+  opacity: 1;
+}
+
+.centerCopy {
+  position: relative;
+  z-index: 1;
+  width: min(1280px, calc(100vw - 80px));
+  padding: 212px 24px 176px;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  animation: heroReveal 1s ease both;
+}
+
+.copyWrap {
+  user-select: none;
+}
+
+.kicker {
+  margin: 0 0 18px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.86);
+  transition: color 0.52s ease;
+}
+
+[data-theme='light'] .kicker {
+  color: rgba(44, 77, 110, 0.9);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.95rem, 5.8vw, 5.2rem);
+  line-height: 0.9;
+  color: #ffffff;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.32);
+  white-space: nowrap;
+  transition:
+    color 0.52s ease,
+    text-shadow 0.52s ease;
+}
+
+[data-theme='light'] .title {
+  color: #274768;
+  text-shadow:
+    0 10px 24px rgba(120, 170, 214, 0.18),
+    0 2px 0 rgba(255, 255, 255, 0.3);
+}
+
+.subtitle {
+  margin: 18px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 4.2vw, 3.7rem);
+  line-height: 1.08;
+  color: #ffffff;
+  text-shadow: 0 12px 34px rgba(0, 0, 0, 0.34);
+  white-space: nowrap;
+  transition:
+    color 0.52s ease,
+    text-shadow 0.52s ease;
+}
+
+[data-theme='light'] .subtitle {
+  color: #31577d;
+  text-shadow:
+    0 10px 22px rgba(120, 170, 214, 0.16),
+    0 1px 0 rgba(255, 255, 255, 0.26);
+}
+
+.byline {
+  margin: 24px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2vw, 1.8rem);
+  color: rgba(255, 255, 255, 0.92);
+  transition: color 0.52s ease;
+}
+
+[data-theme='light'] .byline {
+  color: rgba(49, 84, 120, 0.96);
+}
+
+.scrollHint {
+  margin-top: 42px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  animation: hintFloat 1.8s ease-in-out infinite;
+  transition: color 0.52s ease;
+}
+
+[data-theme='light'] .scrollHint {
+  color: rgba(49, 84, 120, 0.9);
+}
+
+.scrollLine {
+  width: 1px;
+  height: 54px;
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.84));
+  transition: background 0.52s ease;
+}
+
+[data-theme='light'] .scrollLine {
+  background: linear-gradient(180deg,
+      rgba(71, 114, 153, 0.12),
+      rgba(71, 114, 153, 0.84));
+}
+
+.scrollArrow {
+  display: inline-block;
+  font-size: 2rem;
+  line-height: 1;
+  transform: rotate(90deg);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.tags span {
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.9rem;
+}
+
+@keyframes heroReveal {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hintFloat {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@media (max-width: 900px) {
+  .centerCopy {
+    padding-top: 172px;
+    padding-bottom: 170px;
+  }
+
+  .title {
+    font-size: clamp(2.3rem, 10.5vw, 4rem);
+    white-space: normal;
+  }
+
+  .subtitle {
+    font-size: clamp(1.9rem, 8.2vw, 2.8rem);
+    white-space: normal;
+  }
+}

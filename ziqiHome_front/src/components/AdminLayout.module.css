@@ -1,0 +1,95 @@
+.shell {
+  width: min(1280px, calc(100vw - 48px));
+  margin: 28px auto 60px;
+  background: transparent;
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.topNav {
+  flex: 1 1 560px;
+  min-width: 0;
+  background: transparent !important;
+  border-bottom: none !important;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.backButton {
+  min-height: 46px;
+}
+
+.topNav :global(.ant-menu-item) {
+  min-height: 44px;
+  border-radius: 999px;
+  margin-inline-end: 8px;
+  color: var(--color-text-muted);
+}
+
+.topNav :global(.ant-menu-item-selected) {
+  background: color-mix(in srgb, var(--color-accent-soft) 78%, transparent) !important;
+  color: var(--color-text) !important;
+}
+
+.topNav :global(.ant-menu-item:hover) {
+  color: var(--color-text) !important;
+}
+
+.topNav :global(.ant-menu-item .ant-menu-title-content),
+.topNav :global(.ant-menu-item .anticon) {
+  color: inherit;
+}
+
+.main {
+  margin-top: 26px;
+}
+
+.header :global(.ant-btn),
+.header :global(.ant-btn span) {
+  color: var(--color-text);
+}
+
+.header :global(.ant-btn-primary),
+.header :global(.ant-btn-primary span) {
+  color: #261805;
+}
+
+.main {
+  min-width: 0;
+}
+
+@media (max-width: 920px) {
+  .header {
+    align-items: stretch;
+  }
+
+  .toolbar {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .shell {
+    width: min(1280px, calc(100vw - 28px));
+    margin-top: 18px;
+  }
+
+  .header {
+    padding: 16px;
+  }
+}

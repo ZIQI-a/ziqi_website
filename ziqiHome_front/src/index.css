@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+
+:root {
+  --color-bg: #091223;
+  --color-bg-secondary: #0f1f39;
+  --color-surface: rgba(10, 21, 42, 0.82);
+  --color-surface-strong: rgba(7, 16, 32, 0.96);
+  --color-surface-soft: rgba(17, 30, 55, 0.72);
+  --color-text: #f2f6ff;
+  --color-text-muted: #b5c0d6;
+  --color-accent: #ffb118;
+  --color-accent-soft: rgba(255, 177, 24, 0.14);
+  --color-line: rgba(180, 203, 255, 0.16);
+  --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.28);
+  --radius-xl: 32px;
+  --radius-lg: 24px;
+  --radius-md: 18px;
+  --page-width: min(1020px, calc(100vw - 56px));
+  --font-body: 'Manrope', sans-serif;
+  --font-display: 'Cormorant Garamond', serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme='light'] {
+  --color-bg: #edf7ff;
+  --color-bg-secondary: #dff0ff;
+  --color-surface: rgba(255, 255, 255, 0.8);
+  --color-surface-strong: rgba(248, 252, 255, 0.86);
+  --color-surface-soft: rgba(247, 251, 255, 0.74);
+  --color-text: #24415f;
+  --color-text-muted: #5f7894;
+  --color-accent: #ef9f22;
+  --color-accent-soft: rgba(239, 159, 34, 0.14);
+  --color-line: rgba(68, 112, 154, 0.16);
+  --shadow-soft: 0 20px 60px rgba(110, 151, 191, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: var(--font-body);
+  color: var(--color-text);
+  background:
+    radial-gradient(circle at top left, rgba(51, 89, 182, 0.26), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(255, 177, 24, 0.12), transparent 24%),
+    linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    background 0.25s ease;
+}
+
+[data-theme='light'] body {
+  background:
+    radial-gradient(circle at top left, rgba(129, 192, 255, 0.24), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(255, 205, 111, 0.2), transparent 24%),
+    linear-gradient(180deg, #eff8ff 0%, #e7f3ff 46%, #deefff 100%);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.6), transparent 82%);
+}
+
+[data-theme='light'] body::before {
+  background-image:
+    linear-gradient(rgba(83, 135, 188, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(83, 135, 188, 0.05) 1px, transparent 1px);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+#root {
+  min-height: 100vh;
+}

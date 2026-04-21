@@ -1,0 +1,74 @@
+.page {
+  display: grid;
+  gap: 22px;
+}
+
+.card {
+  border: 1px solid var(--color-line) !important;
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent) !important;
+  box-shadow: var(--shadow-soft);
+}
+
+.cardTag {
+  width: fit-content;
+  min-height: 30px;
+  padding-inline: 12px;
+  border-radius: 999px;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text) !important;
+  font-weight: 700;
+}
+
+.cardTitle {
+  margin: 0 !important;
+  font-family: var(--font-display) !important;
+  color: var(--color-text) !important;
+}
+
+.cardContent {
+  width: 100%;
+  min-height: 220px;
+  justify-content: space-between;
+}
+
+.cardIcon {
+  display: inline-grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--color-accent-soft) 85%, transparent);
+  color: var(--color-accent);
+  font-size: 1.35rem;
+}
+
+.card :global(.ant-card-body) {
+  padding: 24px;
+}
+
+.cardLink {
+  display: inline-flex;
+}
+
+.cardLink :global(.ant-btn) {
+  min-height: 44px;
+}
+
+.cardLink :global(.ant-btn-primary),
+.cardLink :global(.ant-btn-primary span) {
+  color: #261805;
+}
+
+.card :global(.ant-typography) {
+  color: var(--color-text);
+}
+
+.card :global(.ant-typography.ant-typography-secondary) {
+  color: var(--color-text-muted);
+}
+
+@media (max-width: 640px) {
+  .card :global(.ant-card-body) {
+    padding: 18px;
+  }
+}

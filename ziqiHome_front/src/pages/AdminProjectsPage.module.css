@@ -1,0 +1,55 @@
+.page {
+  composes: page from '../components/admin/AdminCrudShared.module.css';
+}
+
+.panel {
+  composes: panel from '../components/admin/AdminCrudShared.module.css';
+}
+
+.errorText {
+  composes: errorText from '../components/admin/AdminCrudShared.module.css';
+}
+
+.loadingWrap {
+  composes: loadingWrap from '../components/admin/AdminCrudShared.module.css';
+}
+
+.emptyState {
+  composes: emptyState from '../components/admin/AdminCrudShared.module.css';
+}
+
+.table {
+  composes: table from '../components/admin/AdminCrudShared.module.css';
+}
+
+.form {
+  composes: form from '../components/admin/AdminCrudShared.module.css';
+}
+
+.deleteConfirm {
+  composes: deleteConfirm from '../components/admin/AdminCrudShared.module.css';
+}
+
+.fullControl {
+  composes: fullControl from '../components/admin/AdminCrudShared.module.css';
+}
+
+.projectCell {
+  display: grid;
+  gap: 4px;
+}
+
+.statusTag,
+.stackTag {
+  border-radius: 999px;
+}
+
+.statusTag {
+  background: rgba(255, 177, 24, 0.16) !important;
+  color: var(--color-text) !important;
+}
+
+.stackTag {
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text) !important;
+}
