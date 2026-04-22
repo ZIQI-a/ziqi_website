@@ -2,9 +2,13 @@ package com.ziqihome.backend.controller;
 
 import com.ziqihome.backend.dto.blog.BlogPostResponse;
 import com.ziqihome.backend.dto.contact.ContactLinkResponse;
+import com.ziqihome.backend.dto.moment.MomentCategoryResponse;
+import com.ziqihome.backend.dto.moment.MomentResponse;
 import com.ziqihome.backend.dto.project.ProjectResponse;
 import com.ziqihome.backend.service.BlogPostService;
 import com.ziqihome.backend.service.ContactLinkService;
+import com.ziqihome.backend.service.MomentCategoryService;
+import com.ziqihome.backend.service.MomentService;
 import com.ziqihome.backend.service.ProjectService;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,15 +22,21 @@ public class SiteContentController {
   private final BlogPostService blogPostService;
   private final ProjectService projectService;
   private final ContactLinkService contactLinkService;
+  private final MomentService momentService;
+  private final MomentCategoryService momentCategoryService;
 
   public SiteContentController(
       BlogPostService blogPostService,
       ProjectService projectService,
-      ContactLinkService contactLinkService
+      ContactLinkService contactLinkService,
+      MomentService momentService,
+      MomentCategoryService momentCategoryService
   ) {
     this.blogPostService = blogPostService;
     this.projectService = projectService;
     this.contactLinkService = contactLinkService;
+    this.momentService = momentService;
+    this.momentCategoryService = momentCategoryService;
   }
 
   @GetMapping("/blogs")
@@ -42,5 +52,15 @@ public class SiteContentController {
   @GetMapping("/contact-links")
   public List<ContactLinkResponse> listSiteContactLinks() {
     return contactLinkService.listPublishedContactLinks();
+  }
+
+  @GetMapping("/moments")
+  public List<MomentResponse> listSiteMoments() {
+    return momentService.listPublishedMoments();
+  }
+
+  @GetMapping("/moments/categories")
+  public List<MomentCategoryResponse> listSiteMomentCategories() {
+    return momentCategoryService.listCategories();
   }
 }

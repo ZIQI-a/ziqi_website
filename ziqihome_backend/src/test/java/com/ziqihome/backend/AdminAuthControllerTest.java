@@ -96,4 +96,11 @@ class AdminAuthControllerTest {
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.message").value("请先登录后台账号"));
   }
+
+  @Test
+  void newMomentAdminRouteShouldReturnUnauthorizedWithoutSession() throws Exception {
+    mockMvc.perform(get("/api/admin/moments"))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.message").value("请先登录后台账号"));
+  }
 }

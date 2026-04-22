@@ -1,6 +1,6 @@
 # ZiqiHome Backend
 
-`ziqihome_backend` 是个人网站内容管理后端，当前覆盖博客、项目、联系方式和用户四个内容域，目标是把静态数据迁移到可维护的 MySQL 持久化结构中。
+`ziqihome_backend` 是个人网站内容管理后端，当前覆盖博客、项目、联系方式、moments 和用户五个内容域，目标是把静态数据迁移到可维护的 MySQL 持久化结构中。
 
 ## 技术栈
 
@@ -36,6 +36,8 @@ mvn spring-boot:run
   - `V3__align_project_status_values.sql`
   - `V4__create_contact_links_table.sql`
   - `V5__create_user_table.sql`
+  - `V6__create_moments_tables.sql`
+  - `V7__seed_initial_moments.sql`
 
 如果你只是本地默认启动，当前默认配置就是：
 
@@ -67,3 +69,24 @@ mvn spring-boot:run
 - `开发中`
 - `已完成`
 - `已发布`
+
+## moments 模块补充说明
+
+当前 `moments` 用于承接：
+
+- 纯文字动态
+- 单张图片 + 文本动态
+- 首页“生活明朗”和“最新”区块联动内容
+
+当前 moments 相关接口包括：
+
+- `GET /api/site/moments`
+- `GET /api/site/moments/categories`
+- `GET /api/admin/moments`
+- `POST /api/admin/moments`
+- `PUT /api/admin/moments/{id}`
+- `DELETE /api/admin/moments/{id}`
+- `GET /api/admin/moments/categories`
+- `POST /api/admin/moments/categories`
+- `PUT /api/admin/moments/categories/{id}`
+- `DELETE /api/admin/moments/categories/{id}`
