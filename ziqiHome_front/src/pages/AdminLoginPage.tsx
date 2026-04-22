@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import {
-  Alert,
   Button,
   Card,
   Form,
@@ -10,6 +9,7 @@ import {
 } from 'antd'
 import { LockOutlined, LoginOutlined, UserOutlined } from '@ant-design/icons'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { AuthApiError } from '../api/authClient'
 import { useAuth } from '../auth/authStore'
 import styles from './AdminLoginPage.module.css'
 
@@ -18,6 +18,9 @@ interface LoginFormValues {
   password: string
 }
 
+/**
+ * 登录成功后优先回到用户原本要进入的后台路由，减少被守卫打断后的跳转损耗。
+ */
 function resolveRedirect(search: string) {
   const params = new URLSearchParams(search)
   const redirect = params.get('redirect')
@@ -33,22 +36,42 @@ export function AdminLoginPage() {
   const [form] = Form.useForm<LoginFormValues>()
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated, login } = useAuth()
+  const { isAuthenticated, isInitializing, login } = useAuth()
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  if (isAuthenticated) {
+  if (!isInitializing && isAuthenticated) {
     return <Navigate to={resolveRedirect(location.search)} replace />
   }
 
   async function handleSubmit() {
     setSubmitting(true)
+    setError(null)
 
     try {
       const values = await form.validateFields()
-
-      // 后端登录接口尚未接入，这里先提供前端路由守卫与会话流转壳子。
-      login({ username: values.username })
+      await login(values)
       navigate(resolveRedirect(location.search), { replace: true })
+    } catch (submitError) {
+      if (submitError instanceof AuthApiError) {
+        if (submitError.fieldErrors) {
+          form.setFields(
+            Object.entries(submitError.fieldErrors).map(([name, errors]) => ({
+              name: name as keyof LoginFormValues,
+              errors: [errors],
+            })),
+          )
+        }
+
+        setError(submitError.message)
+        return
+      }
+
+      if ((submitError as { errorFields?: unknown[] }).errorFields) {
+        return
+      }
+
+      setError(submitError instanceof Error ? submitError.message : '登录失败，请稍后重试')
     } finally {
       setSubmitting(false)
     }
@@ -67,17 +90,15 @@ export function AdminLoginPage() {
               登录管理后台
             </Typography.Title>
             <Typography.Paragraph className={styles.subtitle}>
-              先把后台工作台入口和路由守卫接起来，等后端登录接口完成后再替换为真实鉴权请求。
+              输入后台账号和密码后进入管理工作台。
             </Typography.Paragraph>
           </div>
 
-          <Alert
-            type="warning"
-            showIcon
-            message="当前为前端登录壳子"
-            description="目前仅维护本地会话与路由拦截，不会校验真实账号密码。后续接入后端接口后可无缝替换提交逻辑。"
-            className={styles.alert}
-          />
+          {error ? (
+            <Typography.Paragraph className={styles.errorText}>
+              {error}
+            </Typography.Paragraph>
+          ) : null}
 
           <Form form={form} layout="vertical" className={styles.form}>
             <Form.Item
@@ -118,9 +139,6 @@ export function AdminLoginPage() {
           </Form>
 
           <div className={styles.footer}>
-            <Typography.Text type="secondary">
-              公开站点仍可直接访问
-            </Typography.Text>
             <Link to="/" className={styles.homeLink}>
               返回首页
             </Link>

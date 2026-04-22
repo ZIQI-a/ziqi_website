@@ -78,6 +78,12 @@ public class UserService {
     userRepository.delete(getUserOrThrow(id));
   }
 
+  @Transactional(readOnly = true)
+  public User getUserEntity(Long id) {
+    // 登录态和拦截器在少量场景下需要直接读取用户实体，这里统一走同一个查找入口。
+    return getUserOrThrow(id);
+  }
+
   private void ensureUsernameAvailable(String username, Long currentId) {
     // 创建和编辑都要复用账号唯一性校验，避免规则分散在多个接口分支里。
     boolean exists = currentId == null

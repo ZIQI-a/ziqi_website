@@ -30,15 +30,6 @@
   composes: deleteConfirm from '../components/admin/AdminCrudShared.module.css';
 }
 
-.pageHint,
-.passwordHint {
-  color: var(--color-text-muted) !important;
-}
-
-.pageHint {
-  margin-bottom: 18px !important;
-}
-
 .userCell {
   display: grid;
 }

@@ -386,10 +386,6 @@ export function AdminUsersPage() {
           }
         />
 
-        <Typography.Paragraph className={styles.pageHint}>
-          当前用户模块仅用于后台鉴权准备，密码修改与资料编辑已拆分为独立流程。
-        </Typography.Paragraph>
-
         {error ? (
           <Typography.Paragraph className={styles.errorText}>
             {error}
@@ -436,15 +432,10 @@ export function AdminUsersPage() {
       >
         {drawerMode === 'password' ? (
           <Form form={passwordForm} layout="vertical" className={styles.form}>
-            <Typography.Paragraph className={styles.passwordHint}>
-              仅修改账号密码，不影响昵称、角色与启用状态。
-            </Typography.Paragraph>
-
             <Form.Item
               label="新密码"
               name="password"
               rules={[{ required: true, message: '请输入新密码' }]}
-              extra="密码规则以服务端校验为准，至少 6 位。"
             >
               <Input.Password placeholder="请输入新密码" />
             </Form.Item>
@@ -469,7 +460,6 @@ export function AdminUsersPage() {
                 label="初始密码"
                 name="password"
                 rules={[{ required: true, message: '请输入初始密码' }]}
-                extra="密码规则以服务端校验为准，至少 6 位。"
               >
                 <Input.Password placeholder="请输入初始密码" />
               </Form.Item>
@@ -495,7 +485,6 @@ export function AdminUsersPage() {
               label="启用状态"
               name="enabled"
               valuePropName="checked"
-              extra="停用后可保留账号资料，但不再参与后续登录放行。"
             >
               <Switch checkedChildren="启用" unCheckedChildren="停用" />
             </Form.Item>

@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import com.ziqihome.backend.service.UserService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -22,8 +24,13 @@ class AdminContactLinkControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
+  @Autowired
+  private UserService userService;
+
   @Test
   void adminCrudEndpointsShouldSupportCreateListAndDelete() throws Exception {
+    MockHttpSession session = TestAdminSessionFactory.createAuthenticatedSession(userService);
+
     String requestBody = """
         {
           "platformName": "X",
@@ -36,6 +43,7 @@ class AdminContactLinkControllerTest {
         """;
 
     String response = mockMvc.perform(post("/api/admin/contact-links")
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
         .andExpect(status().isCreated())
@@ -46,7 +54,8 @@ class AdminContactLinkControllerTest {
 
     String createdId = response.replaceAll(".*\"id\":(\\d+).*", "$1");
 
-    mockMvc.perform(get("/api/admin/contact-links"))
+    mockMvc.perform(get("/api/admin/contact-links")
+            .session(session))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[?(@.platformName=='X')]").exists());
 
@@ -54,7 +63,8 @@ class AdminContactLinkControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[?(@.platformName=='X')]").exists());
 
-    mockMvc.perform(delete("/api/admin/contact-links/{id}", createdId))
+    mockMvc.perform(delete("/api/admin/contact-links/{id}", createdId)
+            .session(session))
         .andExpect(status().isNoContent());
   }
 }

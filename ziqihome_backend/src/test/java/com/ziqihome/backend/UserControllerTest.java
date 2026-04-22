@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import com.ziqihome.backend.service.UserService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -23,8 +25,13 @@ class UserControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
+  @Autowired
+  private UserService userService;
+
   @Test
   void adminCrudEndpointsShouldSupportCreateUpdatePasswordAndDelete() throws Exception {
+    MockHttpSession session = TestAdminSessionFactory.createAuthenticatedSession(userService);
+
     String createBody = """
         {
           "username": "controller-admin",
@@ -36,6 +43,7 @@ class UserControllerTest {
         """;
 
     String response = mockMvc.perform(post("/api/admin/users")
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(createBody))
         .andExpect(status().isCreated())
@@ -47,7 +55,8 @@ class UserControllerTest {
 
     String createdId = response.replaceAll(".*\"id\":(\\d+).*", "$1");
 
-    mockMvc.perform(get("/api/admin/users"))
+    mockMvc.perform(get("/api/admin/users")
+            .session(session))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[?(@.username=='controller-admin')]").exists());
 
@@ -61,6 +70,7 @@ class UserControllerTest {
         """;
 
     mockMvc.perform(put("/api/admin/users/{id}", createdId)
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(updateBody))
         .andExpect(status().isOk())
@@ -74,16 +84,20 @@ class UserControllerTest {
         """;
 
     mockMvc.perform(put("/api/admin/users/{id}/password", createdId)
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(passwordBody))
         .andExpect(status().isNoContent());
 
-    mockMvc.perform(delete("/api/admin/users/{id}", createdId))
+    mockMvc.perform(delete("/api/admin/users/{id}", createdId)
+            .session(session))
         .andExpect(status().isNoContent());
   }
 
   @Test
   void createUserShouldReturnConflictWhenUsernameAlreadyExists() throws Exception {
+    MockHttpSession session = TestAdminSessionFactory.createAuthenticatedSession(userService);
+
     String createBody = """
         {
           "username": "duplicate-controller-admin",
@@ -95,11 +109,13 @@ class UserControllerTest {
         """;
 
     mockMvc.perform(post("/api/admin/users")
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(createBody))
         .andExpect(status().isCreated());
 
     mockMvc.perform(post("/api/admin/users")
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(createBody))
         .andExpect(status().isConflict())
@@ -108,6 +124,8 @@ class UserControllerTest {
 
   @Test
   void createUserShouldReturnBadRequestWhenPasswordContainsSpaces() throws Exception {
+    MockHttpSession session = TestAdminSessionFactory.createAuthenticatedSession(userService);
+
     String createBody = """
         {
           "username": "space-password-admin",
@@ -119,15 +137,18 @@ class UserControllerTest {
         """;
 
     mockMvc.perform(post("/api/admin/users")
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(createBody))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.fieldErrors.password")
-            .value("密码必须为 6 位，只能包含字母、数字或特殊字符，且不能包含空格"));
+            .value("密码长度最小6位，只能包含字母、数字或特殊字符，且不能包含空格"));
   }
 
   @Test
   void updatePasswordShouldReturnBadRequestWhenPasswordLengthIsNotSix() throws Exception {
+    MockHttpSession session = TestAdminSessionFactory.createAuthenticatedSession(userService);
+
     String createBody = """
         {
           "username": "length-password-admin",
@@ -139,6 +160,7 @@ class UserControllerTest {
         """;
 
     String response = mockMvc.perform(post("/api/admin/users")
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(createBody))
         .andExpect(status().isCreated())
@@ -155,10 +177,11 @@ class UserControllerTest {
         """;
 
     mockMvc.perform(put("/api/admin/users/{id}/password", createdId)
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(passwordBody))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.fieldErrors.password")
-            .value("密码必须为 6 位，只能包含字母、数字或特殊字符，且不能包含空格"));
+            .value("密码长度最小6位，只能包含字母、数字或特殊字符，且不能包含空格"));
   }
 }

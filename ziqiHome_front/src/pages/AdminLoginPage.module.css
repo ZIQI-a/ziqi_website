@@ -81,17 +81,12 @@
   color: var(--color-text-muted) !important;
 }
 
-.alert {
-  border-radius: 18px;
-}
-
-.alert :global(.ant-alert-message),
-.alert :global(.ant-alert-description) {
-  color: var(--color-text) !important;
-}
-
-.alert :global(.ant-alert) {
-  background: transparent;
+.errorText {
+  margin: 0 !important;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(187, 64, 64, 0.14);
+  color: #ffc0c0 !important;
 }
 
 .form :global(.ant-form-item-label > label),
@@ -129,7 +124,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   padding-top: 8px;
 }

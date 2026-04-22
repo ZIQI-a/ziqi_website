@@ -11,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import com.ziqihome.backend.service.UserService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -22,8 +24,13 @@ class AdminProjectControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
+  @Autowired
+  private UserService userService;
+
   @Test
   void adminCrudEndpointsShouldSupportCreateListAndDelete() throws Exception {
+    MockHttpSession session = TestAdminSessionFactory.createAuthenticatedSession(userService);
+
     String requestBody = """
         {
           "slug": "controller-test-project",
@@ -40,6 +47,7 @@ class AdminProjectControllerTest {
         """;
 
     String response = mockMvc.perform(post("/api/admin/projects")
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
         .andExpect(status().isCreated())
@@ -50,16 +58,20 @@ class AdminProjectControllerTest {
 
     String createdId = response.replaceAll(".*\"id\":(\\d+).*", "$1");
 
-    mockMvc.perform(get("/api/admin/projects"))
+    mockMvc.perform(get("/api/admin/projects")
+            .session(session))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[?(@.slug=='controller-test-project')]").exists());
 
-    mockMvc.perform(delete("/api/admin/projects/{id}", createdId))
+    mockMvc.perform(delete("/api/admin/projects/{id}", createdId)
+            .session(session))
         .andExpect(status().isNoContent());
   }
 
   @Test
   void optionsEndpointShouldReturnStatusAndStackCandidates() throws Exception {
+    MockHttpSession session = TestAdminSessionFactory.createAuthenticatedSession(userService);
+
     String requestBody = """
         {
           "slug": "options-test-project",
@@ -76,6 +88,7 @@ class AdminProjectControllerTest {
         """;
 
     String response = mockMvc.perform(post("/api/admin/projects")
+            .session(session)
             .contentType(MediaType.APPLICATION_JSON)
             .content(requestBody))
         .andExpect(status().isCreated())
@@ -85,7 +98,8 @@ class AdminProjectControllerTest {
 
     String createdId = response.replaceAll(".*\"id\":(\\d+).*", "$1");
 
-    mockMvc.perform(get("/api/admin/projects/options"))
+    mockMvc.perform(get("/api/admin/projects/options")
+            .session(session))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.statusOptions").isArray())
         .andExpect(jsonPath("$.statusOptions[0]").value("构思中"))
@@ -96,7 +110,8 @@ class AdminProjectControllerTest {
         .andExpect(jsonPath("$..stackOptions[?(@=='React')]").exists())
         .andExpect(jsonPath("$..stackOptions[?(@=='TypeScript')]").exists());
 
-    mockMvc.perform(delete("/api/admin/projects/{id}", createdId))
+    mockMvc.perform(delete("/api/admin/projects/{id}", createdId)
+            .session(session))
         .andExpect(status().isNoContent());
   }
 }
