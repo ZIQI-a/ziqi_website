@@ -5,8 +5,8 @@ package com.ziqihome.backend.dto.user;
  */
 public final class UserPasswordRules {
 
-  public static final String PATTERN = "^[\\p{Alnum}\\p{Punct}]{6}$";
-  public static final String MESSAGE = "密码必须为 6 位，只能包含字母、数字或特殊字符，且不能包含空格";
+  public static final String PATTERN = "^[\\p{Alnum}\\p{Punct}]{6,}$";
+  public static final String MESSAGE = "密码长度最小6位，只能包含字母、数字或特殊字符，且不能包含空格";
 
   private UserPasswordRules() {
   }
