@@ -184,11 +184,24 @@
   color: var(--color-text-muted);
 }
 
-.lifeTabs span {
+.lifeTabButton {
   padding: 10px 16px;
-  border-radius: 999px;
   border: 1px solid var(--color-line);
+  border-radius: 999px;
   background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  color: var(--color-text-muted);
+  font: inherit;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.lifeTabButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 177, 24, 0.4);
+  color: var(--color-text);
 }
 
 .lifeTabActive {
@@ -200,6 +213,23 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
+}
+
+.lifeStateCard {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  grid-column: 1 / -1;
+  padding: 28px;
+  border-radius: 22px;
+  border: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.lifeStateCard p {
+  margin: 0;
+  color: var(--color-text-muted);
 }
 
 .lifeCard {
@@ -261,9 +291,18 @@
 }
 
 .lifeMeta h3 {
-  margin: 0;
+  margin: 0 0 6px;
   color: #fff;
   font-size: 1.22rem;
+}
+
+.lifeMeta span {
+  display: -webkit-box;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.84);
+  line-height: 1.7;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .lifeCard:hover img {
@@ -303,16 +342,47 @@
   text-transform: uppercase;
 }
 
-.latestCard h3 {
-  margin: 12px 0;
-  font-size: 1.3rem;
-  color: var(--color-text);
+.latestCard {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255, 177, 24, 0.08), transparent 46%),
+    color-mix(in srgb, var(--color-surface) 92%, transparent);
+}
+
+.latestCard::before {
+  content: '';
+  position: absolute;
+  inset: auto -34px -34px auto;
+  width: 120px;
+  height: 120px;
+  border-radius: 28px;
+  background: rgba(255, 177, 24, 0.08);
+  transform: rotate(18deg);
+}
+
+.latestCardTop {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.latestCardTop time {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
 }
 
 .latestCard p {
+  position: relative;
+  z-index: 1;
   margin: 0;
-  color: var(--color-text-muted);
-  line-height: 1.7;
+  color: var(--color-text);
+  font-size: 1.02rem;
+  line-height: 1.95;
 }
 
 @keyframes sectionReveal {
@@ -341,5 +411,12 @@
 
   .sideNav {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .latestCardTop {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

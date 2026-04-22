@@ -1,6 +1,7 @@
 import {
   ArrowRightOutlined,
   BookOutlined,
+  CameraOutlined,
   LinkOutlined,
   ProjectOutlined,
   UserOutlined,
@@ -15,6 +16,11 @@ const cards = [
     title: "博客管理",
     to: "/admin/blogs",
     icon: <BookOutlined />,
+  },
+  {
+    title: "动态管理",
+    to: "/admin/moments",
+    icon: <CameraOutlined />,
   },
   {
     title: "项目管理",

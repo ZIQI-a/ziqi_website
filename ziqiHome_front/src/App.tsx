@@ -23,6 +23,11 @@ const AdminBlogsPage = lazy(async () => {
   return { default: module.AdminBlogsPage };
 });
 
+const AdminMomentsPage = lazy(async () => {
+  const module = await import("./pages/AdminMomentsPage");
+  return { default: module.AdminMomentsPage };
+});
+
 const AdminProjectsPage = lazy(async () => {
   const module = await import("./pages/AdminProjectsPage");
   return { default: module.AdminProjectsPage };
@@ -83,6 +88,14 @@ function App() {
           element={
             <Suspense fallback={null}>
               <AdminBlogsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="moments"
+          element={
+            <Suspense fallback={null}>
+              <AdminMomentsPage />
             </Suspense>
           }
         />

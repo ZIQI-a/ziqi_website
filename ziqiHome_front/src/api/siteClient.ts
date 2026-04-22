@@ -1,6 +1,8 @@
 import type {
   BlogPostSummary,
   ContactLinkSummary,
+  MomentCategorySummary,
+  MomentSummary,
   ProjectSummary,
 } from '../types/content'
 
@@ -45,6 +47,29 @@ interface SiteContactLinkResponse {
   description: string
   published: boolean
   sortOrder: number
+  createdAt: string
+  updatedAt: string
+}
+
+interface SiteMomentCategoryResponse {
+  id: number
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+interface SiteMomentResponse {
+  id: number
+  content: string
+  imageUrl: string | null
+  imageAlt: string | null
+  category: {
+    id: number
+    name: string
+  }
+  published: boolean
+  showOnHome: boolean
+  pinned: boolean
   createdAt: string
   updatedAt: string
 }
@@ -94,6 +119,33 @@ function mapContactLinkSummary(contactLink: SiteContactLinkResponse): ContactLin
   }
 }
 
+function mapMomentSummary(moment: SiteMomentResponse): MomentSummary {
+  return {
+    id: String(moment.id),
+    content: moment.content,
+    imageUrl: moment.imageUrl ?? undefined,
+    imageAlt: moment.imageAlt ?? undefined,
+    categoryId: String(moment.category.id),
+    categoryName: moment.category.name,
+    published: moment.published,
+    showOnHome: moment.showOnHome,
+    pinned: moment.pinned,
+    createdAt: moment.createdAt,
+    updatedAt: moment.updatedAt,
+  }
+}
+
+function mapMomentCategorySummary(
+  category: SiteMomentCategoryResponse,
+): MomentCategorySummary {
+  return {
+    id: String(category.id),
+    name: category.name,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt,
+  }
+}
+
 /**
  * 公开站点只消费后端已经筛过 published 的接口，避免前台再接触管理端数据形态。
  */
@@ -109,5 +161,13 @@ export const siteClient = {
   async listContactLinks() {
     const data = await request<SiteContactLinkResponse[]>('/api/site/contact-links')
     return data.map(mapContactLinkSummary)
+  },
+  async listMoments() {
+    const data = await request<SiteMomentResponse[]>('/api/site/moments')
+    return data.map(mapMomentSummary)
+  },
+  async listMomentCategories() {
+    const data = await request<SiteMomentCategoryResponse[]>('/api/site/moments/categories')
+    return data.map(mapMomentCategorySummary)
   },
 }

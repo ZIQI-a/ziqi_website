@@ -4,6 +4,43 @@
 export type ProjectStatus = string
 export type UserRole = string
 
+export interface MomentCategoryAdminItem {
+  id: number
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MomentCategoryAdminPayload {
+  name: string
+}
+
+export interface MomentAdminItem {
+  id: number
+  content: string
+  imageUrl: string | null
+  imageAlt: string | null
+  category: {
+    id: number
+    name: string
+  }
+  published: boolean
+  showOnHome: boolean
+  pinned: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MomentAdminPayload {
+  content: string
+  imageUrl: string | null
+  imageAlt: string | null
+  categoryId: number
+  published: boolean
+  showOnHome: boolean
+  pinned: boolean
+}
+
 export interface ProjectFormOptions {
   statusOptions: ProjectStatus[]
   stackOptions: string[]

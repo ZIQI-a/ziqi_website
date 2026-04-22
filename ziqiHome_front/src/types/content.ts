@@ -46,17 +46,29 @@ export interface ContactLinkSummary {
   description: string
 }
 
-export interface LifeMoment {
+/**
+ * 公开站 moments 使用统一摘要结构，方便首页和最新页直接复用。
+ */
+export interface MomentSummary {
   id: string
-  date: string
-  title: string
-  tag: '生活' | '学习' | '随手记'
-  cover: string
+  content: string
+  imageUrl?: string
+  imageAlt?: string
+  categoryId: string
+  categoryName: string
+  published: boolean
+  showOnHome: boolean
+  pinned: boolean
+  createdAt: string
+  updatedAt: string
 }
 
-export interface RecentUpdate {
+/**
+ * 分类单独抽成类型，便于后面做最新页筛选和后台联动。
+ */
+export interface MomentCategorySummary {
   id: string
-  period: string
-  title: string
-  summary: string
+  name: string
+  createdAt: string
+  updatedAt: string
 }

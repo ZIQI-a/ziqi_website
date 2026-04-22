@@ -10,6 +10,7 @@ import {
 import {
   AppstoreOutlined,
   BookOutlined,
+  CameraOutlined,
   LinkOutlined,
   HomeOutlined,
   LeftOutlined,
@@ -26,6 +27,12 @@ import { useAuth } from '../auth/authStore'
 const adminNavItems = [
   { key: '/admin', to: '/admin', label: '管理首页', icon: <HomeOutlined /> },
   { key: '/admin/blogs', to: '/admin/blogs', label: '博客管理', icon: <BookOutlined /> },
+  {
+    key: '/admin/moments',
+    to: '/admin/moments',
+    label: '动态管理',
+    icon: <CameraOutlined />,
+  },
   {
     key: '/admin/projects',
     to: '/admin/projects',

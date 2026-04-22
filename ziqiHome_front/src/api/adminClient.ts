@@ -3,6 +3,10 @@ import type {
   BlogAdminPayload,
   ContactLinkAdminItem,
   ContactLinkAdminPayload,
+  MomentAdminItem,
+  MomentAdminPayload,
+  MomentCategoryAdminItem,
+  MomentCategoryAdminPayload,
   ProjectAdminItem,
   ProjectAdminPayload,
   ProjectFormOptions,
@@ -89,6 +93,46 @@ export const adminClient = {
   },
   deleteBlog(id: number) {
     return request<void>(`/api/admin/blogs/${id}`, {
+      method: 'DELETE',
+    })
+  },
+  listMoments() {
+    return request<MomentAdminItem[]>('/api/admin/moments')
+  },
+  createMoment(payload: MomentAdminPayload) {
+    return request<MomentAdminItem>('/api/admin/moments', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+  updateMoment(id: number, payload: MomentAdminPayload) {
+    return request<MomentAdminItem>(`/api/admin/moments/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    })
+  },
+  deleteMoment(id: number) {
+    return request<void>(`/api/admin/moments/${id}`, {
+      method: 'DELETE',
+    })
+  },
+  listMomentCategories() {
+    return request<MomentCategoryAdminItem[]>('/api/admin/moments/categories')
+  },
+  createMomentCategory(payload: MomentCategoryAdminPayload) {
+    return request<MomentCategoryAdminItem>('/api/admin/moments/categories', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+  updateMomentCategory(id: number, payload: MomentCategoryAdminPayload) {
+    return request<MomentCategoryAdminItem>(`/api/admin/moments/categories/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    })
+  },
+  deleteMomentCategory(id: number) {
+    return request<void>(`/api/admin/moments/categories/${id}`, {
       method: 'DELETE',
     })
   },
