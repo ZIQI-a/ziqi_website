@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { ArrowUpOutlined } from "@ant-design/icons";
 import { PageHeader } from "../components/PageHeader";
 import { siteClient } from "../api/siteClient";
 import type { ContactLinkSummary } from "../types/content";
@@ -33,11 +34,7 @@ export function ContactPage() {
 
   return (
     <div className={styles.page}>
-      <PageHeader
-        eyebrow="Contact"
-        title="找我鸭"
-        description="这里不再放固定写死的联系方式说明，而是直接展示后台维护的公开平台入口。后续你新增 Bilibili、YouTube、GitHub 等，都可以在这里自动更新。"
-      />
+      <PageHeader eyebrow="Contact" title="找我鸭" />
 
       {loading ? (
         <section className={styles.statePanel}>
@@ -64,21 +61,27 @@ export function ContactPage() {
                   />
                 </div>
                 <div className={styles.titleWrap}>
-                  <span className={styles.eyebrow}>公开平台</span>
-                  <h3>{contactLink.platformName}</h3>
+                  <div className={styles.titleRow}>
+                    <div>
+                      <span className={styles.eyebrow}>公开平台</span>
+                      <h3>{contactLink.platformName}</h3>
+                    </div>
+
+                    <a
+                      href={contactLink.profileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={styles.primaryLink}
+                      aria-label={`访问 ${contactLink.platformName}`}
+                      title={`访问 ${contactLink.platformName}`}
+                    >
+                      <ArrowUpOutlined />
+                    </a>
+                  </div>
                 </div>
               </div>
 
               <p>{contactLink.description}</p>
-
-              <a
-                href={contactLink.profileUrl}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.primaryLink}
-              >
-                访问
-              </a>
             </article>
           ))}
         </section>

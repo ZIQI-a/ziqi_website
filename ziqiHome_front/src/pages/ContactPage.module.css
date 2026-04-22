@@ -64,7 +64,14 @@
 
 .titleWrap {
   display: grid;
-  gap: 4px;
+  flex: 1;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .eyebrow {
@@ -87,13 +94,28 @@
 }
 
 .primaryLink {
-  display: inline-flex;
-  width: fit-content;
-  padding: 14px 18px;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 177, 24, 0.26);
   border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent-soft) 82%, transparent);
+  color: var(--color-accent);
+  font-size: 1rem;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.primaryLink:hover {
+  transform: translateY(-1px) rotate(6deg);
+  border-color: rgba(255, 177, 24, 0.44);
   background: var(--color-accent);
   color: #16100f;
-  font-weight: 700;
 }
 
 @media (max-width: 900px) {
