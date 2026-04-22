@@ -18,6 +18,8 @@
   --page-width: min(1020px, calc(100vw - 56px));
   --font-body: 'Manrope', sans-serif;
   --font-display: 'Cormorant Garamond', serif;
+  --theme-transition-duration: 0.32s;
+  --theme-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -56,9 +58,9 @@ body {
     radial-gradient(circle at bottom right, rgba(255, 177, 24, 0.12), transparent 24%),
     linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-secondary) 100%);
   transition:
-    background-color 0.25s ease,
-    color 0.25s ease,
-    background 0.25s ease;
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing),
+    background var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 [data-theme='light'] body {
@@ -105,4 +107,33 @@ img {
 
 #root {
   min-height: 100vh;
+}
+
+/**
+ * 把主题切换的颜色类过渡下沉到全局，避免只有首页组件有明暗切换缓动。
+ */
+#root,
+#root * ,
+#root *::before,
+#root *::after {
+  transition:
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing),
+    border-color var(--theme-transition-duration) var(--theme-transition-easing),
+    box-shadow var(--theme-transition-duration) var(--theme-transition-easing),
+    text-shadow var(--theme-transition-duration) var(--theme-transition-easing),
+    fill var(--theme-transition-duration) var(--theme-transition-easing),
+    stroke var(--theme-transition-duration) var(--theme-transition-easing),
+    opacity var(--theme-transition-duration) var(--theme-transition-easing),
+    background var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  #root,
+  #root *,
+  #root *::before,
+  #root *::after {
+    transition: none !important;
+  }
 }
