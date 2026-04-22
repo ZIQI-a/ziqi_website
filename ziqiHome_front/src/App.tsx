@@ -1,5 +1,6 @@
 import { Suspense, lazy } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
+import { RequireAdminAuth } from "./auth/RequireAdminAuth";
 import { MainLayout } from "./components/MainLayout";
 import { BlogPage } from "./pages/BlogPage";
 import { ContactPage } from "./pages/ContactPage";
@@ -32,6 +33,16 @@ const AdminContactLinksPage = lazy(async () => {
   return { default: module.AdminContactLinksPage };
 });
 
+const AdminUsersPage = lazy(async () => {
+  const module = await import("./pages/AdminUsersPage");
+  return { default: module.AdminUsersPage };
+});
+
+const AdminLoginPage = lazy(async () => {
+  const module = await import("./pages/AdminLoginPage");
+  return { default: module.AdminLoginPage };
+});
+
 function App() {
   return (
     <Routes>
@@ -42,6 +53,15 @@ function App() {
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/contact" element={<ContactPage />} />
       </Route>
+      <Route
+        path="/admin/login"
+        element={
+          <Suspense fallback={null}>
+            <AdminLoginPage />
+          </Suspense>
+        }
+      />
+      <Route element={<RequireAdminAuth />}>
       <Route
         path="/admin"
         element={
@@ -82,6 +102,15 @@ function App() {
             </Suspense>
           }
         />
+        <Route
+          path="users"
+          element={
+            <Suspense fallback={null}>
+              <AdminUsersPage />
+            </Suspense>
+          }
+        />
+      </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

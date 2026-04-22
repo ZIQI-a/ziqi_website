@@ -1,0 +1,149 @@
+.page {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 28px;
+  overflow: hidden;
+}
+
+.backgroundHalo {
+  position: absolute;
+  inset: auto;
+  width: min(60vw, 720px);
+  height: min(60vw, 720px);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 177, 24, 0.2) 0%, rgba(255, 177, 24, 0.04) 42%, transparent 72%);
+  filter: blur(12px);
+  transform: translateY(-6%);
+  pointer-events: none;
+}
+
+.card {
+  position: relative;
+  width: min(560px, 100%);
+  border: 1px solid var(--color-line) !important;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--color-surface) 94%, transparent), color-mix(in srgb, var(--color-surface-strong) 96%, transparent)) !important;
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(135deg, rgba(255, 177, 24, 0.16), transparent 30%),
+    linear-gradient(315deg, rgba(87, 132, 255, 0.08), transparent 34%);
+  pointer-events: none;
+}
+
+.card :global(.ant-card-body) {
+  position: relative;
+  padding: 30px;
+}
+
+.content {
+  width: 100%;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 177, 24, 0.24);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent-soft) 88%, transparent);
+  color: var(--color-accent);
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.heading {
+  display: grid;
+  gap: 10px;
+}
+
+.title {
+  margin: 0 !important;
+  font-family: var(--font-display) !important;
+  font-size: clamp(2rem, 5vw, 3.2rem) !important;
+  line-height: 0.95 !important;
+  color: var(--color-text) !important;
+}
+
+.subtitle {
+  margin: 0 !important;
+  color: var(--color-text-muted) !important;
+}
+
+.alert {
+  border-radius: 18px;
+}
+
+.alert :global(.ant-alert-message),
+.alert :global(.ant-alert-description) {
+  color: var(--color-text) !important;
+}
+
+.alert :global(.ant-alert) {
+  background: transparent;
+}
+
+.form :global(.ant-form-item-label > label),
+.form :global(.ant-input-prefix),
+.form :global(.ant-input-affix-wrapper),
+.form :global(.ant-input),
+.form :global(.ant-input-password-icon),
+.form :global(.ant-typography),
+.form :global(.ant-form-item-explain) {
+  color: var(--color-text);
+}
+
+.form :global(.ant-input-affix-wrapper),
+.form :global(.ant-input) {
+  min-height: 50px;
+  background: color-mix(in srgb, var(--color-surface-strong) 94%, transparent) !important;
+  border-color: var(--color-line) !important;
+}
+
+.form :global(.ant-input::placeholder) {
+  color: rgba(212, 224, 247, 0.52) !important;
+}
+
+.submitButton {
+  width: 100%;
+  min-height: 52px;
+}
+
+.submitButton,
+.submitButton span {
+  color: #261805 !important;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.homeLink {
+  color: var(--color-accent);
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 18px;
+  }
+
+  .card :global(.ant-card-body) {
+    padding: 22px 18px;
+  }
+}

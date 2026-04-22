@@ -3,6 +3,7 @@ import {
   BookOutlined,
   LinkOutlined,
   ProjectOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Col, Row, Space, Typography } from "antd";
 import { Link } from "react-router-dom";
@@ -24,6 +25,11 @@ const cards = [
     title: "联系平台",
     to: "/admin/contact-links",
     icon: <LinkOutlined />,
+  },
+  {
+    title: "用户管理",
+    to: "/admin/users",
+    icon: <UserOutlined />,
   },
 ];
 

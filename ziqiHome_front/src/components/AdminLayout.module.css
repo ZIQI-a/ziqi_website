@@ -29,6 +29,48 @@
   justify-content: flex-end;
 }
 
+.identityCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-surface-strong) 92%, transparent);
+}
+
+.identityIcon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent-soft) 82%, transparent);
+  color: var(--color-accent);
+}
+
+.identityMeta {
+  display: grid;
+  gap: 2px;
+}
+
+.identityTitle,
+.identityName {
+  line-height: 1;
+}
+
+.identityTitle {
+  color: var(--color-text-muted) !important;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.identityName {
+  color: var(--color-text) !important;
+}
+
 .backButton {
   min-height: 46px;
 }

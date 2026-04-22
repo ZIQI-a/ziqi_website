@@ -4,6 +4,8 @@ import {
   ConfigProvider,
   Layout,
   Menu,
+  Space,
+  Typography,
 } from 'antd'
 import {
   AppstoreOutlined,
@@ -11,11 +13,15 @@ import {
   LinkOutlined,
   HomeOutlined,
   LeftOutlined,
+  LockOutlined,
+  LogoutOutlined,
+  UserOutlined,
 } from '@ant-design/icons'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import 'antd/dist/reset.css'
 import styles from './AdminLayout.module.css'
 import { adminTheme } from '../theme/adminTheme'
+import { useAuth } from '../auth/authStore'
 
 const adminNavItems = [
   { key: '/admin', to: '/admin', label: '管理首页', icon: <HomeOutlined /> },
@@ -32,11 +38,18 @@ const adminNavItems = [
     label: '联系平台',
     icon: <LinkOutlined />,
   },
+  {
+    key: '/admin/users',
+    to: '/admin/users',
+    label: '用户管理',
+    icon: <UserOutlined />,
+  },
 ]
 
 export function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { session, logout } = useAuth()
 
   return (
     <ConfigProvider theme={adminTheme}>
@@ -56,13 +69,41 @@ export function AdminLayout() {
             />
 
             <div className={styles.toolbar}>
-              <Button
-                icon={<LeftOutlined />}
-                onClick={() => navigate('/')}
-                className={styles.backButton}
-              >
-                返回公开站点
-              </Button>
+              <Space size={12} wrap>
+                {session ? (
+                  <div className={styles.identityCard}>
+                    <div className={styles.identityIcon}>
+                      <LockOutlined />
+                    </div>
+                    <div className={styles.identityMeta}>
+                      <Typography.Text className={styles.identityTitle}>
+                        当前会话
+                      </Typography.Text>
+                      <Typography.Text className={styles.identityName}>
+                        {session.nickname}
+                      </Typography.Text>
+                    </div>
+                  </div>
+                ) : null}
+
+                <Button
+                  icon={<LogoutOutlined />}
+                  onClick={() => {
+                    logout()
+                    navigate('/admin/login')
+                  }}
+                >
+                  退出
+                </Button>
+
+                <Button
+                  icon={<LeftOutlined />}
+                  onClick={() => navigate('/')}
+                  className={styles.backButton}
+                >
+                  返回公开站点
+                </Button>
+              </Space>
             </div>
           </header>
 

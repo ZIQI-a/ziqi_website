@@ -6,6 +6,10 @@ import type {
   ProjectAdminItem,
   ProjectAdminPayload,
   ProjectFormOptions,
+  UserAdminItem,
+  UserCreatePayload,
+  UserPasswordPayload,
+  UserUpdatePayload,
 } from '../types/admin'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
@@ -107,6 +111,32 @@ export const adminClient = {
   },
   deleteProject(id: number) {
     return request<void>(`/api/admin/projects/${id}`, {
+      method: 'DELETE',
+    })
+  },
+  listUsers() {
+    return request<UserAdminItem[]>('/api/admin/users')
+  },
+  createUser(payload: UserCreatePayload) {
+    return request<UserAdminItem>('/api/admin/users', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+  updateUser(id: number, payload: UserUpdatePayload) {
+    return request<UserAdminItem>(`/api/admin/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    })
+  },
+  updateUserPassword(id: number, payload: UserPasswordPayload) {
+    return request<void>(`/api/admin/users/${id}/password`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    })
+  },
+  deleteUser(id: number) {
+    return request<void>(`/api/admin/users/${id}`, {
       method: 'DELETE',
     })
   },

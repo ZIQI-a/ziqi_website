@@ -1,0 +1,73 @@
+.page {
+  composes: page from '../components/admin/AdminCrudShared.module.css';
+}
+
+.panel {
+  composes: panel from '../components/admin/AdminCrudShared.module.css';
+}
+
+.errorText {
+  composes: errorText from '../components/admin/AdminCrudShared.module.css';
+}
+
+.loadingWrap {
+  composes: loadingWrap from '../components/admin/AdminCrudShared.module.css';
+}
+
+.emptyState {
+  composes: emptyState from '../components/admin/AdminCrudShared.module.css';
+}
+
+.table {
+  composes: table from '../components/admin/AdminCrudShared.module.css';
+}
+
+.form {
+  composes: form from '../components/admin/AdminCrudShared.module.css';
+}
+
+.deleteConfirm {
+  composes: deleteConfirm from '../components/admin/AdminCrudShared.module.css';
+}
+
+.pageHint,
+.passwordHint {
+  color: var(--color-text-muted) !important;
+}
+
+.pageHint {
+  margin-bottom: 18px !important;
+}
+
+.userCell {
+  display: grid;
+}
+
+.userMeta {
+  display: grid;
+  gap: 2px;
+}
+
+.userIcon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-accent-soft) 84%, transparent);
+  color: var(--color-accent);
+}
+
+.roleTag {
+  border-radius: 999px;
+  background: rgba(255, 177, 24, 0.16) !important;
+  color: var(--color-text) !important;
+}
+
+.roleSegmented {
+  background: color-mix(in srgb, var(--color-surface-strong) 88%, transparent);
+}
+
+.roleSegmented :global(.ant-segmented-item-selected) {
+  background: color-mix(in srgb, var(--color-accent-soft) 82%, transparent);
+}
