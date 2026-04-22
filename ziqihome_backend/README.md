@@ -1,6 +1,6 @@
 # ZiqiHome Backend
 
-`ziqihome_backend` 是个人网站内容管理后端，当前覆盖博客、项目和联系方式三个内容域，目标是把静态数据迁移到可维护的 MySQL 持久化结构中。
+`ziqihome_backend` 是个人网站内容管理后端，当前覆盖博客、项目、联系方式和用户四个内容域，目标是把静态数据迁移到可维护的 MySQL 持久化结构中。
 
 ## 技术栈
 
@@ -33,6 +33,9 @@ mvn spring-boot:run
 - 应用启动时，Flyway 会自动执行：
   - `V1__create_content_tables.sql`
   - `V2__seed_initial_content.sql`
+  - `V3__align_project_status_values.sql`
+  - `V4__create_contact_links_table.sql`
+  - `V5__create_user_table.sql`
 
 如果你只是本地默认启动，当前默认配置就是：
 

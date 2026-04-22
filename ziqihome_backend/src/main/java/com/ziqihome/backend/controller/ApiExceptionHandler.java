@@ -1,10 +1,12 @@
 package com.ziqihome.backend.controller;
 
+import com.ziqihome.backend.exception.ConflictException;
 import com.ziqihome.backend.exception.ResourceNotFoundException;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -18,6 +20,19 @@ public class ApiExceptionHandler {
   @ExceptionHandler(ResourceNotFoundException.class)
   public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException exception) {
     return buildResponse(HttpStatus.NOT_FOUND, exception.getMessage(), Map.of());
+  }
+
+  @ExceptionHandler(ConflictException.class)
+  public ResponseEntity<Map<String, Object>> handleConflict(ConflictException exception) {
+    return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), Map.of());
+  }
+
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ResponseEntity<Map<String, Object>> handleDataIntegrityViolation(
+      DataIntegrityViolationException exception
+  ) {
+    // 兜住未显式转换的数据库约束异常，避免管理端拿到不稳定的 500。
+    return buildResponse(HttpStatus.CONFLICT, "数据冲突，请检查唯一字段是否重复", Map.of());
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
