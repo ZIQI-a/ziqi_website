@@ -1,8 +1,8 @@
-import type { ProfileInfo } from '../types/content'
-import styles from './ProfileCards.module.css'
+import type { ProfileInfo } from "../types/content";
+import styles from "./ProfileCards.module.css";
 
 interface ProfileCardsProps {
-  profile: ProfileInfo
+  profile: ProfileInfo;
 }
 
 export function ProfileCards({ profile }: ProfileCardsProps) {
@@ -33,5 +33,5 @@ export function ProfileCards({ profile }: ProfileCardsProps) {
         </div>
       </div>
     </section>
-  )
+  );
 }

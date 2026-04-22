@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { siteClient } from "../api/siteClient";
+import type { ContactLinkSummary } from "../types/content";
 import styles from "./MainLayout.module.css";
 
 const navItems = [
@@ -13,6 +15,9 @@ const navItems = [
 export function MainLayout() {
   const location = useLocation();
   const isHomePage = location.pathname === "/";
+  const [footerContactLinks, setFooterContactLinks] = useState<
+    ContactLinkSummary[]
+  >([]);
 
   // 默认使用暗色主题，更接近原始个人站的视觉方向。
   const [theme, setTheme] = useState<"dark" | "light">(() => {
@@ -24,6 +29,21 @@ export function MainLayout() {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem("ziqi-theme", theme);
   }, [theme]);
+
+  async function loadFooterContactLinks() {
+    try {
+      // footer 只取公开联系方式前四个图标，避免和“找我鸭”页面数据源分叉。
+      const data = await siteClient.listContactLinks();
+      setFooterContactLinks(data.slice(0, 4));
+    } catch {
+      // footer 图标加载失败时不打断页面主流程，直接保持为空即可。
+      setFooterContactLinks([]);
+    }
+  }
+
+  useEffect(() => {
+    void loadFooterContactLinks();
+  }, []);
 
   return (
     <div className={`${styles.shell} ${isHomePage ? styles.shellHome : ""}`}>
@@ -95,23 +115,42 @@ export function MainLayout() {
               找我鸭
             </NavLink>
           </nav>
-
-          <a className={styles.followButton} href="mailto:ziqi@example.com">
-            关注我
-          </a>
         </div>
 
         <div className={styles.footerBottom}>
           <div className={styles.footerMeta}>
             <p>Copyright © Ziqi Archive. All Rights Reserved.</p>
             <p>这是一个持续迭代中的个人网站项目，用来记录学习、生活与作品。</p>
+            <p>
+              <a
+                href="https://beian.miit.gov.cn/"
+                target="_blank"
+                rel="noreferrer"
+                className={styles.beianLink}
+              >
+                陇ICP备2024007543号
+              </a>
+            </p>
           </div>
 
-          <div className={styles.socialLinks} aria-label="社交链接">
-            <a href="mailto:ziqi@example.com">Email</a>
-            <a href="/blog">Blog</a>
-            <a href="/projects">Works</a>
-            <a href="/">Home</a>
+          <div className={styles.socialLinks} aria-label="联系图标">
+            {footerContactLinks.map((contactLink) => (
+              <a
+                key={contactLink.id}
+                href={contactLink.profileUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={styles.socialIconLink}
+                aria-label={`访问 ${contactLink.platformName}`}
+                title={contactLink.platformName}
+              >
+                <img
+                  src={contactLink.iconUrl}
+                  alt={contactLink.platformName}
+                  className={styles.socialIcon}
+                />
+              </a>
+            ))}
           </div>
         </div>
       </footer>
