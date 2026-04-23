@@ -17,6 +17,7 @@ export interface AuthContextValue {
   session: AuthSession | null
   isAuthenticated: boolean
   isInitializing: boolean
+  hasCheckedSession: boolean
   login: (payload: { username: string; password: string }) => Promise<void>
   logout: () => Promise<void>
   refreshSession: () => Promise<void>

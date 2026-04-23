@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { authClient, AuthApiError } from '../api/authClient'
 import {
   AuthContext,
@@ -7,17 +7,16 @@ import {
 } from './authStore'
 
 /**
- * 认证状态统一从后端会话接口恢复，避免前端和真实登录态出现双轨状态。
+ * AuthProvider 只保存管理端会话状态，不在公开站首屏主动请求 /auth/me。
  */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null)
-  const [isInitializing, setIsInitializing] = useState(true)
-
-  useEffect(() => {
-    void refreshSession()
-  }, [])
+  const [isInitializing, setIsInitializing] = useState(false)
+  const [hasCheckedSession, setHasCheckedSession] = useState(false)
 
   async function refreshSession() {
+    setIsInitializing(true)
+
     try {
       const currentUser = await authClient.getCurrentUser()
       setSession(currentUser)
@@ -29,6 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(null)
       }
     } finally {
+      setHasCheckedSession(true)
       setIsInitializing(false)
     }
   }
@@ -36,6 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function login(payload: { username: string; password: string }) {
     const currentUser = await authClient.login(payload)
     setSession(currentUser)
+    setHasCheckedSession(true)
     setIsInitializing(false)
   }
 
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await authClient.logout()
     } finally {
       setSession(null)
+      setHasCheckedSession(true)
       setIsInitializing(false)
     }
   }
@@ -53,11 +55,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       isAuthenticated: session !== null,
       isInitializing,
+      hasCheckedSession,
       login,
       logout,
       refreshSession,
     }),
-    [isInitializing, session],
+    [hasCheckedSession, isInitializing, session],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
