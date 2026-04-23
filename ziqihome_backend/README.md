@@ -93,9 +93,9 @@ mvn spring-boot:run
 公开接口：
 
 - `GET /api/site/blogs`
-- `GET /api/site/projects`
+- `GET /api/site/projects`，支持 `status` 查询参数
 - `GET /api/site/contact-links`
-- `GET /api/site/moments`
+- `GET /api/site/moments`，支持 `categoryId`、`showOnHome`、`hasImage` 查询参数
 - `GET /api/site/moments/categories`
 
 管理认证：
@@ -109,7 +109,7 @@ mvn spring-boot:run
 - `/api/admin/blogs`
 - `/api/admin/projects`
 - `/api/admin/contact-links`
-- `/api/admin/moments`
+- `/api/admin/moments`，列表支持 `categoryId`、`published` 查询参数
 - `/api/admin/moments/categories`
 - `/api/admin/users`
 
@@ -142,11 +142,3 @@ mvn test
 ```
 
 如果改动影响前端联调，还需要同步更新前端文档和运行前端构建检查。
-
-## 后续规划
-
-- 增加首次管理员初始化流程
-- 完善用户角色模型，必要时拆出角色表
-- 增加登录失败限制和更完整的安全策略
-- 增加文件上传或图片素材管理
-- 补充部署、备份和 CI 文档
