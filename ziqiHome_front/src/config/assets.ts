@@ -15,21 +15,7 @@ export const SITE_ASSETS = {
       'https://myphoto-1307175277.cos.ap-chengdu.myqcloud.com/mywebsite/image/banner-bg-light_1920x1080.webp',
     profilePanel:
       'https://myphoto-1307175277.cos.ap-chengdu.myqcloud.com/mywebsite/image/reason-bg.jpg',
-  },
-  content: {
-    time1:
-      'https://myphoto-1307175277.cos.ap-chengdu.myqcloud.com/mywebsite/image/time1.jpg',
-    time2:
-      'https://myphoto-1307175277.cos.ap-chengdu.myqcloud.com/mywebsite/image/time2.jpg',
-    time3:
-      'https://myphoto-1307175277.cos.ap-chengdu.myqcloud.com/mywebsite/image/time3.jpg',
-    time4:
-      'https://myphoto-1307175277.cos.ap-chengdu.myqcloud.com/mywebsite/image/time4.jpg',
-    time5:
-      'https://myphoto-1307175277.cos.ap-chengdu.myqcloud.com/mywebsite/image/time5.jpg',
-    time8:
-      'https://myphoto-1307175277.cos.ap-chengdu.myqcloud.com/mywebsite/image/time8.jpg',
-  },
+  }
 } as const
 
 /**
