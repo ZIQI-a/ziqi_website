@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PageHeader } from "../components/PageHeader";
 import { ProjectCard } from "../components/ProjectCard";
 import { siteClient } from "../api/siteClient";
@@ -9,21 +9,52 @@ const allStatusValue = "全部";
 
 export function ProjectsPage() {
   const [projectList, setProjectList] = useState<ProjectSummary[]>([]);
+  const [statusOptions, setStatusOptions] = useState<string[]>([allStatusValue]);
   const [activeStatus, setActiveStatus] = useState(allStatusValue);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const projectCacheRef = useRef(new Map<string, ProjectSummary[]>());
+  const projectRequestIdRef = useRef(0);
 
   useEffect(() => {
     void loadProjects();
   }, []);
 
-  async function loadProjects() {
-    setLoading(true);
+  async function loadProjects(status = allStatusValue) {
+    const requestId = projectRequestIdRef.current + 1;
+    const cachedProjects = projectCacheRef.current.get(status);
+    projectRequestIdRef.current = requestId;
+
+    if (cachedProjects) {
+      // 同一筛选条件命中缓存时直接复用，避免重复请求和 loading 面板造成页面跳动。
+      setProjectList(cachedProjects);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(projectCacheRef.current.size === 0);
     setError(null);
 
     try {
-      const data = await siteClient.listProjects();
+      const data = await siteClient.listProjects(
+        status === allStatusValue ? undefined : { status },
+      );
+
+      if (requestId !== projectRequestIdRef.current) {
+        return;
+      }
+
+      projectCacheRef.current.set(status, data);
       setProjectList(data);
+
+      if (status === allStatusValue) {
+        // 状态筛选项来自后端返回的公开项目集合，后续点击筛选时只传状态参数请求。
+        setStatusOptions([
+          allStatusValue,
+          ...Array.from(new Set(data.map((project) => project.status))),
+        ]);
+      }
     } catch (loadError) {
       setError(
         loadError instanceof Error
@@ -31,18 +62,20 @@ export function ProjectsPage() {
           : "项目内容加载失败，请稍后重试",
       );
     } finally {
-      setLoading(false);
+      if (requestId === projectRequestIdRef.current) {
+        setLoading(false);
+      }
     }
   }
 
-  const statusOptions = [
-    allStatusValue,
-    ...Array.from(new Set(projectList.map((project) => project.status))),
-  ];
-  const filteredProjects =
-    activeStatus === allStatusValue
-      ? projectList
-      : projectList.filter((project) => project.status === activeStatus);
+  function handleStatusChange(status: string) {
+    if (status === activeStatus) {
+      return;
+    }
+
+    setActiveStatus(status);
+    void loadProjects(status);
+  }
 
   return (
     <div className={styles.page}>
@@ -62,7 +95,7 @@ export function ProjectsPage() {
                 className={`${styles.statusFilter} ${
                   activeStatus === status ? styles.statusFilterActive : ""
                 }`}
-                onClick={() => setActiveStatus(status)}
+                onClick={() => handleStatusChange(status)}
               >
                 {status}
               </button>
@@ -85,7 +118,7 @@ export function ProjectsPage() {
         </section>
       ) : (
         <section className={styles.list}>
-          {filteredProjects.map((project) => (
+          {projectList.map((project) => (
             <ProjectCard
               key={`${project.id}-${project.cover}`}
               project={project}

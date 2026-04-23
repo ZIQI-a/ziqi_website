@@ -84,6 +84,19 @@ async function request<T>(path: string): Promise<T> {
   return (await response.json()) as T
 }
 
+function buildQuery(params: Record<string, string | number | boolean | undefined>) {
+  const query = new URLSearchParams()
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined) {
+      query.set(key, String(value))
+    }
+  })
+
+  const queryString = query.toString()
+  return queryString ? `?${queryString}` : ''
+}
+
 function mapBlogSummary(blog: SiteBlogResponse): BlogPostSummary {
   return {
     id: blog.slug || String(blog.id),
@@ -154,16 +167,28 @@ export const siteClient = {
     const data = await request<SiteBlogResponse[]>('/api/site/blogs')
     return data.map(mapBlogSummary)
   },
-  async listProjects() {
-    const data = await request<SiteProjectResponse[]>('/api/site/projects')
+  async listProjects(options?: { status?: string }) {
+    const data = await request<SiteProjectResponse[]>(
+      `/api/site/projects${buildQuery({ status: options?.status })}`,
+    )
     return data.map(mapProjectSummary)
   },
   async listContactLinks() {
     const data = await request<SiteContactLinkResponse[]>('/api/site/contact-links')
     return data.map(mapContactLinkSummary)
   },
-  async listMoments() {
-    const data = await request<SiteMomentResponse[]>('/api/site/moments')
+  async listMoments(options?: {
+    categoryId?: string | number
+    showOnHome?: boolean
+    hasImage?: boolean
+  }) {
+    const data = await request<SiteMomentResponse[]>(
+      `/api/site/moments${buildQuery({
+        categoryId: options?.categoryId,
+        showOnHome: options?.showOnHome,
+        hasImage: options?.hasImage,
+      })}`,
+    )
     return data.map(mapMomentSummary)
   },
   async listMomentCategories() {

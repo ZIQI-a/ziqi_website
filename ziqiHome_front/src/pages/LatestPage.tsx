@@ -1,37 +1,88 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { siteClient } from "../api/siteClient";
 import type { MomentCategorySummary, MomentSummary } from "../types/content";
 import styles from "./LatestPage.module.css";
 
 const allCategoryId = "all";
 
+type LatestContentCache = {
+  featuredMoments: MomentSummary[];
+  textMoments: MomentSummary[];
+};
+
 /**
  * 最新页以 moments 为中心，既展示纯文字近况，也展示带图记录。
  */
 export function LatestPage() {
-  const [moments, setMoments] = useState<MomentSummary[]>([]);
+  const [featuredMoments, setFeaturedMoments] = useState<MomentSummary[]>([]);
+  const [textMoments, setTextMoments] = useState<MomentSummary[]>([]);
   const [categories, setCategories] = useState<MomentCategorySummary[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState(allCategoryId);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const contentCacheRef = useRef(new Map<string, LatestContentCache>());
+  const contentRequestIdRef = useRef(0);
 
   useEffect(() => {
-    void loadLatestContent();
+    void loadMomentCategories();
   }, []);
 
-  async function loadLatestContent() {
-    setLoading(true);
+  useEffect(() => {
+    void loadLatestContent(activeCategoryId);
+  }, [activeCategoryId]);
+
+  async function loadMomentCategories() {
+    try {
+      const categoryData = await siteClient.listMomentCategories();
+      setCategories(categoryData);
+    } catch {
+      setCategories([]);
+    }
+  }
+
+  async function loadLatestContent(categoryId: string) {
+    const requestId = contentRequestIdRef.current + 1;
+    const cachedContent = contentCacheRef.current.get(categoryId);
+    contentRequestIdRef.current = requestId;
+
+    if (cachedContent) {
+      // 分类内容已请求过时直接回填缓存，切回分类不再触发接口和 loading 替换。
+      setFeaturedMoments(cachedContent.featuredMoments);
+      setTextMoments(cachedContent.textMoments);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(contentCacheRef.current.size === 0);
     setError(null);
 
     try {
-      // 最新页需要同时拿到内容和分类，保证筛选项与展示数据一致。
-      const [momentData, categoryData] = await Promise.all([
-        siteClient.listMoments(),
-        siteClient.listMomentCategories(),
+      const momentQuery =
+        categoryId === allCategoryId ? undefined : { categoryId };
+
+      // 图文和纯文字由后端按 hasImage 参数拆开返回，前端只负责展示。
+      const [featuredData, textData] = await Promise.all([
+        siteClient.listMoments({
+          ...momentQuery,
+          hasImage: true,
+        }),
+        siteClient.listMoments({
+          ...momentQuery,
+          hasImage: false,
+        }),
       ]);
 
-      setMoments(momentData);
-      setCategories(categoryData);
+      if (requestId !== contentRequestIdRef.current) {
+        return;
+      }
+
+      contentCacheRef.current.set(categoryId, {
+        featuredMoments: featuredData,
+        textMoments: textData,
+      });
+      setFeaturedMoments(featuredData);
+      setTextMoments(textData);
     } catch (loadError) {
       setError(
         loadError instanceof Error
@@ -39,22 +90,21 @@ export function LatestPage() {
           : "最新内容加载失败，请稍后重试",
       );
     } finally {
-      setLoading(false);
+      if (requestId === contentRequestIdRef.current) {
+        setLoading(false);
+      }
     }
   }
 
-  const filteredMoments = moments.filter((moment) => {
-    if (activeCategoryId === allCategoryId) {
-      return true;
+  function handleCategoryChange(categoryId: string) {
+    if (categoryId === activeCategoryId) {
+      return;
     }
 
-    return moment.categoryId === activeCategoryId;
-  });
+    setActiveCategoryId(categoryId);
+  }
 
-  const featuredMoments = filteredMoments.filter((moment) =>
-    Boolean(moment.imageUrl),
-  );
-  const textMoments = filteredMoments.filter((moment) => !moment.imageUrl);
+  const hasMoments = featuredMoments.length + textMoments.length > 0;
 
   return (
     <div className={styles.page}>
@@ -70,7 +120,7 @@ export function LatestPage() {
             className={`${styles.filterChip} ${
               activeCategoryId === allCategoryId ? styles.filterChipActive : ""
             }`}
-            onClick={() => setActiveCategoryId(allCategoryId)}
+            onClick={() => handleCategoryChange(allCategoryId)}
           >
             全部
           </button>
@@ -82,7 +132,7 @@ export function LatestPage() {
               className={`${styles.filterChip} ${
                 activeCategoryId === category.id ? styles.filterChipActive : ""
               }`}
-              onClick={() => setActiveCategoryId(category.id)}
+              onClick={() => handleCategoryChange(category.id)}
             >
               {category.name}
             </button>
@@ -98,7 +148,7 @@ export function LatestPage() {
         <section className={styles.statePanel}>
           <p>{error}</p>
         </section>
-      ) : filteredMoments.length === 0 ? (
+      ) : !hasMoments ? (
         <section className={styles.statePanel}>
           <p>哦吼，走丢喽！！！</p>
         </section>

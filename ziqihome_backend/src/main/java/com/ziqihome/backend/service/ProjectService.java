@@ -35,7 +35,13 @@ public class ProjectService {
 
   @Transactional(readOnly = true)
   public List<ProjectResponse> listPublishedProjects() {
-    return projectRepository.findAllByPublishedTrueOrderBySortOrderAscIdDesc()
+    return listPublishedProjects(null);
+  }
+
+  @Transactional(readOnly = true)
+  public List<ProjectResponse> listPublishedProjects(ProjectStatus status) {
+    // 公开项目列表只允许在已发布项目内按状态收窄，避免前端拿到未公开数据。
+    return projectRepository.findSiteProjects(status)
         .stream()
         .map(projectMapper::toResponse)
         .toList();

@@ -55,6 +55,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T
 }
 
+function buildQuery(params: Record<string, string | number | boolean | undefined>) {
+  const query = new URLSearchParams()
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined) {
+      query.set(key, String(value))
+    }
+  })
+
+  const queryString = query.toString()
+  return queryString ? `?${queryString}` : ''
+}
+
 export const adminClient = {
   listContactLinks() {
     return request<ContactLinkAdminItem[]>('/api/admin/contact-links')
@@ -96,8 +109,13 @@ export const adminClient = {
       method: 'DELETE',
     })
   },
-  listMoments() {
-    return request<MomentAdminItem[]>('/api/admin/moments')
+  listMoments(options?: { categoryId?: number; published?: boolean }) {
+    return request<MomentAdminItem[]>(
+      `/api/admin/moments${buildQuery({
+        categoryId: options?.categoryId,
+        published: options?.published,
+      })}`,
+    )
   },
   createMoment(payload: MomentAdminPayload) {
     return request<MomentAdminItem>('/api/admin/moments', {

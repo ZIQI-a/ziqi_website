@@ -31,7 +31,12 @@ public class MomentService {
 
   @Transactional(readOnly = true)
   public List<MomentResponse> listAdminMoments() {
-    return momentRepository.findAllByOrderByPinnedDescCreatedAtDescIdDesc()
+    return listAdminMoments(null, null);
+  }
+
+  @Transactional(readOnly = true)
+  public List<MomentResponse> listAdminMoments(Long categoryId, Boolean published) {
+    return momentRepository.findAdminMoments(categoryId, published)
         .stream()
         .map(momentMapper::toResponse)
         .toList();
@@ -39,7 +44,17 @@ public class MomentService {
 
   @Transactional(readOnly = true)
   public List<MomentResponse> listPublishedMoments() {
-    return momentRepository.findAllByPublishedTrueOrderByPinnedDescCreatedAtDescIdDesc()
+    return listPublishedMoments(null, null, null);
+  }
+
+  @Transactional(readOnly = true)
+  public List<MomentResponse> listPublishedMoments(
+      Long categoryId,
+      Boolean showOnHome,
+      Boolean hasImage
+  ) {
+    // 公开站接口永远只返回已发布内容，筛选条件只影响已发布集合的范围。
+    return momentRepository.findSiteMoments(categoryId, showOnHome, hasImage)
         .stream()
         .map(momentMapper::toResponse)
         .toList();

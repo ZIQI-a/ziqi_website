@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { siteClient } from "../api/siteClient";
 import { profileInfo } from "../data/siteContent";
 import { HeroSection } from "../components/HeroSection";
@@ -12,14 +12,23 @@ const homeSections = [
   { id: "home-life", label: "生活" },
   { id: "home-latest", label: "瞬间" },
 ];
+const allCategoryId = "全部";
+
+type HomeMomentsCache = {
+  lifeMoments: MomentSummary[];
+  recentUpdates: MomentSummary[];
+};
 
 export function HomePage() {
   const [activeSection, setActiveSection] = useState(homeSections[0].id);
-  const [moments, setMoments] = useState<MomentSummary[]>([]);
+  const [lifeMoments, setLifeMoments] = useState<MomentSummary[]>([]);
+  const [recentUpdates, setRecentUpdates] = useState<MomentSummary[]>([]);
   const [categories, setCategories] = useState<MomentCategorySummary[]>([]);
-  const [activeCategoryName, setActiveCategoryName] = useState("全部");
+  const [activeCategoryId, setActiveCategoryId] = useState(allCategoryId);
   const [loadingMoments, setLoadingMoments] = useState(true);
   const [momentError, setMomentError] = useState<string | null>(null);
+  const homeMomentsCacheRef = useRef(new Map<string, HomeMomentsCache>());
+  const homeMomentsRequestIdRef = useRef(0);
   const isHeroActive = activeSection === "home-hero";
   // 滚动监听和当前 section 高亮
   useEffect(() => {
@@ -76,21 +85,55 @@ export function HomePage() {
   }, []);
   // 请求首页 moments 数据
   useEffect(() => {
-    void loadHomeMoments();
-  }, []);
+    void loadHomeMoments(activeCategoryId);
+  }, [activeCategoryId]);
 
-  async function loadHomeMoments() {
-    setLoadingMoments(true);
+  async function loadHomeMoments(categoryId: string) {
+    const requestId = homeMomentsRequestIdRef.current + 1;
+    const cachedMoments = homeMomentsCacheRef.current.get(categoryId);
+    homeMomentsRequestIdRef.current = requestId;
+
+    if (cachedMoments) {
+      // 首页分类切回已加载内容时复用缓存，避免重复请求和两块 moments 区域闪烁。
+      setLifeMoments(cachedMoments.lifeMoments);
+      setRecentUpdates(cachedMoments.recentUpdates);
+      setMomentError(null);
+      setLoadingMoments(false);
+      return;
+    }
+
+    setLoadingMoments(homeMomentsCacheRef.current.size === 0);
     setMomentError(null);
 
     try {
-      // 首页第三、第四屏共用同一批公开 moments，再按图片与文本分区。
-      const [momentData, categoryData] = await Promise.all([
-        siteClient.listMoments(),
+      const momentQuery =
+        categoryId === allCategoryId ? undefined : { categoryId };
+
+      // 首页图文和文字区直接按后端参数拆分，避免前端拉全量后再过滤。
+      const [lifeData, textData, categoryData] = await Promise.all([
+        siteClient.listMoments({
+          ...momentQuery,
+          showOnHome: true,
+          hasImage: true,
+        }),
+        siteClient.listMoments({
+          ...momentQuery,
+          showOnHome: true,
+          hasImage: false,
+        }),
         siteClient.listMomentCategories(),
       ]);
 
-      setMoments(momentData);
+      if (requestId !== homeMomentsRequestIdRef.current) {
+        return;
+      }
+
+      homeMomentsCacheRef.current.set(categoryId, {
+        lifeMoments: lifeData,
+        recentUpdates: textData,
+      });
+      setLifeMoments(lifeData);
+      setRecentUpdates(textData);
       setCategories(categoryData);
     } catch (loadError) {
       setMomentError(
@@ -99,24 +142,19 @@ export function HomePage() {
           : "首页 moments 加载失败，请稍后重试",
       );
     } finally {
-      setLoadingMoments(false);
+      if (requestId === homeMomentsRequestIdRef.current) {
+        setLoadingMoments(false);
+      }
     }
   }
 
-  const homeMoments = moments.filter((moment) => moment.showOnHome);
-  const filteredHomeMoments = homeMoments.filter((moment) => {
-    if (activeCategoryName === "全部") {
-      return true;
+  function handleCategoryChange(categoryId: string) {
+    if (categoryId === activeCategoryId) {
+      return;
     }
 
-    return moment.categoryName === activeCategoryName;
-  });
-  const lifeMoments = filteredHomeMoments.filter((moment) =>
-    Boolean(moment.imageUrl),
-  );
-  const recentUpdates = filteredHomeMoments.filter(
-    (moment) => !moment.imageUrl,
-  );
+    setActiveCategoryId(categoryId);
+  }
 
   return (
     <div className={styles.page}>
@@ -160,9 +198,9 @@ export function HomePage() {
             <button
               type="button"
               className={`${styles.lifeTabButton} ${
-                activeCategoryName === "全部" ? styles.lifeTabActive : ""
+                activeCategoryId === allCategoryId ? styles.lifeTabActive : ""
               }`}
-              onClick={() => setActiveCategoryName("全部")}
+              onClick={() => handleCategoryChange(allCategoryId)}
             >
               全部
             </button>
@@ -172,11 +210,9 @@ export function HomePage() {
                 key={category.id}
                 type="button"
                 className={`${styles.lifeTabButton} ${
-                  activeCategoryName === category.name
-                    ? styles.lifeTabActive
-                    : ""
+                  activeCategoryId === category.id ? styles.lifeTabActive : ""
                 }`}
-                onClick={() => setActiveCategoryName(category.name)}
+                onClick={() => handleCategoryChange(category.id)}
               >
                 {category.name}
               </button>

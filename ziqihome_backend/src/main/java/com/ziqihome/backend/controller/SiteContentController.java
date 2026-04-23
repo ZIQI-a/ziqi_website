@@ -1,5 +1,6 @@
 package com.ziqihome.backend.controller;
 
+import com.ziqihome.backend.domain.ProjectStatus;
 import com.ziqihome.backend.dto.blog.BlogPostResponse;
 import com.ziqihome.backend.dto.contact.ContactLinkResponse;
 import com.ziqihome.backend.dto.moment.MomentCategoryResponse;
@@ -13,6 +14,7 @@ import com.ziqihome.backend.service.ProjectService;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -45,8 +47,10 @@ public class SiteContentController {
   }
 
   @GetMapping("/projects")
-  public List<ProjectResponse> listSiteProjects() {
-    return projectService.listPublishedProjects();
+  public List<ProjectResponse> listSiteProjects(
+      @RequestParam(required = false) ProjectStatus status
+  ) {
+    return projectService.listPublishedProjects(status);
   }
 
   @GetMapping("/contact-links")
@@ -55,8 +59,12 @@ public class SiteContentController {
   }
 
   @GetMapping("/moments")
-  public List<MomentResponse> listSiteMoments() {
-    return momentService.listPublishedMoments();
+  public List<MomentResponse> listSiteMoments(
+      @RequestParam(required = false) Long categoryId,
+      @RequestParam(required = false) Boolean showOnHome,
+      @RequestParam(required = false) Boolean hasImage
+  ) {
+    return momentService.listPublishedMoments(categoryId, showOnHome, hasImage);
   }
 
   @GetMapping("/moments/categories")
