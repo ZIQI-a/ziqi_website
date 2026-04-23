@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from "react";
 import {
   App,
   Button,
@@ -17,8 +17,8 @@ import {
   Table,
   Tag,
   Typography,
-} from 'antd'
-import type { ColumnsType } from 'antd/es/table'
+} from "antd";
+import type { ColumnsType } from "antd/es/table";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -26,42 +26,42 @@ import {
   PictureOutlined,
   PlusOutlined,
   ReloadOutlined,
-} from '@ant-design/icons'
-import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
-import { ApiError, adminClient } from '../../api/adminClient'
+} from "@ant-design/icons";
+import { AdminPageHeader } from "../../components/admin/AdminPageHeader";
+import { ApiError, adminClient } from "../../api/adminClient";
 import type {
   MomentAdminItem,
   MomentAdminPayload,
   MomentCategoryAdminItem,
   MomentCategoryAdminPayload,
-} from '../../types/admin'
-import styles from './AdminMomentsPage.module.css'
+} from "../../types/admin";
+import styles from "./AdminMomentsPage.module.css";
 
-const { TextArea } = Input
+const { TextArea } = Input;
 
 interface MomentFormValues {
-  content: string
-  imageUrl: string
-  imageAlt: string
-  categoryId: number
-  published: boolean
-  showOnHome: boolean
-  pinned: boolean
+  content: string;
+  imageUrl: string;
+  imageAlt: string;
+  categoryId: number;
+  published: boolean;
+  showOnHome: boolean;
+  pinned: boolean;
 }
 
 interface CategoryFormValues {
-  name: string
+  name: string;
 }
 
 const emptyMomentForm: MomentFormValues = {
-  content: '',
-  imageUrl: '',
-  imageAlt: '',
+  content: "",
+  imageUrl: "",
+  imageAlt: "",
   categoryId: 0,
   published: true,
-  showOnHome: true,
+  showOnHome: false,
   pinned: false,
-}
+};
 
 function toMomentFormValues(
   moment: MomentAdminItem | null,
@@ -70,207 +70,227 @@ function toMomentFormValues(
   if (moment) {
     return {
       content: moment.content,
-      imageUrl: moment.imageUrl ?? '',
-      imageAlt: moment.imageAlt ?? '',
+      imageUrl: moment.imageUrl ?? "",
+      imageAlt: moment.imageAlt ?? "",
       categoryId: moment.category.id,
       published: moment.published,
       showOnHome: moment.showOnHome,
       pinned: moment.pinned,
-    }
+    };
   }
 
   return {
     ...emptyMomentForm,
     // 新建时默认选第一个分类，避免出现空选择造成额外一步操作。
     categoryId: categories[0]?.id ?? 0,
-  }
+  };
 }
 
-function toCategoryFormValues(category: MomentCategoryAdminItem | null): CategoryFormValues {
+function toCategoryFormValues(
+  category: MomentCategoryAdminItem | null,
+): CategoryFormValues {
   return {
-    name: category?.name ?? '',
-  }
+    name: category?.name ?? "",
+  };
 }
 
 /**
  * 发送给后端前统一处理可选字段，避免把空字符串传进后端校验。
  */
 function toMomentPayload(values: MomentFormValues): MomentAdminPayload {
+  const isPublished = values.published;
+
   return {
     content: values.content.trim(),
     imageUrl: normalizeOptionalValue(values.imageUrl),
     imageAlt: normalizeOptionalValue(values.imageAlt),
     categoryId: values.categoryId,
-    published: values.published,
-    showOnHome: values.showOnHome,
-    pinned: values.pinned,
-  }
+    published: isPublished,
+    // 未发布内容不应出现在公开首页，也不需要参与置顶排序。
+    showOnHome: isPublished ? values.showOnHome : false,
+    pinned: isPublished ? values.pinned : false,
+  };
 }
 
-function toCategoryPayload(values: CategoryFormValues): MomentCategoryAdminPayload {
+function toCategoryPayload(
+  values: CategoryFormValues,
+): MomentCategoryAdminPayload {
   return {
     name: values.name.trim(),
-  }
+  };
 }
 
 function normalizeOptionalValue(value: string) {
-  const trimmedValue = value.trim()
-  return trimmedValue ? trimmedValue : null
+  const trimmedValue = value.trim();
+  return trimmedValue ? trimmedValue : null;
 }
 
 function getErrorMessage(error: unknown) {
   if (error instanceof ApiError) {
-    return error.message
+    return error.message;
   }
 
   if (error instanceof Error) {
-    return error.message
+    return error.message;
   }
 
-  return '请求失败，请稍后重试'
+  return "请求失败，请稍后重试";
 }
 
 function formatDateTime(value: string) {
-  return new Intl.DateTimeFormat('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(new Date(value))
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
 }
 
 export function AdminMomentsPage() {
-  const { message } = App.useApp()
-  const [momentForm] = Form.useForm<MomentFormValues>()
-  const [categoryForm] = Form.useForm<CategoryFormValues>()
-  const [moments, setMoments] = useState<MomentAdminItem[]>([])
-  const [categories, setCategories] = useState<MomentCategoryAdminItem[]>([])
-  const [initialLoading, setInitialLoading] = useState(true)
-  const [refreshing, setRefreshing] = useState(false)
-  const [momentSubmitting, setMomentSubmitting] = useState(false)
-  const [categorySubmitting, setCategorySubmitting] = useState(false)
-  const [momentDrawerOpen, setMomentDrawerOpen] = useState(false)
-  const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false)
-  const [categoryModalOpen, setCategoryModalOpen] = useState(false)
-  const [editingMoment, setEditingMoment] = useState<MomentAdminItem | null>(null)
-  const [editingCategory, setEditingCategory] = useState<MomentCategoryAdminItem | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const { message } = App.useApp();
+  const [momentForm] = Form.useForm<MomentFormValues>();
+  const [categoryForm] = Form.useForm<CategoryFormValues>();
+  const [moments, setMoments] = useState<MomentAdminItem[]>([]);
+  const [categories, setCategories] = useState<MomentCategoryAdminItem[]>([]);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [momentSubmitting, setMomentSubmitting] = useState(false);
+  const [categorySubmitting, setCategorySubmitting] = useState(false);
+  const [momentDrawerOpen, setMomentDrawerOpen] = useState(false);
+  const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false);
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [editingMoment, setEditingMoment] = useState<MomentAdminItem | null>(
+    null,
+  );
+  const [editingCategory, setEditingCategory] =
+    useState<MomentCategoryAdminItem | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const publishedValue = Form.useWatch("published", momentForm);
 
   useEffect(() => {
-    void loadPageData()
-  }, [])
+    void loadPageData();
+  }, []);
 
   async function loadPageData(options?: { silent?: boolean }) {
-    const silent = options?.silent ?? false
+    const silent = options?.silent ?? false;
 
     if (silent) {
-      setRefreshing(true)
+      setRefreshing(true);
     } else {
-      setInitialLoading(true)
+      setInitialLoading(true);
     }
 
-    setError(null)
+    setError(null);
 
     try {
       // 动态和分类需要一起更新，保证表格、抽屉选项和右侧统计始终一致。
       const [momentData, categoryData] = await Promise.all([
         adminClient.listMoments(),
         adminClient.listMomentCategories(),
-      ])
+      ]);
 
-      setMoments(momentData)
-      setCategories(categoryData)
+      setMoments(momentData);
+      setCategories(categoryData);
     } catch (loadError) {
-      setError(getErrorMessage(loadError))
+      setError(getErrorMessage(loadError));
     } finally {
       if (silent) {
-        setRefreshing(false)
+        setRefreshing(false);
       } else {
-        setInitialLoading(false)
+        setInitialLoading(false);
       }
     }
   }
 
   const categoryMomentCount = useMemo(() => {
     return moments.reduce<Record<number, number>>((result, moment) => {
-      result[moment.category.id] = (result[moment.category.id] ?? 0) + 1
-      return result
-    }, {})
-  }, [moments])
+      result[moment.category.id] = (result[moment.category.id] ?? 0) + 1;
+      return result;
+    }, {});
+  }, [moments]);
 
   function openCreateMomentDrawer() {
     if (categories.length === 0) {
-      message.warning('请先创建分类，再新增动态。')
-      openCategoryManagerDrawer()
-      return
+      message.warning("请先创建分类，再新增动态。");
+      openCategoryManagerDrawer();
+      return;
     }
 
-    setEditingMoment(null)
-    momentForm.resetFields()
-    momentForm.setFieldsValue(toMomentFormValues(null, categories))
-    setMomentDrawerOpen(true)
+    setEditingMoment(null);
+    momentForm.resetFields();
+    momentForm.setFieldsValue(toMomentFormValues(null, categories));
+    setMomentDrawerOpen(true);
   }
 
   function openEditMomentDrawer(moment: MomentAdminItem) {
-    setEditingMoment(moment)
-    momentForm.resetFields()
-    momentForm.setFieldsValue(toMomentFormValues(moment, categories))
-    setMomentDrawerOpen(true)
+    setEditingMoment(moment);
+    momentForm.resetFields();
+    momentForm.setFieldsValue(toMomentFormValues(moment, categories));
+    setMomentDrawerOpen(true);
+  }
+
+  function handlePublishedChange(checked: boolean) {
+    if (!checked) {
+      momentForm.setFieldsValue({
+        showOnHome: false,
+        pinned: false,
+      });
+    }
   }
 
   function closeMomentDrawer() {
-    setMomentDrawerOpen(false)
-    setEditingMoment(null)
-    momentForm.resetFields()
+    setMomentDrawerOpen(false);
+    setEditingMoment(null);
+    momentForm.resetFields();
   }
 
   function openCategoryManagerDrawer() {
-    setCategoryDrawerOpen(true)
+    setCategoryDrawerOpen(true);
   }
 
   function closeCategoryManagerDrawer() {
-    setCategoryDrawerOpen(false)
+    setCategoryDrawerOpen(false);
   }
 
   function openCreateCategoryModal() {
-    setEditingCategory(null)
-    categoryForm.resetFields()
-    categoryForm.setFieldsValue(toCategoryFormValues(null))
-    setCategoryModalOpen(true)
+    setEditingCategory(null);
+    categoryForm.resetFields();
+    categoryForm.setFieldsValue(toCategoryFormValues(null));
+    setCategoryModalOpen(true);
   }
 
   function openEditCategoryModal(category: MomentCategoryAdminItem) {
-    setEditingCategory(category)
-    categoryForm.resetFields()
-    categoryForm.setFieldsValue(toCategoryFormValues(category))
-    setCategoryModalOpen(true)
+    setEditingCategory(category);
+    categoryForm.resetFields();
+    categoryForm.setFieldsValue(toCategoryFormValues(category));
+    setCategoryModalOpen(true);
   }
 
   function closeCategoryModal() {
-    setCategoryModalOpen(false)
-    setEditingCategory(null)
-    categoryForm.resetFields()
+    setCategoryModalOpen(false);
+    setEditingCategory(null);
+    categoryForm.resetFields();
   }
 
   async function handleMomentSubmit() {
-    setMomentSubmitting(true)
-    setError(null)
+    setMomentSubmitting(true);
+    setError(null);
 
     try {
-      const values = await momentForm.validateFields()
-      const payload = toMomentPayload(values)
+      const values = await momentForm.validateFields();
+      const payload = toMomentPayload(values);
 
       if (editingMoment === null) {
-        await adminClient.createMoment(payload)
-        message.success('动态创建成功。')
+        await adminClient.createMoment(payload);
+        message.success("动态创建成功。");
       } else {
-        await adminClient.updateMoment(editingMoment.id, payload)
-        message.success('动态更新成功。')
+        await adminClient.updateMoment(editingMoment.id, payload);
+        message.success("动态更新成功。");
       }
 
-      closeMomentDrawer()
-      await loadPageData({ silent: true })
+      closeMomentDrawer();
+      await loadPageData({ silent: true });
     } catch (submitError) {
       if (submitError instanceof ApiError) {
         if (submitError.fieldErrors) {
@@ -279,41 +299,41 @@ export function AdminMomentsPage() {
               name: name as keyof MomentFormValues,
               errors: [errors],
             })),
-          )
+          );
         }
 
-        setError(submitError.message)
-        return
+        setError(submitError.message);
+        return;
       }
 
       if ((submitError as { errorFields?: unknown[] }).errorFields) {
-        return
+        return;
       }
 
-      setError(getErrorMessage(submitError))
+      setError(getErrorMessage(submitError));
     } finally {
-      setMomentSubmitting(false)
+      setMomentSubmitting(false);
     }
   }
 
   async function handleCategorySubmit() {
-    setCategorySubmitting(true)
-    setError(null)
+    setCategorySubmitting(true);
+    setError(null);
 
     try {
-      const values = await categoryForm.validateFields()
-      const payload = toCategoryPayload(values)
+      const values = await categoryForm.validateFields();
+      const payload = toCategoryPayload(values);
 
       if (editingCategory === null) {
-        await adminClient.createMomentCategory(payload)
-        message.success('分类创建成功。')
+        await adminClient.createMomentCategory(payload);
+        message.success("分类创建成功。");
       } else {
-        await adminClient.updateMomentCategory(editingCategory.id, payload)
-        message.success('分类更新成功。')
+        await adminClient.updateMomentCategory(editingCategory.id, payload);
+        message.success("分类更新成功。");
       }
 
-      closeCategoryModal()
-      await loadPageData({ silent: true })
+      closeCategoryModal();
+      await loadPageData({ silent: true });
     } catch (submitError) {
       if (submitError instanceof ApiError) {
         if (submitError.fieldErrors) {
@@ -322,62 +342,62 @@ export function AdminMomentsPage() {
               name: name as keyof CategoryFormValues,
               errors: [errors],
             })),
-          )
+          );
         }
 
-        setError(submitError.message)
-        return
+        setError(submitError.message);
+        return;
       }
 
       if ((submitError as { errorFields?: unknown[] }).errorFields) {
-        return
+        return;
       }
 
-      setError(getErrorMessage(submitError))
+      setError(getErrorMessage(submitError));
     } finally {
-      setCategorySubmitting(false)
+      setCategorySubmitting(false);
     }
   }
 
   async function handleDeleteMoment(moment: MomentAdminItem) {
-    setError(null)
+    setError(null);
 
     try {
-      await adminClient.deleteMoment(moment.id)
+      await adminClient.deleteMoment(moment.id);
 
       if (editingMoment?.id === moment.id) {
-        closeMomentDrawer()
+        closeMomentDrawer();
       }
 
-      message.success('动态已删除。')
-      await loadPageData({ silent: true })
+      message.success("动态已删除。");
+      await loadPageData({ silent: true });
     } catch (deleteError) {
-      setError(getErrorMessage(deleteError))
+      setError(getErrorMessage(deleteError));
     }
   }
 
   async function handleDeleteCategory(category: MomentCategoryAdminItem) {
-    setError(null)
+    setError(null);
 
     try {
-      await adminClient.deleteMomentCategory(category.id)
+      await adminClient.deleteMomentCategory(category.id);
 
       if (editingCategory?.id === category.id) {
-        closeCategoryModal()
+        closeCategoryModal();
       }
 
-      message.success(`分类「${category.name}」已删除。`)
-      await loadPageData({ silent: true })
+      message.success(`分类「${category.name}」已删除。`);
+      await loadPageData({ silent: true });
     } catch (deleteError) {
-      setError(getErrorMessage(deleteError))
+      setError(getErrorMessage(deleteError));
     }
   }
 
   const momentColumns: ColumnsType<MomentAdminItem> = [
     {
-      title: '内容',
-      dataIndex: 'content',
-      key: 'content',
+      title: "内容",
+      dataIndex: "content",
+      key: "content",
       render: (_, moment) => (
         <div className={styles.contentCell}>
           <Space size={10} align="start">
@@ -392,7 +412,8 @@ export function AdminMomentsPage() {
                 {moment.content}
               </Typography.Paragraph>
               <Typography.Text type="secondary">
-                {moment.imageUrl ? '图文动态' : '文字动态'} · {formatDateTime(moment.createdAt)}
+                {moment.imageUrl ? "图文动态" : "文字动态"} ·{" "}
+                {formatDateTime(moment.createdAt)}
               </Typography.Text>
             </div>
           </Space>
@@ -400,9 +421,9 @@ export function AdminMomentsPage() {
       ),
     },
     {
-      title: '分类',
-      dataIndex: ['category', 'name'],
-      key: 'category',
+      title: "分类",
+      dataIndex: ["category", "name"],
+      key: "category",
       width: 120,
       render: (categoryName: string) => (
         <Tag bordered={false} className={styles.categoryTag}>
@@ -411,8 +432,8 @@ export function AdminMomentsPage() {
       ),
     },
     {
-      title: '状态',
-      key: 'status',
+      title: "状态",
+      key: "status",
       width: 220,
       render: (_, moment) => (
         <Space size={[8, 8]} wrap>
@@ -437,12 +458,15 @@ export function AdminMomentsPage() {
       ),
     },
     {
-      title: '操作',
-      key: 'actions',
+      title: "操作",
+      key: "actions",
       width: 180,
       render: (_, moment) => (
         <Space size={8} wrap>
-          <Button icon={<EditOutlined />} onClick={() => openEditMomentDrawer(moment)}>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => openEditMomentDrawer(moment)}
+          >
             编辑
           </Button>
           <Popconfirm
@@ -460,7 +484,7 @@ export function AdminMomentsPage() {
         </Space>
       ),
     },
-  ]
+  ];
 
   return (
     <section className={styles.page}>
@@ -477,10 +501,17 @@ export function AdminMomentsPage() {
               >
                 刷新
               </Button>
-              <Button icon={<FolderOpenOutlined />} onClick={openCategoryManagerDrawer}>
+              <Button
+                icon={<FolderOpenOutlined />}
+                onClick={openCategoryManagerDrawer}
+              >
                 管理分类
               </Button>
-              <Button type="primary" icon={<PlusOutlined />} onClick={openCreateMomentDrawer}>
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={openCreateMomentDrawer}
+              >
                 新建动态
               </Button>
             </>
@@ -498,7 +529,10 @@ export function AdminMomentsPage() {
             <Spin size="large" />
           </div>
         ) : moments.length === 0 ? (
-          <Empty description="当前还没有动态记录。" className={styles.emptyState} />
+          <Empty
+            description="当前还没有动态记录。"
+            className={styles.emptyState}
+          />
         ) : (
           <Table
             rowKey="id"
@@ -513,7 +547,11 @@ export function AdminMomentsPage() {
       </Card>
 
       <Drawer
-        title={editingMoment === null ? '新建动态' : `编辑动态 · ${editingMoment.category.name}`}
+        title={
+          editingMoment === null
+            ? "新建动态"
+            : `编辑动态 · ${editingMoment.category.name}`
+        }
         open={momentDrawerOpen}
         onClose={closeMomentDrawer}
         width={560}
@@ -521,8 +559,12 @@ export function AdminMomentsPage() {
         extra={
           <Space>
             <Button onClick={closeMomentDrawer}>取消</Button>
-            <Button type="primary" loading={momentSubmitting} onClick={() => void handleMomentSubmit()}>
-              {editingMoment === null ? '创建动态' : '保存修改'}
+            <Button
+              type="primary"
+              loading={momentSubmitting}
+              onClick={() => void handleMomentSubmit()}
+            >
+              {editingMoment === null ? "创建动态" : "保存修改"}
             </Button>
           </Space>
         }
@@ -537,8 +579,8 @@ export function AdminMomentsPage() {
             label="内容"
             name="content"
             rules={[
-              { required: true, message: '请输入动态内容' },
-              { max: 1200, message: '内容长度不能超过 1200 字' },
+              { required: true, message: "请输入动态内容" },
+              { max: 1200, message: "内容长度不能超过 1200 字" },
             ]}
           >
             <TextArea rows={6} placeholder="输入这条动态想展示的文字内容" />
@@ -547,7 +589,7 @@ export function AdminMomentsPage() {
           <Form.Item
             label="分类"
             name="categoryId"
-            rules={[{ required: true, message: '请选择分类' }]}
+            rules={[{ required: true, message: "请选择分类" }]}
           >
             <Select
               options={categories.map((category) => ({
@@ -564,16 +606,18 @@ export function AdminMomentsPage() {
             rules={[
               {
                 validator: (_, value: string) => {
-                  const normalizedValue = value.trim()
+                  const normalizedValue = value.trim();
 
                   if (!normalizedValue) {
-                    return Promise.resolve()
+                    return Promise.resolve();
                   }
 
-                  const isValidUrl = /^https?:\/\/.+/.test(normalizedValue)
+                  const isValidUrl = /^https?:\/\/.+/.test(normalizedValue);
                   return isValidUrl
                     ? Promise.resolve()
-                    : Promise.reject(new Error('请输入有效的 http 或 https 图片链接'))
+                    : Promise.reject(
+                        new Error("请输入有效的 http 或 https 图片链接"),
+                      );
                 },
               },
             ]}
@@ -584,22 +628,34 @@ export function AdminMomentsPage() {
           <Form.Item
             label="图片说明"
             name="imageAlt"
-            rules={[{ max: 160, message: '图片说明长度不能超过 160 字' }]}
+            rules={[{ max: 160, message: "图片说明长度不能超过 160 字" }]}
           >
             <Input placeholder="用于图片辅助说明，可选" />
           </Form.Item>
 
           <Form.Item label="发布状态" name="published" valuePropName="checked">
-            <Switch checkedChildren="已发布" unCheckedChildren="未发布" />
+            <Switch
+              checkedChildren="已发布"
+              unCheckedChildren="未发布"
+              onChange={handlePublishedChange}
+            />
           </Form.Item>
 
-          <Form.Item label="展示到首页" name="showOnHome" valuePropName="checked">
-            <Switch checkedChildren="展示" unCheckedChildren="不展示" />
-          </Form.Item>
+          {publishedValue ? (
+            <>
+              <Form.Item
+                label="展示到首页"
+                name="showOnHome"
+                valuePropName="checked"
+              >
+                <Switch checkedChildren="展示" unCheckedChildren="不展示" />
+              </Form.Item>
 
-          <Form.Item label="置顶" name="pinned" valuePropName="checked">
-            <Switch checkedChildren="置顶" unCheckedChildren="普通" />
-          </Form.Item>
+              <Form.Item label="置顶" name="pinned" valuePropName="checked">
+                <Switch checkedChildren="置顶" unCheckedChildren="普通" />
+              </Form.Item>
+            </>
+          ) : null}
         </Form>
       </Drawer>
 
@@ -610,7 +666,11 @@ export function AdminMomentsPage() {
         width={420}
         destroyOnHidden
         extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={openCreateCategoryModal}>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={openCreateCategoryModal}
+          >
             新建分类
           </Button>
         }
@@ -665,10 +725,14 @@ export function AdminMomentsPage() {
       </Drawer>
 
       <Modal
-        title={editingCategory === null ? '新建分类' : `编辑分类 · ${editingCategory.name}`}
+        title={
+          editingCategory === null
+            ? "新建分类"
+            : `编辑分类 · ${editingCategory.name}`
+        }
         open={categoryModalOpen}
         onCancel={closeCategoryModal}
-        okText={editingCategory === null ? '创建分类' : '保存修改'}
+        okText={editingCategory === null ? "创建分类" : "保存修改"}
         cancelText="取消"
         confirmLoading={categorySubmitting}
         onOk={() => void handleCategorySubmit()}
@@ -685,8 +749,8 @@ export function AdminMomentsPage() {
             label="分类名称"
             name="name"
             rules={[
-              { required: true, message: '请输入分类名称' },
-              { max: 40, message: '分类名称长度不能超过 40 字' },
+              { required: true, message: "请输入分类名称" },
+              { max: 40, message: "分类名称长度不能超过 40 字" },
             ]}
           >
             <Input placeholder="生活 / 学习 / 随手记" />
@@ -694,5 +758,5 @@ export function AdminMomentsPage() {
         </Form>
       </Modal>
     </section>
-  )
+  );
 }
