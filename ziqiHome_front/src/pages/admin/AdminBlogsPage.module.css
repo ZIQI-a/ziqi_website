@@ -1,0 +1,51 @@
+.page {
+  composes: page from '../../components/admin/AdminCrudShared.module.css';
+}
+
+.panel {
+  composes: panel from '../../components/admin/AdminCrudShared.module.css';
+}
+
+.errorText {
+  composes: errorText from '../../components/admin/AdminCrudShared.module.css';
+}
+
+.loadingWrap {
+  composes: loadingWrap from '../../components/admin/AdminCrudShared.module.css';
+}
+
+.emptyState {
+  composes: emptyState from '../../components/admin/AdminCrudShared.module.css';
+}
+
+.table {
+  composes: table from '../../components/admin/AdminCrudShared.module.css';
+}
+
+.form {
+  composes: form from '../../components/admin/AdminCrudShared.module.css';
+}
+
+.deleteConfirm {
+  composes: deleteConfirm from '../../components/admin/AdminCrudShared.module.css';
+}
+
+.fullControl {
+  composes: fullControl from '../../components/admin/AdminCrudShared.module.css';
+}
+
+.blogCell {
+  display: grid;
+  gap: 4px;
+}
+
+.summary {
+  margin: 0 !important;
+  color: var(--color-text-muted) !important;
+}
+
+.tagChip {
+  border-radius: 999px;
+  background: var(--color-accent-soft) !important;
+  color: var(--color-text) !important;
+}

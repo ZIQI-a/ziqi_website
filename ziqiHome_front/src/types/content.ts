@@ -1,6 +1,8 @@
 /**
  * 统一声明站点内容的数据类型，便于页面和组件共享结构约束。
  */
+
+// 个人信息，写死的数据
 export interface ProfileInfo {
   name: string
   englishName: string

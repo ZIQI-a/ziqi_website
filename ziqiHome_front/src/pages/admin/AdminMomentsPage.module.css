@@ -1,5 +1,5 @@
 .page {
-  composes: page from '../components/admin/AdminCrudShared.module.css';
+  composes: page from '../../components/admin/AdminCrudShared.module.css';
 }
 
 .grid {
@@ -9,35 +9,35 @@
 }
 
 .panel {
-  composes: panel from '../components/admin/AdminCrudShared.module.css';
+  composes: panel from '../../components/admin/AdminCrudShared.module.css';
 }
 
 .sidePanel {
-  composes: panel from '../components/admin/AdminCrudShared.module.css';
+  composes: panel from '../../components/admin/AdminCrudShared.module.css';
 }
 
 .errorText {
-  composes: errorText from '../components/admin/AdminCrudShared.module.css';
+  composes: errorText from '../../components/admin/AdminCrudShared.module.css';
 }
 
 .loadingWrap {
-  composes: loadingWrap from '../components/admin/AdminCrudShared.module.css';
+  composes: loadingWrap from '../../components/admin/AdminCrudShared.module.css';
 }
 
 .emptyState {
-  composes: emptyState from '../components/admin/AdminCrudShared.module.css';
+  composes: emptyState from '../../components/admin/AdminCrudShared.module.css';
 }
 
 .table {
-  composes: table from '../components/admin/AdminCrudShared.module.css';
+  composes: table from '../../components/admin/AdminCrudShared.module.css';
 }
 
 .form {
-  composes: form from '../components/admin/AdminCrudShared.module.css';
+  composes: form from '../../components/admin/AdminCrudShared.module.css';
 }
 
 .deleteConfirm {
-  composes: deleteConfirm from '../components/admin/AdminCrudShared.module.css';
+  composes: deleteConfirm from '../../components/admin/AdminCrudShared.module.css';
 }
 
 .contentCell {

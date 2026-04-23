@@ -26,14 +26,14 @@ import {
   PlusOutlined,
   ReloadOutlined,
 } from '@ant-design/icons'
-import { AdminPageHeader } from '../components/admin/AdminPageHeader'
-import { ApiError, adminClient } from '../api/adminClient'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
+import { ApiError, adminClient } from '../../api/adminClient'
 import type {
   MomentAdminItem,
   MomentAdminPayload,
   MomentCategoryAdminItem,
   MomentCategoryAdminPayload,
-} from '../types/admin'
+} from '../../types/admin'
 import styles from './AdminMomentsPage.module.css'
 
 const { TextArea } = Input

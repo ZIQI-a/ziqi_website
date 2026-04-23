@@ -10,7 +10,7 @@ const homeSections = [
   { id: "home-hero", label: "主页" },
   { id: "home-about", label: "关于我" },
   { id: "home-life", label: "生活" },
-  { id: "home-latest", label: "最新" },
+  { id: "home-latest", label: "瞬间" },
 ];
 
 export function HomePage() {

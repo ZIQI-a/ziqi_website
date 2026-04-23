@@ -9,42 +9,42 @@ import { LatestPage } from "./pages/LatestPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
 
 const AdminLayout = lazy(async () => {
-  const module = await import("./components/AdminLayout");
+  const module = await import("./components/admin/AdminLayout");
   return { default: module.AdminLayout };
 });
 
 const AdminHomePage = lazy(async () => {
-  const module = await import("./pages/AdminHomePage");
+  const module = await import("./pages/admin/AdminHomePage");
   return { default: module.AdminHomePage };
 });
 
 const AdminBlogsPage = lazy(async () => {
-  const module = await import("./pages/AdminBlogsPage");
+  const module = await import("./pages/admin/AdminBlogsPage");
   return { default: module.AdminBlogsPage };
 });
 
 const AdminMomentsPage = lazy(async () => {
-  const module = await import("./pages/AdminMomentsPage");
+  const module = await import("./pages/admin/AdminMomentsPage");
   return { default: module.AdminMomentsPage };
 });
 
 const AdminProjectsPage = lazy(async () => {
-  const module = await import("./pages/AdminProjectsPage");
+  const module = await import("./pages/admin/AdminProjectsPage");
   return { default: module.AdminProjectsPage };
 });
 
 const AdminContactLinksPage = lazy(async () => {
-  const module = await import("./pages/AdminContactLinksPage");
+  const module = await import("./pages/admin/AdminContactLinksPage");
   return { default: module.AdminContactLinksPage };
 });
 
 const AdminUsersPage = lazy(async () => {
-  const module = await import("./pages/AdminUsersPage");
+  const module = await import("./pages/admin/AdminUsersPage");
   return { default: module.AdminUsersPage };
 });
 
 const AdminLoginPage = lazy(async () => {
-  const module = await import("./pages/AdminLoginPage");
+  const module = await import("./pages/admin/AdminLoginPage");
   return { default: module.AdminLoginPage };
 });
 

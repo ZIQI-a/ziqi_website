@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { Button, Card, Col, Row, Space, Typography } from "antd";
 import { Link } from "react-router-dom";
-import { AdminPageHeader } from "../components/admin/AdminPageHeader";
+import { AdminPageHeader } from "../../components/admin/AdminPageHeader";
 import styles from "./AdminHomePage.module.css";
 
 const cards = [

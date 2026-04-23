@@ -23,12 +23,12 @@ import {
   PlusOutlined,
   ReloadOutlined,
 } from '@ant-design/icons'
-import { AdminPageHeader } from '../components/admin/AdminPageHeader'
-import { ApiError, adminClient } from '../api/adminClient'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
+import { ApiError, adminClient } from '../../api/adminClient'
 import type {
   ContactLinkAdminItem,
   ContactLinkAdminPayload,
-} from '../types/admin'
+} from '../../types/admin'
 import styles from './AdminContactLinksPage.module.css'
 
 const emptyForm: ContactLinkAdminPayload = {

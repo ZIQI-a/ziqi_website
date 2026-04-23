@@ -25,15 +25,15 @@ import {
   ReloadOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import { AdminPageHeader } from '../components/admin/AdminPageHeader'
-import { ApiError, adminClient } from '../api/adminClient'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
+import { ApiError, adminClient } from '../../api/adminClient'
 import type {
   UserAdminItem,
   UserCreatePayload,
   UserPasswordPayload,
   UserRole,
   UserUpdatePayload,
-} from '../types/admin'
+} from '../../types/admin'
 import styles from './AdminUsersPage.module.css'
 
 type DrawerMode = 'create' | 'edit' | 'password'

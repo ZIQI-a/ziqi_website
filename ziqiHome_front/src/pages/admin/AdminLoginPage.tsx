@@ -9,8 +9,8 @@ import {
 } from 'antd'
 import { LockOutlined, LoginOutlined, UserOutlined } from '@ant-design/icons'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { AuthApiError } from '../api/authClient'
-import { useAuth } from '../auth/authStore'
+import { AuthApiError } from '../../api/authClient'
+import { useAuth } from '../../auth/authStore'
 import styles from './AdminLoginPage.module.css'
 
 interface LoginFormValues {

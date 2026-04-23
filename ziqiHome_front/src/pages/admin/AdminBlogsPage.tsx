@@ -24,10 +24,10 @@ import {
   PlusOutlined,
   ReloadOutlined,
 } from '@ant-design/icons'
-import { AdminPageHeader } from '../components/admin/AdminPageHeader'
+import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import dayjs from 'dayjs'
-import { ApiError, adminClient } from '../api/adminClient'
-import type { BlogAdminItem, BlogAdminPayload } from '../types/admin'
+import { ApiError, adminClient } from '../../api/adminClient'
+import type { BlogAdminItem, BlogAdminPayload } from '../../types/admin'
 import styles from './AdminBlogsPage.module.css'
 
 const { TextArea } = Input

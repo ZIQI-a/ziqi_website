@@ -6,7 +6,7 @@ import styles from "./MainLayout.module.css";
 
 const navItems = [
   { to: "/", label: "主页", end: true },
-  { to: "/latest", label: "最新" },
+  { to: "/latest", label: "瞬间" },
   { to: "/blog", label: "写点" },
   { to: "/projects", label: "做点" },
   { to: "/contact", label: "找我鸭" },
@@ -30,19 +30,27 @@ export function MainLayout() {
     localStorage.setItem("ziqi-theme", theme);
   }, [theme]);
 
-  async function loadFooterContactLinks() {
-    try {
-      // footer 只取公开联系方式前四个图标，避免和“找我鸭”页面数据源分叉。
-      const data = await siteClient.listContactLinks();
-      setFooterContactLinks(data.slice(0, 4));
-    } catch {
-      // footer 图标加载失败时不打断页面主流程，直接保持为空即可。
-      setFooterContactLinks([]);
-    }
-  }
-
   useEffect(() => {
-    void loadFooterContactLinks();
+    let ignore = false;
+
+    // footer 只取公开联系方式前四个图标，避免和“找我鸭”页面数据源分叉。
+    siteClient
+      .listContactLinks()
+      .then((data) => {
+        if (!ignore) {
+          setFooterContactLinks(data.slice(0, 4));
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          // footer 图标加载失败时不打断页面主流程，直接保持为空即可。
+          setFooterContactLinks([]);
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
   }, []);
 
   return (
@@ -103,7 +111,7 @@ export function MainLayout() {
               主页
             </NavLink>
             <NavLink to="/latest" className={styles.footerNavLink}>
-              最新
+              瞬间
             </NavLink>
             <NavLink to="/blog" className={styles.footerNavLink}>
               写点

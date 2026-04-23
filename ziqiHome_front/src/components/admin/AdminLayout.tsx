@@ -21,8 +21,8 @@ import {
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import 'antd/dist/reset.css'
 import styles from './AdminLayout.module.css'
-import { adminTheme } from '../theme/adminTheme'
-import { useAuth } from '../auth/authStore'
+import { adminTheme } from '../../theme/adminTheme'
+import { useAuth } from '../../auth/authStore'
 
 const adminNavItems = [
   { key: '/admin', to: '/admin', label: '管理首页', icon: <HomeOutlined /> },

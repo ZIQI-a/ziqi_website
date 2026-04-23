@@ -24,14 +24,14 @@ import {
   PlusOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
-import { AdminPageHeader } from "../components/admin/AdminPageHeader";
-import { ApiError, adminClient } from "../api/adminClient";
+import { AdminPageHeader } from "../../components/admin/AdminPageHeader";
+import { ApiError, adminClient } from "../../api/adminClient";
 import type {
   ProjectAdminItem,
   ProjectAdminPayload,
   ProjectFormOptions,
   ProjectStatus,
-} from "../types/admin";
+} from "../../types/admin";
 import styles from "./AdminProjectsPage.module.css";
 
 const { TextArea } = Input;
