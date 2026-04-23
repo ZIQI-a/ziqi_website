@@ -8,6 +8,7 @@ import {
   Form,
   Input,
   List,
+  Modal,
   Popconfirm,
   Select,
   Space,
@@ -151,6 +152,7 @@ export function AdminMomentsPage() {
   const [categorySubmitting, setCategorySubmitting] = useState(false)
   const [momentDrawerOpen, setMomentDrawerOpen] = useState(false)
   const [categoryDrawerOpen, setCategoryDrawerOpen] = useState(false)
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false)
   const [editingMoment, setEditingMoment] = useState<MomentAdminItem | null>(null)
   const [editingCategory, setEditingCategory] = useState<MomentCategoryAdminItem | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -200,7 +202,7 @@ export function AdminMomentsPage() {
   function openCreateMomentDrawer() {
     if (categories.length === 0) {
       message.warning('请先创建分类，再新增动态。')
-      openCreateCategoryDrawer()
+      openCategoryManagerDrawer()
       return
     }
 
@@ -223,22 +225,30 @@ export function AdminMomentsPage() {
     momentForm.resetFields()
   }
 
-  function openCreateCategoryDrawer() {
+  function openCategoryManagerDrawer() {
+    setCategoryDrawerOpen(true)
+  }
+
+  function closeCategoryManagerDrawer() {
+    setCategoryDrawerOpen(false)
+  }
+
+  function openCreateCategoryModal() {
     setEditingCategory(null)
     categoryForm.resetFields()
     categoryForm.setFieldsValue(toCategoryFormValues(null))
-    setCategoryDrawerOpen(true)
+    setCategoryModalOpen(true)
   }
 
-  function openEditCategoryDrawer(category: MomentCategoryAdminItem) {
+  function openEditCategoryModal(category: MomentCategoryAdminItem) {
     setEditingCategory(category)
     categoryForm.resetFields()
     categoryForm.setFieldsValue(toCategoryFormValues(category))
-    setCategoryDrawerOpen(true)
+    setCategoryModalOpen(true)
   }
 
-  function closeCategoryDrawer() {
-    setCategoryDrawerOpen(false)
+  function closeCategoryModal() {
+    setCategoryModalOpen(false)
     setEditingCategory(null)
     categoryForm.resetFields()
   }
@@ -302,7 +312,7 @@ export function AdminMomentsPage() {
         message.success('分类更新成功。')
       }
 
-      closeCategoryDrawer()
+      closeCategoryModal()
       await loadPageData({ silent: true })
     } catch (submitError) {
       if (submitError instanceof ApiError) {
@@ -353,7 +363,7 @@ export function AdminMomentsPage() {
       await adminClient.deleteMomentCategory(category.id)
 
       if (editingCategory?.id === category.id) {
-        closeCategoryDrawer()
+        closeCategoryModal()
       }
 
       message.success(`分类「${category.name}」已删除。`)
@@ -454,119 +464,53 @@ export function AdminMomentsPage() {
 
   return (
     <section className={styles.page}>
-      <div className={styles.grid}>
-        <Card bordered={false} className={styles.panel}>
-          <AdminPageHeader
-            eyebrow="Moments CRUD"
-            title="动态管理"
-            actions={
-              <>
-                <Button
-                  icon={<ReloadOutlined />}
-                  loading={refreshing}
-                  onClick={() => void loadPageData({ silent: true })}
-                >
-                  刷新
-                </Button>
-                <Button icon={<PlusOutlined />} onClick={openCreateCategoryDrawer}>
-                  新建分类
-                </Button>
-                <Button type="primary" icon={<PlusOutlined />} onClick={openCreateMomentDrawer}>
-                  新建动态
-                </Button>
-              </>
-            }
-          />
+      <Card bordered={false} className={styles.panel}>
+        <AdminPageHeader
+          eyebrow="Moments CRUD"
+          title="动态管理"
+          actions={
+            <>
+              <Button
+                icon={<ReloadOutlined />}
+                loading={refreshing}
+                onClick={() => void loadPageData({ silent: true })}
+              >
+                刷新
+              </Button>
+              <Button icon={<FolderOpenOutlined />} onClick={openCategoryManagerDrawer}>
+                管理分类
+              </Button>
+              <Button type="primary" icon={<PlusOutlined />} onClick={openCreateMomentDrawer}>
+                新建动态
+              </Button>
+            </>
+          }
+        />
 
-          {error ? (
-            <Typography.Paragraph className={styles.errorText}>
-              {error}
-            </Typography.Paragraph>
-          ) : null}
+        {error ? (
+          <Typography.Paragraph className={styles.errorText}>
+            {error}
+          </Typography.Paragraph>
+        ) : null}
 
-          {initialLoading ? (
-            <div className={styles.loadingWrap}>
-              <Spin size="large" />
-            </div>
-          ) : moments.length === 0 ? (
-            <Empty description="当前还没有动态记录。" className={styles.emptyState} />
-          ) : (
-            <Table
-              rowKey="id"
-              columns={momentColumns}
-              dataSource={moments}
-              loading={refreshing}
-              pagination={false}
-              scroll={{ x: 920 }}
-              className={styles.table}
-            />
-          )}
-        </Card>
-
-        <Card bordered={false} className={styles.sidePanel}>
-          <div className={styles.sideHeader}>
-            <div>
-              <Typography.Text className={styles.sideEyebrow}>
-                Moment Categories
-              </Typography.Text>
-              <Typography.Title level={4} className={styles.sideTitle}>
-                分类列表
-              </Typography.Title>
-            </div>
-            <Button icon={<PlusOutlined />} onClick={openCreateCategoryDrawer}>
-              新建
-            </Button>
+        {initialLoading ? (
+          <div className={styles.loadingWrap}>
+            <Spin size="large" />
           </div>
-
-          {initialLoading ? (
-            <div className={styles.loadingWrap}>
-              <Spin />
-            </div>
-          ) : categories.length === 0 ? (
-            <Empty description="还没有分类。" className={styles.emptyState} />
-          ) : (
-            <List
-              dataSource={categories}
-              className={styles.categoryList}
-              renderItem={(category) => (
-                <List.Item
-                  className={styles.categoryItem}
-                  actions={[
-                    <Button
-                      key="edit"
-                      type="text"
-                      icon={<EditOutlined />}
-                      onClick={() => openEditCategoryDrawer(category)}
-                    >
-                      编辑
-                    </Button>,
-                    <Popconfirm
-                      key="delete"
-                      overlayClassName={styles.deleteConfirm}
-                      title={`确认删除分类「${category.name}」吗？`}
-                      okText="删除"
-                      cancelText="取消"
-                      okButtonProps={{ danger: true }}
-                      onConfirm={() => handleDeleteCategory(category)}
-                    >
-                      <Button type="text" danger icon={<DeleteOutlined />}>
-                        删除
-                      </Button>
-                    </Popconfirm>,
-                  ]}
-                >
-                  <div className={styles.categoryMeta}>
-                    <Typography.Text strong>{category.name}</Typography.Text>
-                    <Typography.Text type="secondary">
-                      {categoryMomentCount[category.id] ?? 0} 条动态
-                    </Typography.Text>
-                  </div>
-                </List.Item>
-              )}
-            />
-          )}
-        </Card>
-      </div>
+        ) : moments.length === 0 ? (
+          <Empty description="当前还没有动态记录。" className={styles.emptyState} />
+        ) : (
+          <Table
+            rowKey="id"
+            columns={momentColumns}
+            dataSource={moments}
+            loading={refreshing}
+            pagination={false}
+            scroll={{ x: 920 }}
+            className={styles.table}
+          />
+        )}
+      </Card>
 
       <Drawer
         title={editingMoment === null ? '新建动态' : `编辑动态 · ${editingMoment.category.name}`}
@@ -660,19 +604,76 @@ export function AdminMomentsPage() {
       </Drawer>
 
       <Drawer
-        title={editingCategory === null ? '新建分类' : `编辑分类 · ${editingCategory.name}`}
+        title="管理分类"
         open={categoryDrawerOpen}
-        onClose={closeCategoryDrawer}
+        onClose={closeCategoryManagerDrawer}
         width={420}
         destroyOnHidden
         extra={
-          <Space>
-            <Button onClick={closeCategoryDrawer}>取消</Button>
-            <Button type="primary" loading={categorySubmitting} onClick={() => void handleCategorySubmit()}>
-              {editingCategory === null ? '创建分类' : '保存修改'}
-            </Button>
-          </Space>
+          <Button type="primary" icon={<PlusOutlined />} onClick={openCreateCategoryModal}>
+            新建分类
+          </Button>
         }
+      >
+        {initialLoading ? (
+          <div className={styles.loadingWrap}>
+            <Spin />
+          </div>
+        ) : categories.length === 0 ? (
+          <Empty description="还没有分类。" className={styles.emptyState} />
+        ) : (
+          <List
+            dataSource={categories}
+            className={styles.categoryList}
+            renderItem={(category) => (
+              <List.Item
+                className={styles.categoryItem}
+                actions={[
+                  <Button
+                    key="edit"
+                    type="text"
+                    icon={<EditOutlined />}
+                    onClick={() => openEditCategoryModal(category)}
+                  >
+                    编辑
+                  </Button>,
+                  <Popconfirm
+                    key="delete"
+                    overlayClassName={styles.deleteConfirm}
+                    title={`确认删除分类「${category.name}」吗？`}
+                    okText="删除"
+                    cancelText="取消"
+                    okButtonProps={{ danger: true }}
+                    onConfirm={() => handleDeleteCategory(category)}
+                  >
+                    <Button type="text" danger icon={<DeleteOutlined />}>
+                      删除
+                    </Button>
+                  </Popconfirm>,
+                ]}
+              >
+                <div className={styles.categoryMeta}>
+                  <Typography.Text strong>{category.name}</Typography.Text>
+                  <Typography.Text type="secondary">
+                    {categoryMomentCount[category.id] ?? 0} 条动态
+                  </Typography.Text>
+                </div>
+              </List.Item>
+            )}
+          />
+        )}
+      </Drawer>
+
+      <Modal
+        title={editingCategory === null ? '新建分类' : `编辑分类 · ${editingCategory.name}`}
+        open={categoryModalOpen}
+        onCancel={closeCategoryModal}
+        okText={editingCategory === null ? '创建分类' : '保存修改'}
+        cancelText="取消"
+        confirmLoading={categorySubmitting}
+        onOk={() => void handleCategorySubmit()}
+        destroyOnHidden
+        className={styles.categoryModal}
       >
         <Form
           form={categoryForm}
@@ -691,7 +692,7 @@ export function AdminMomentsPage() {
             <Input placeholder="生活 / 学习 / 随手记" />
           </Form.Item>
         </Form>
-      </Drawer>
+      </Modal>
     </section>
   )
 }

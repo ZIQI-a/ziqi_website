@@ -2,17 +2,7 @@
   composes: page from '../../components/admin/AdminCrudShared.module.css';
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.85fr) minmax(300px, 0.95fr);
-  gap: 20px;
-}
-
 .panel {
-  composes: panel from '../../components/admin/AdminCrudShared.module.css';
-}
-
-.sidePanel {
   composes: panel from '../../components/admin/AdminCrudShared.module.css';
 }
 
@@ -77,31 +67,6 @@
   background: color-mix(in srgb, var(--color-surface-strong) 92%, transparent) !important;
 }
 
-.sidePanel :global(.ant-card-body) {
-  display: grid;
-  gap: 16px;
-  padding: 24px;
-}
-
-.sideHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.sideEyebrow {
-  color: var(--color-accent) !important;
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.sideTitle {
-  margin: 6px 0 0 !important;
-  color: var(--color-text) !important;
-}
-
 .categoryList :global(.ant-list-items) {
   display: grid;
   gap: 12px;
@@ -129,19 +94,36 @@
   color: #ffb8b8 !important;
 }
 
-@media (max-width: 1100px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
+.categoryModal :global(.ant-modal-content),
+.categoryModal :global(.ant-modal-header) {
+  background: color-mix(in srgb, var(--color-surface-strong) 96%, transparent) !important;
+  border-color: var(--color-line) !important;
+}
+
+.categoryModal :global(.ant-modal-title),
+.categoryModal :global(.ant-modal-close),
+.categoryModal :global(.ant-modal-close .anticon),
+.categoryModal :global(.ant-form-item-label > label),
+.categoryModal :global(.ant-input) {
+  color: var(--color-text) !important;
+}
+
+.categoryModal :global(.ant-input) {
+  background: color-mix(in srgb, var(--color-surface-strong) 94%, transparent) !important;
+  border-color: var(--color-line) !important;
+}
+
+.categoryModal :global(.ant-input::placeholder) {
+  color: rgba(212, 224, 247, 0.58) !important;
+}
+
+.categoryModal :global(.ant-btn-primary),
+.categoryModal :global(.ant-btn-primary span) {
+  color: #261805;
 }
 
 @media (max-width: 640px) {
-  .sidePanel :global(.ant-card-body) {
-    padding: 18px;
-  }
-
-  .sideHeader {
-    flex-direction: column;
-    align-items: flex-start;
+  .categoryItem {
+    align-items: flex-start !important;
   }
 }
