@@ -1,56 +1,111 @@
-# Ziqi Archive
+# Ziqi Archive Frontend
 
-一个基于 `Vite + React + TypeScript + react-router-dom + CSS Modules` 的个人网站练习项目。
+`ziqiHome_front` 是个人网站 `Ziqi Archive` 的前端工程，负责公开站点展示和后台管理端交互。项目基于 `Vite + React + TypeScript + react-router-dom + CSS Modules`，管理端局部使用 `Ant Design`。
 
-## 工程文档
+## 当前能力
 
-项目相关工程文档已整理到 [`docs/`](./docs/README.md)，包含：
+- 公开站点：主页、最新动态、博客列表、项目列表、联系平台页
+- 后台管理：博客、项目、动态 moments、联系平台、用户管理
+- 登录鉴权：`/admin/login` 登录，`/admin/*` 通过路由守卫保护
+- 接口联动：公开页通过 `/api/site/*` 获取数据，管理页通过 `/api/admin/*` 做 CRUD
+- 主题系统：默认暗色，支持亮色切换
+- 响应式布局：公开站点和管理端都按移动端可用性设计
 
-- 项目概览
-- 前端架构说明
-- 开发流程与质量门禁
-- 路线图与待办
+## 技术栈
 
-## 当前版本包含什么
-
-- 首页：个人介绍、博客笔记预览、项目汇总预览
-- 博客笔记页：展示静态数据驱动的文章卡片
-- 项目汇总页：展示项目简介、技术栈和状态
-
-## 为什么这样搭
-
-- `Vite`：本地启动快，适合 React 初学者理解工程结构
-- `React Router`：把个人站拆成多个页面，而不是把所有内容塞在一个组件里
-- `CSS Modules`：让样式跟组件绑定，减少全局样式互相污染
-- `TypeScript`：先用于类型提示和数据结构约束，帮助理解组件 props 和数据组织
+- `Vite`：前端构建与本地开发服务
+- `React 19`：页面和组件开发
+- `TypeScript`：类型约束和接口契约
+- `react-router-dom`：公开站点和管理端路由
+- `CSS Modules`：公开站点和局部组件样式
+- `Ant Design`：仅用于 `/admin` 管理端
+- `ESLint`：基础代码检查
 
 ## 目录说明
 
 ```text
 src/
-  components/   可复用组件
-  data/         页面用到的静态数据
-  pages/        路由页面
-  types/        TypeScript 类型定义
+  api/          后端接口客户端，按 auth/admin/site 分组
+  auth/         登录态上下文、路由守卫和会话状态
+  components/   公开站点复用组件与 admin 通用组件
+  config/       静态资源映射等配置
+  data/         仍保留的静态个人信息和首页基础数据
+  pages/        公开页面与 pages/admin 后台页面
+  theme/        管理端 Ant Design 主题配置
+  types/        前后端接口和页面数据类型
+  App.tsx       路由配置入口
+  main.tsx      React 挂载入口
 ```
 
 ## 本地启动
+
+先启动后端服务，再启动前端：
 
 ```bash
 npm install
 npm run dev
 ```
 
-## 当前学习重点
+默认 Vite 代理会把 `/api/*` 转发到 `http://localhost:8080`。如果需要改后端地址，可以配置：
 
-1. 理解 `main.tsx` 如何挂载 React 应用
-2. 理解 `App.tsx` 如何配置路由
-3. 理解页面如何通过 `map` 把数据渲染成卡片组件
-4. 理解 CSS Modules 如何让组件样式更可维护
+```bash
+VITE_API_BASE_URL=http://localhost:8080
+```
 
-## 后续可以继续扩展
+## 常用命令
 
-- 博客详情页
-- 项目详情页
-- Markdown 内容管理
-- 部署上线
+```bash
+npm run dev      # 本地开发
+npm run lint     # ESLint 检查
+npm run build    # TypeScript + Vite 构建
+npm run preview  # 预览构建产物
+```
+
+## 当前路由
+
+公开站点：
+
+- `/`
+- `/latest`
+- `/blog`
+- `/projects`
+- `/contact`
+
+管理端：
+
+- `/admin/login`
+- `/admin`
+- `/admin/blogs`
+- `/admin/moments`
+- `/admin/projects`
+- `/admin/contact-links`
+- `/admin/users`
+
+## 文档
+
+工程文档在 [`docs/`](./docs/README.md)：
+
+- 项目概览
+- 架构说明
+- 管理页说明
+- 开发流程
+- 路线图
+
+## 质量门禁
+
+每次功能改动后至少执行：
+
+```bash
+npm run lint
+npm run build
+```
+
+如果改动了接口契约、路由、管理页或内容来源，需要同步更新 `docs/` 和本 README。
+
+## 后续规划
+
+- 增加博客详情页和项目详情页
+- 优化 moments 在首页和最新页的聚合展示
+- 完善后台登录后的账户设置体验
+- 增加前端自动化测试
+- 补充部署和 CI 文档

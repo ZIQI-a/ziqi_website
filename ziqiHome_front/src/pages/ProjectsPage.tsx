@@ -1,42 +1,75 @@
-import { useEffect, useState } from 'react'
-import { PageHeader } from '../components/PageHeader'
-import { ProjectCard } from '../components/ProjectCard'
-import { siteClient } from '../api/siteClient'
-import type { ProjectSummary } from '../types/content'
-import styles from './ProjectsPage.module.css'
+import { useEffect, useState } from "react";
+import { PageHeader } from "../components/PageHeader";
+import { ProjectCard } from "../components/ProjectCard";
+import { siteClient } from "../api/siteClient";
+import type { ProjectSummary } from "../types/content";
+import styles from "./ProjectsPage.module.css";
+
+const allStatusValue = "全部";
 
 export function ProjectsPage() {
-  const [projectList, setProjectList] = useState<ProjectSummary[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [projectList, setProjectList] = useState<ProjectSummary[]>([]);
+  const [activeStatus, setActiveStatus] = useState(allStatusValue);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    void loadProjects()
-  }, [])
+    void loadProjects();
+  }, []);
 
   async function loadProjects() {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
-      const data = await siteClient.listProjects()
-      setProjectList(data)
+      const data = await siteClient.listProjects();
+      setProjectList(data);
     } catch (loadError) {
       setError(
-        loadError instanceof Error ? loadError.message : '项目内容加载失败，请稍后重试',
-      )
+        loadError instanceof Error
+          ? loadError.message
+          : "项目内容加载失败，请稍后重试",
+      );
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
+
+  const statusOptions = [
+    allStatusValue,
+    ...Array.from(new Set(projectList.map((project) => project.status))),
+  ];
+  const filteredProjects =
+    activeStatus === allStatusValue
+      ? projectList
+      : projectList.filter((project) => project.status === activeStatus);
 
   return (
     <div className={styles.page}>
       <PageHeader
-        eyebrow="Selected Works"
-        title="项目汇总"
-        description="这里收集我已经完成、正在练习或准备继续推进的项目。第一版先做概要展示，让页面结构、数据接口和视觉层次先稳定下来。"
+        eyebrow="Projects Works"
+        title="项目工坊"
+        description="每一次想法，每一次迭代，都是构建未来的脚印"
       />
+
+      {projectList.length > 0 ? (
+        <section className={styles.toolbar} aria-label="项目状态筛选">
+          <div className={styles.statusFilters}>
+            {statusOptions.map((status) => (
+              <button
+                key={status}
+                type="button"
+                className={`${styles.statusFilter} ${
+                  activeStatus === status ? styles.statusFilterActive : ""
+                }`}
+                onClick={() => setActiveStatus(status)}
+              >
+                {status}
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {loading ? (
         <section className={styles.statePanel}>
@@ -52,11 +85,14 @@ export function ProjectsPage() {
         </section>
       ) : (
         <section className={styles.list}>
-          {projectList.map((project) => (
-            <ProjectCard key={`${project.id}-${project.cover}`} project={project} />
+          {filteredProjects.map((project) => (
+            <ProjectCard
+              key={`${project.id}-${project.cover}`}
+              project={project}
+            />
           ))}
         </section>
       )}
     </div>
-  )
+  );
 }
