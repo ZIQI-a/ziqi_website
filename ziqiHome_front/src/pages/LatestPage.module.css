@@ -75,6 +75,7 @@
 }
 
 .filterChip {
+  cursor: pointer;
   padding: 12px 18px;
   border: 1px solid var(--color-line);
   border-radius: 999px;
@@ -85,7 +86,8 @@
     transform 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .filterChip:hover {
@@ -98,6 +100,8 @@
   border-color: rgba(255, 177, 24, 0.52);
   background: rgba(255, 177, 24, 0.14);
   color: var(--color-text);
+  box-shadow: 0 12px 26px rgba(255, 177, 24, 0.14);
+  transform: translateY(-1px) scale(1.02);
 }
 
 .sectionBlock {
@@ -105,6 +109,7 @@
   gap: 18px;
   padding: clamp(22px, 3vw, 30px);
   border-radius: 30px;
+  animation: contentReveal 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .sectionHeading {
@@ -131,6 +136,7 @@
   overflow: hidden;
   border-radius: 26px;
   background: #0a1020;
+  animation: cardRise 0.44s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .galleryCardFeatured {
@@ -211,6 +217,17 @@
   background:
     linear-gradient(180deg, rgba(255, 177, 24, 0.08), transparent 42%),
     color-mix(in srgb, var(--color-surface) 94%, transparent);
+  animation: cardRise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    transform 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+.updateCard:hover {
+  border-color: rgba(255, 177, 24, 0.24);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.24);
+  transform: translateY(-3px);
 }
 
 .updateTop {
@@ -244,6 +261,46 @@
   line-height: 1.8;
 }
 
+.galleryCard:nth-child(2),
+.updateCard:nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.galleryCard:nth-child(3),
+.updateCard:nth-child(3) {
+  animation-delay: 0.08s;
+}
+
+.galleryCard:nth-child(4),
+.updateCard:nth-child(4) {
+  animation-delay: 0.12s;
+}
+
+/* 分类切换时做轻量进入动画，避免内容替换显得生硬。 */
+@keyframes contentReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (max-width: 960px) {
 
   .galleryCard,
@@ -267,5 +324,20 @@
   .updateTop {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sectionBlock,
+  .galleryCard,
+  .updateCard {
+    animation: none;
+  }
+
+  .filterChip,
+  .filterChip:hover,
+  .filterChipActive,
+  .updateCard:hover {
+    transform: none;
   }
 }

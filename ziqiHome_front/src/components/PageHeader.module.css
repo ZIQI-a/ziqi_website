@@ -3,6 +3,7 @@
   display: grid;
   justify-items: center;
   text-align: center;
+  animation: headerReveal 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .eyebrow {
@@ -27,4 +28,22 @@
   margin: 18px 0 0;
   color: var(--color-text-muted);
   line-height: 1.85;
+}
+
+@keyframes headerReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header {
+    animation: none;
+  }
 }

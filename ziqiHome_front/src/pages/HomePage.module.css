@@ -190,12 +190,14 @@
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-surface) 88%, transparent);
   color: var(--color-text-muted);
+  cursor: pointer;
   font: inherit;
   transition:
     transform 0.2s ease,
     border-color 0.2s ease,
     color 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .lifeTabButton:hover {
@@ -207,12 +209,15 @@
 .lifeTabActive {
   color: #16100f;
   background: var(--color-accent) !important;
+  box-shadow: 0 12px 28px rgba(255, 177, 24, 0.2);
+  transform: translateY(-1px) scale(1.02);
 }
 
 .lifeGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 20px;
+  animation: contentReveal 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .lifeStateCard {
@@ -240,6 +245,11 @@
   border: 1px solid var(--color-line);
   box-shadow: var(--shadow-soft);
   cursor: pointer;
+  animation: cardRise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    transform 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease;
 }
 
 .lifeCard img {
@@ -309,6 +319,12 @@
   transform: scale(1.08);
 }
 
+.lifeCard:hover {
+  border-color: rgba(255, 177, 24, 0.24);
+  box-shadow: 0 24px 62px rgba(0, 0, 0, 0.3);
+  transform: translateY(-4px);
+}
+
 .lifeCard:hover .lifeArrow {
   opacity: 1;
   transform: translateY(0);
@@ -322,6 +338,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
+  animation: contentReveal 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .latestCard,
@@ -348,6 +365,17 @@
   background:
     linear-gradient(180deg, rgba(255, 177, 24, 0.08), transparent 46%),
     color-mix(in srgb, var(--color-surface) 92%, transparent);
+  animation: cardRise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    transform 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+.latestCard:hover {
+  border-color: rgba(255, 177, 24, 0.22);
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.24);
+  transform: translateY(-3px);
 }
 
 .latestCard::before {
@@ -397,6 +425,41 @@
   }
 }
 
+/* 筛选切换后让新内容柔和进入，不改变网格尺寸，减少视觉跳变。 */
+@keyframes contentReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.lifeCard:nth-child(2),
+.latestCard:nth-child(2) {
+  animation-delay: 0.04s;
+}
+
+.lifeCard:nth-child(3),
+.latestCard:nth-child(3) {
+  animation-delay: 0.08s;
+}
+
 @media (max-width: 960px) {
 
   .lifeGrid,
@@ -418,5 +481,23 @@
   .latestCardTop {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sectionWrap,
+  .lifeGrid,
+  .latestGrid,
+  .lifeCard,
+  .latestCard {
+    animation: none;
+  }
+
+  .lifeTabButton,
+  .lifeTabButton:hover,
+  .lifeTabActive,
+  .lifeCard:hover,
+  .latestCard:hover {
+    transform: none;
   }
 }

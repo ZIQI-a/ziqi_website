@@ -4,12 +4,28 @@
   border: 1px solid var(--color-line);
   background: var(--color-surface);
   box-shadow: var(--shadow-soft);
+  animation: cardRise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition:
+    transform 0.24s ease,
+    border-color 0.24s ease,
+    box-shadow 0.24s ease;
+}
+
+.card:hover {
+  border-color: rgba(255, 177, 24, 0.24);
+  box-shadow: 0 24px 62px rgba(0, 0, 0, 0.26);
+  transform: translateY(-4px);
 }
 
 .cover {
   width: 100%;
   height: 220px;
   object-fit: cover;
+  transition: transform 0.55s ease;
+}
+
+.card:hover .cover {
+  transform: scale(1.045);
 }
 
 .content {
@@ -52,4 +68,27 @@
   background: var(--color-accent-soft);
   color: var(--color-accent);
   font-size: 0.88rem;
+}
+
+@keyframes cardRise {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+
+  .card:hover,
+  .card:hover .cover {
+    transform: none;
+  }
 }
