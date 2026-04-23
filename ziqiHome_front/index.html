@@ -4,9 +4,24 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        try {
+          var savedTheme = window.localStorage.getItem("ziqi-theme");
+          var theme = savedTheme === "light" ? "light" : "dark";
+
+          // 在 CSS 和 React 挂载前写入主题，避免先显示默认暗色再切回缓存主题。
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        } catch (_error) {
+          document.documentElement.dataset.theme = "dark";
+          document.documentElement.style.colorScheme = "dark";
+        }
+      })();
+    </script>
     <title>王子琦 | 天在将亮未亮时最美</title>
   </head>
-  <body></body>
+  <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

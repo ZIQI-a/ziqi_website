@@ -27,6 +27,7 @@ export function MainLayout() {
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
     localStorage.setItem("ziqi-theme", theme);
   }, [theme]);
 

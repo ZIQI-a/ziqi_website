@@ -154,7 +154,10 @@ export function LatestPage() {
         </section>
       ) : (
         <>
-          <section className={styles.sectionBlock}>
+          <section
+            key={`featured-${activeCategoryId}`}
+            className={styles.sectionBlock}
+          >
             <div className={styles.sectionHeading}>
               <span>且看且珍惜</span>
               <h3>生活切片</h3>
@@ -189,7 +192,10 @@ export function LatestPage() {
             )}
           </section>
 
-          <section className={styles.sectionBlock}>
+          <section
+            key={`text-${activeCategoryId}`}
+            className={styles.sectionBlock}
+          >
             <div className={styles.sectionHeading}>
               <span>enenen</span>
               <h3>随笔</h3>

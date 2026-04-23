@@ -41,6 +41,7 @@
 }
 
 .statusFilter {
+  position: relative;
   min-height: 36px;
   padding: 0 15px;
   border: 1px solid transparent;
@@ -48,9 +49,17 @@
   background: transparent;
   color: var(--color-text-muted);
   cursor: pointer;
+  transform: translateY(0);
+  transition:
+    transform 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.22s ease,
+    background-color 0.22s ease,
+    color 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .statusFilter:hover {
+  transform: translateY(-1px);
   color: var(--color-text);
   border-color: rgba(255, 177, 24, 0.28);
 }
@@ -60,11 +69,39 @@
   background: var(--color-accent);
   color: #16100f;
   font-weight: 700;
+  box-shadow: 0 10px 24px rgba(255, 177, 24, 0.22);
+  transform: translateY(-1px) scale(1.02);
 }
 
 .list {
   display: grid;
   gap: 18px;
+  animation: contentReveal 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 切换筛选结果时只做透明度和位移动画，避免影响列表布局稳定性。 */
+@keyframes contentReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .list {
+    animation: none;
+  }
+
+  .statusFilter,
+  .statusFilter:hover,
+  .statusFilterActive {
+    transform: none;
+  }
 }
 
 @media (max-width: 720px) {

@@ -220,7 +220,7 @@ export function HomePage() {
           </div>
         </div>
 
-        <div className={styles.lifeGrid}>
+        <div key={`life-${activeCategoryId}`} className={styles.lifeGrid}>
           {loadingMoments ? (
             <article className={styles.lifeStateCard}>
               <p>正在整理生活记录...</p>
@@ -261,7 +261,7 @@ export function HomePage() {
           </p>
         </div>
 
-        <div className={styles.latestGrid}>
+        <div key={`latest-${activeCategoryId}`} className={styles.latestGrid}>
           {loadingMoments ? (
             <article className={styles.latestCard}>
               <span>加载中</span>

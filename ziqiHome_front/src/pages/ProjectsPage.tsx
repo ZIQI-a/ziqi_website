@@ -117,7 +117,7 @@ export function ProjectsPage() {
           <p>当前还没有已发布的项目内容。</p>
         </section>
       ) : (
-        <section className={styles.list}>
+        <section key={activeStatus} className={styles.list}>
           {projectList.map((project) => (
             <ProjectCard
               key={`${project.id}-${project.cover}`}
