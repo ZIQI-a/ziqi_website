@@ -2,10 +2,6 @@
 .DS_Store
 .vscode/
 
-# Local agent/docs files
-AGENTS.md
-docs/
-
 # Historical backup metadata kept only for local fallback
 .git_backups/
 
