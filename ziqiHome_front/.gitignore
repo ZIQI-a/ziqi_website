@@ -30,3 +30,9 @@ coverage
 # Local planning/admin docs that should stay out of version control
 docs/admin-management.md
 AGENTS.md
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
