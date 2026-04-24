@@ -7,3 +7,8 @@
 
 # Temporary experimental monorepo created earlier
 ziqihome_unified_repo/
+/.idea/.gitignore
+/.idea/modules.xml
+/.idea/mywebsit.iml
+/.idea/inspectionProfiles/Project_Default.xml
+/.idea/vcs.xml
