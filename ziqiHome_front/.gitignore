@@ -29,4 +29,3 @@ coverage
 
 # Local planning/admin docs that should stay out of version control
 docs/admin-management.md
-AGENTS.md

@@ -5,7 +5,6 @@
 *.log
 
 # Local collaboration docs and agent constraints are kept outside commits
-docs/
 
 # Local environment overrides
 .env
