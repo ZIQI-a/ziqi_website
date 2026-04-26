@@ -5,16 +5,18 @@ import com.ziqihome.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
  * 管理端接口统一依赖会话里的管理员 ID 放行，避免每个 controller 重复写登录判断。
  *
- * <p>作为 Spring MVC 拦截器，在请求到达 Controller 之前执行鉴权逻辑：
+ * <p>
+ * 作为 Spring MVC 拦截器，在请求到达 Controller 之前执行鉴权逻辑：
  * <ol>
- *   <li>从 Session 中读取管理员用户 ID</li>
- *   <li>校验用户是否存在且仍处于启用状态</li>
- *   <li>不满足条件则抛出 UnauthorizedException，阻止请求继续</li>
+ * <li>从 Session 中读取管理员用户 ID</li>
+ * <li>校验用户是否存在且仍处于启用状态</li>
+ * <li>不满足条件则抛出 UnauthorizedException，阻止请求继续</li>
  * </ol>
  */
 @Component // 注册为 Spring Bean，以便注入到拦截器注册配置中
@@ -39,8 +41,11 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
   public boolean preHandle(
       HttpServletRequest request,
       HttpServletResponse response,
-      Object handler
-  ) {
+      Object handler) {
+    // 放行 CORS 预检请求，否则前端跨域请求后台接口会失败
+    if (CorsUtils.isPreFlightRequest(request)) {
+      return true;
+    }
     // 从已有 Session 中获取管理员用户 ID（不创建新 Session）
     Object userIdAttribute = request.getSession(false) == null
         ? null

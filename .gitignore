@@ -13,3 +13,5 @@ ziqihome_unified_repo/
 /.idea/inspectionProfiles/Project_Default.xml
 /.idea/vcs.xml
 /.idea/
+ziqihome_backend/app.jar
+ziqihome_backend/docker-compose.yml
