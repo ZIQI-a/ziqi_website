@@ -1,6 +1,7 @@
 package com.ziqihome.backend.controller;
 
 import com.ziqihome.backend.exception.ConflictException;
+import com.ziqihome.backend.exception.BadRequestException;
 import com.ziqihome.backend.exception.ResourceNotFoundException;
 import com.ziqihome.backend.exception.UnauthorizedException;
 import java.time.Instant;
@@ -35,6 +36,12 @@ public class ApiExceptionHandler {
   @ExceptionHandler(ConflictException.class)
   public ResponseEntity<Map<String, Object>> handleConflict(ConflictException exception) {
     return buildResponse(HttpStatus.CONFLICT, exception.getMessage(), Map.of());
+  }
+
+  /** 业务参数错误（如第三方同步参数不合法）→ 400 Bad Request */
+  @ExceptionHandler(BadRequestException.class)
+  public ResponseEntity<Map<String, Object>> handleBadRequest(BadRequestException exception) {
+    return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage(), Map.of());
   }
 
   /** 未认证 / 登录失效 → 401 Unauthorized */

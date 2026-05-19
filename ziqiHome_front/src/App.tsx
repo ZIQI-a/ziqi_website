@@ -29,6 +29,11 @@ const AdminBlogEditorPage = lazy(async () => {
   return { default: module.AdminBlogEditorPage };
 });
 
+const AdminBlogSyncPage = lazy(async () => {
+  const module = await import("./pages/admin/AdminBlogSyncPage");
+  return { default: module.AdminBlogSyncPage };
+});
+
 const AdminMomentsPage = lazy(async () => {
   const module = await import("./pages/admin/AdminMomentsPage");
   return { default: module.AdminMomentsPage };
@@ -111,6 +116,14 @@ function App() {
           element={
             <Suspense fallback={null}>
               <AdminBlogEditorPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="blogs/yuque-sync"
+          element={
+            <Suspense fallback={null}>
+              <AdminBlogSyncPage />
             </Suspense>
           }
         />

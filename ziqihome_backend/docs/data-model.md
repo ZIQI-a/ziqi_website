@@ -16,6 +16,10 @@
 - `source_type`
 - `source_label`
 - `source_url`
+- `source_repo`
+- `source_doc_id`
+- `source_updated_at`
+- `last_synced_at`
 - `published`
 - `sort_order`
 - `created_at`

@@ -63,6 +63,16 @@ public class BlogPost {
   @Column(length = 255)
   private String sourceUrl;
 
+  @Column(length = 120)
+  private String sourceRepo;
+
+  @Column(length = 80)
+  private String sourceDocId;
+
+  private Instant sourceUpdatedAt;
+
+  private Instant lastSyncedAt;
+
   @Column(nullable = false)
   private Boolean published = true;
 
@@ -187,6 +197,38 @@ public class BlogPost {
 
   public void setSourceUrl(String sourceUrl) {
     this.sourceUrl = sourceUrl;
+  }
+
+  public String getSourceRepo() {
+    return sourceRepo;
+  }
+
+  public void setSourceRepo(String sourceRepo) {
+    this.sourceRepo = sourceRepo;
+  }
+
+  public String getSourceDocId() {
+    return sourceDocId;
+  }
+
+  public void setSourceDocId(String sourceDocId) {
+    this.sourceDocId = sourceDocId;
+  }
+
+  public Instant getSourceUpdatedAt() {
+    return sourceUpdatedAt;
+  }
+
+  public void setSourceUpdatedAt(Instant sourceUpdatedAt) {
+    this.sourceUpdatedAt = sourceUpdatedAt;
+  }
+
+  public Instant getLastSyncedAt() {
+    return lastSyncedAt;
+  }
+
+  public void setLastSyncedAt(Instant lastSyncedAt) {
+    this.lastSyncedAt = lastSyncedAt;
   }
 
   public Boolean getPublished() {

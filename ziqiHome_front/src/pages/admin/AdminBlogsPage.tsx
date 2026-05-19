@@ -20,6 +20,7 @@ import {
 } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import {
+  CloudSyncOutlined,
   DeleteOutlined,
   PlusOutlined,
   ReloadOutlined,
@@ -373,6 +374,12 @@ export function AdminBlogsPage() {
                 onClick={() => void loadBlogs({ silent: true })}
               >
                 刷新
+              </Button>
+              <Button
+                icon={<CloudSyncOutlined />}
+                onClick={() => navigate('/admin/blogs/yuque-sync')}
+              >
+                语雀同步
               </Button>
               <Button
                 type="primary"

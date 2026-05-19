@@ -1,0 +1,62 @@
+.page {
+  display: grid;
+}
+
+.panel {
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent) !important;
+}
+
+.helperText {
+  margin: 0 0 18px !important;
+  color: var(--color-text-muted) !important;
+  line-height: 1.8;
+}
+
+.alert {
+  margin-bottom: 18px;
+}
+
+.form {
+  display: grid;
+  gap: 18px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.resultPanel {
+  display: grid;
+  gap: 16px;
+  margin-top: 26px;
+}
+
+.resultMeta {
+  display: grid;
+  gap: 4px;
+}
+
+.resultTitle {
+  margin: 0 !important;
+}
+
+.titleCell {
+  display: grid;
+  gap: 6px;
+}
+
+.table :global(.ant-table) {
+  background: transparent !important;
+}
+
+@media (max-width: 920px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}

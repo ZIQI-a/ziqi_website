@@ -14,6 +14,10 @@ import type {
   UserCreatePayload,
   UserPasswordPayload,
   UserUpdatePayload,
+  YuqueSyncCommitPayload,
+  YuqueSyncCommitResponse,
+  YuqueSyncPreviewPayload,
+  YuqueSyncPreviewResponse,
 } from '../types/admin'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
@@ -110,6 +114,18 @@ export const adminClient = {
   deleteBlog(id: number) {
     return request<void>(`/api/admin/blogs/${id}`, {
       method: 'DELETE',
+    })
+  },
+  previewYuqueSync(payload: YuqueSyncPreviewPayload) {
+    return request<YuqueSyncPreviewResponse>('/api/admin/blogs/yuque/preview', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+  },
+  syncYuqueBlogs(payload: YuqueSyncCommitPayload) {
+    return request<YuqueSyncCommitResponse>('/api/admin/blogs/yuque/sync', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     })
   },
   listMoments(options?: { categoryId?: number; published?: boolean }) {

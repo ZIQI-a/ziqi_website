@@ -34,6 +34,8 @@
 - `POST /api/admin/blogs`
 - `PUT /api/admin/blogs/{id}`
 - `DELETE /api/admin/blogs/{id}`
+- `POST /api/admin/blogs/yuque/preview`
+- `POST /api/admin/blogs/yuque/sync`
 
 项目：
 

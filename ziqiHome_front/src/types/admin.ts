@@ -106,6 +106,55 @@ export interface BlogAdminPayload {
   sortOrder: number
 }
 
+export interface YuqueSyncPreviewPayload {
+  token: string
+  repoNamespace: string
+}
+
+export interface YuqueSyncPreviewItem {
+  docId: string
+  slug: string
+  title: string
+  summary: string
+  url: string | null
+  updatedAt: string | null
+  recommendedAction: 'CREATE' | 'UPDATE' | 'SKIP'
+  existingBlogId: number | null
+  existingBlogTitle: string | null
+}
+
+export interface YuqueSyncPreviewResponse {
+  repoNamespace: string
+  totalCount: number
+  items: YuqueSyncPreviewItem[]
+}
+
+export interface YuqueSyncCommitPayload {
+  token: string
+  repoNamespace: string
+  selections: Array<{
+    docId: string
+    slug: string
+  }>
+  defaultCategory: string
+  defaultCover: string
+  defaultTags: string[]
+  publishImported: boolean
+}
+
+export interface YuqueSyncCommitResult {
+  blogId: number
+  blogTitle: string
+  action: 'CREATED' | 'UPDATED'
+  sourceDocId: string
+}
+
+export interface YuqueSyncCommitResponse {
+  createdCount: number
+  updatedCount: number
+  items: YuqueSyncCommitResult[]
+}
+
 export interface ProjectAdminItem {
   id: number
   slug: string

@@ -87,9 +87,11 @@ mvn spring-boot:run
 - `V7__seed_initial_moments.sql`
 - `V8__seed_default_admin_user.sql`
 - `V9__extend_blog_post_for_full_articles.sql`
+- `V10__add_yuque_sync_fields_to_blog_posts.sql`
 
 `V8` 会补一条默认管理员账号：`admin-reset`。初始化密码为 `Admin@123456`，首次登录后建议立即在后台改密。
 `V9` 会把博客从摘要卡片扩展为完整文章模型，新增 Markdown 正文、内容模式和原文来源字段，便于后续接语雀或 CSDN 导入。
+`V10` 会补充语雀同步追踪字段，用于记录来源知识库、语雀文档 ID 和最近同步时间，支撑后台手动同步语雀文章。
 
 如果某个迁移已经在 `flyway_schema_history` 中记录，修改原迁移文件不会再次执行。已启动过的数据库需要新增后续版本迁移，而不是直接改旧版本。
 
@@ -113,6 +115,7 @@ mvn spring-boot:run
 管理 CRUD：
 
 - `/api/admin/blogs`
+- `/api/admin/blogs/yuque/*`
 - `/api/admin/projects`
 - `/api/admin/contact-links`
 - `/api/admin/moments`，列表支持 `categoryId`、`published` 查询参数
