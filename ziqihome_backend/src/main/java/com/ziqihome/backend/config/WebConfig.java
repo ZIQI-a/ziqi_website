@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
 
   private final AdminAuthInterceptor adminAuthInterceptor;
 
-  @Value("${app.cors.allowed-origins:http://localhost:5173}")
+  @Value("${app.cors.allowed-origins:http://localhost:5174,http://127.0.0.1:5174}")
   private String allowedOrigins;
 
   public WebConfig(AdminAuthInterceptor adminAuthInterceptor) {

@@ -11,6 +11,7 @@
 - `V5__create_user_table.sql`：用户表 `user_manage`
 - `V6__create_moments_tables.sql`：moments 和分类表
 - `V7__seed_initial_moments.sql`：moments 初始化数据
+- `V8__seed_default_admin_user.sql`：补充默认管理员账号 `admin-reset`
 
 ## 重要规则
 

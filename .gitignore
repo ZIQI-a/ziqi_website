@@ -15,3 +15,4 @@ ziqihome_unified_repo/
 /.idea/
 ziqihome_backend/app.jar
 ziqihome_backend/docker-compose.yml
+ziqi_job_docs/

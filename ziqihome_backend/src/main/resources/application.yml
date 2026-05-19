@@ -19,8 +19,10 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 server:
-  port: 8080
+  # 本地默认使用 8081，避免和常见开发服务端口冲突。
+  port: 8081
   forward-headers-strategy: framework
 app:
   cors:
-    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173}
+    # 同时放行 localhost 和 127.0.0.1，避免浏览器通过不同本地域名访问前端时触发登录 403。
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5174,http://127.0.0.1:5174}

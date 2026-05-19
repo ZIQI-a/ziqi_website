@@ -72,7 +72,7 @@ export DB_PASSWORD='你的数据库密码'
 mvn spring-boot:run
 ```
 
-默认端口是 `8080`。
+默认端口是 `8081`，默认允许 `http://localhost:5174` 和 `http://127.0.0.1:5174` 发起带凭证的本地联调请求。
 
 ## 数据库迁移
 
@@ -85,6 +85,9 @@ mvn spring-boot:run
 - `V5__create_user_table.sql`
 - `V6__create_moments_tables.sql`
 - `V7__seed_initial_moments.sql`
+- `V8__seed_default_admin_user.sql`
+
+`V8` 会补一条默认管理员账号：`admin-reset`。初始化密码为 `Admin@123456`，首次登录后建议立即在后台改密。
 
 如果某个迁移已经在 `flyway_schema_history` 中记录，修改原迁移文件不会再次执行。已启动过的数据库需要新增后续版本迁移，而不是直接改旧版本。
 

@@ -46,10 +46,10 @@ npm install
 npm run dev
 ```
 
-默认 Vite 代理会把 `/api/*` 转发到 `http://localhost:8080`。如果需要改后端地址，可以配置：
+默认前端开发服务运行在 `http://localhost:5174`，并会把 `/api/*` 转发到 `http://localhost:8081`。如果需要改后端地址，可以配置：
 
 ```bash
-VITE_API_BASE_URL=http://localhost:8080
+VITE_API_BASE_URL=http://localhost:8081
 ```
 
 ## 常用命令
