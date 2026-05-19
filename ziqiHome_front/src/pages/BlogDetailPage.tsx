@@ -59,31 +59,38 @@ export function BlogDetailPage() {
 
   return (
     <article className={styles.page}>
-      <PageHeader eyebrow="Blog Detail" title={post.title} description={post.summary} />
-
-      <div className={styles.metaRow}>
-        <span>{post.category}</span>
-        <span>{post.date}</span>
-        {post.sourceUrl ? (
-          <a href={post.sourceUrl} target="_blank" rel="noreferrer">
-            查看{post.sourceLabel ?? '原文'}
-          </a>
-        ) : null}
-      </div>
-
       <img className={styles.cover} src={post.cover} alt={post.title} />
 
-      <div className={styles.tags}>
-        {post.tags.map((tag) => (
-          <span key={tag}>{tag}</span>
-        ))}
-      </div>
+      <section className={styles.articleShell}>
+        <div className={styles.actionRow}>
+          <Link to="/blog" className={styles.actionButton}>
+            返回博客列表
+          </Link>
+          {post.sourceUrl ? (
+            <a href={post.sourceUrl} target="_blank" rel="noreferrer" className={styles.actionButton}>
+              查看{post.sourceLabel ?? '原文'}
+            </a>
+          ) : null}
+        </div>
 
-      <MarkdownArticle markdown={post.contentMarkdown} />
+        <header className={styles.articleHeader}>
+          <div className={styles.metaRow}>
+            <span>{post.category}</span>
+            <span>{post.date}</span>
+          </div>
 
-      <Link to="/blog" className={styles.backLink}>
-        返回博客列表
-      </Link>
+          <h1 className={styles.title}>{post.title}</h1>
+          <p className={styles.summary}>{post.summary}</p>
+
+          <div className={styles.tags}>
+            {post.tags.map((tag) => (
+              <span key={tag}>{tag}</span>
+            ))}
+          </div>
+        </header>
+
+        <MarkdownArticle markdown={post.contentMarkdown} />
+      </section>
     </article>
   )
 }

@@ -7,23 +7,15 @@ interface BlogCardProps {
 }
 
 export function BlogCard({ post }: BlogCardProps) {
-  const titleNode = post.contentMode === 'EXTERNAL' && post.sourceUrl ? (
-    <a href={post.sourceUrl} target="_blank" rel="noreferrer">
-      {post.title}
-    </a>
-  ) : (
-    <Link to={`/blog/${post.slug}`}>{post.title}</Link>
-  )
-
-  return (
-    <article className={styles.card}>
+  const cardBody = (
+    <>
       <img className={styles.cover} src={post.cover} alt={post.title} />
       <div className={styles.content}>
         <p className={styles.meta}>
           <span>{post.category}</span>
           <span>{post.date}</span>
         </p>
-        <h3>{titleNode}</h3>
+        <h3>{post.title}</h3>
         <p className={styles.summary}>{post.summary}</p>
         <div className={styles.tags}>
           {post.tags.map((tag) => (
@@ -36,6 +28,27 @@ export function BlogCard({ post }: BlogCardProps) {
           </p>
         ) : null}
       </div>
+    </>
+  )
+
+  /**
+   * 博客列表统一改为整卡可点击，避免只有标题可点击导致命中区域过小。
+   */
+  if (post.contentMode === 'EXTERNAL' && post.sourceUrl) {
+    return (
+      <article className={styles.card}>
+        <a href={post.sourceUrl} target="_blank" rel="noreferrer" className={styles.cardLink}>
+          {cardBody}
+        </a>
+      </article>
+    )
+  }
+
+  return (
+    <article className={styles.card}>
+      <Link to={`/blog/${post.slug}`} className={styles.cardLink}>
+        {cardBody}
+      </Link>
     </article>
   )
 }
