@@ -2,6 +2,7 @@ package com.ziqihome.backend.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.ziqihome.backend.exception.BadRequestException;
 import java.io.IOException;
 import java.net.URI;
@@ -22,41 +23,46 @@ public class YuqueClient {
 
   private final RestClient restClient;
   private final ObjectMapper objectMapper;
+  private final ObjectMapper yamlMapper;
 
   public YuqueClient(ObjectMapper objectMapper) {
     this.restClient = RestClient.builder().build();
     this.objectMapper = objectMapper;
+    this.yamlMapper = new ObjectMapper(new YAMLFactory());
   }
 
   /**
    * 第一版同步只读取指定知识库下的文档清单，避免把 token 落库，也避免一次性引入更重的 SDK 依赖。
    */
   public List<YuqueDocumentSummary> listDocuments(String token, String repoNamespace) {
-    JsonNode root = readJson(buildUri("/repos/%s/docs".formatted(encodePath(repoNamespace))), token);
-    JsonNode dataNode = root.path("data");
-
-    if (!dataNode.isArray()) {
-      throw new BadRequestException("语雀返回的文档列表格式不符合预期");
-    }
-
+    JsonNode dataNode = readJson(buildUri("/repos/%s/docs".formatted(encodePath(repoNamespace))), token).path("data");
+    JsonNode tocRoot = parseTocYaml(dataNode.path("toc_yml").asText(null));
+    long repoId = dataNode.path("id").asLong();
     List<YuqueDocumentSummary> documents = new ArrayList<>();
-    dataNode.forEach(item -> documents.add(new YuqueDocumentSummary(
-        textValue(item, "id"),
-        textValue(item, "slug"),
-        textValue(item, "title"),
-        firstNonBlank(textValue(item, "description"), textValue(item, "custom_description")),
-        textValue(item, "url"),
-        parseInstant(item.path("updated_at").asText(null)),
-        parseInstant(item.path("first_published_at").asText(null))
-    )));
+    for (JsonNode item : tocRoot) {
+      if (!"DOC".equals(item.path("type").asText())) {
+        continue;
+      }
+
+      documents.add(new YuqueDocumentSummary(
+          String.valueOf(repoId),
+          textValue(item, "doc_id"),
+          textValue(item, "url"),
+          textValue(item, "title"),
+          null,
+          buildDocumentUrl(repoNamespace, textValue(item, "url")),
+          null,
+          null
+      ));
+    }
 
     return documents;
   }
 
-  public YuqueDocumentDetail getDocument(String token, String repoNamespace, String slug) {
+  public YuqueDocumentDetail getDocument(String token, String repoId, String docId) {
     String path = "/repos/%s/docs/%s?raw=1".formatted(
-        encodePath(repoNamespace),
-        encodePath(slug)
+        encodePath(repoId),
+        encodePath(docId)
     );
     JsonNode dataNode = readJson(buildUri(path), token).path("data");
 
@@ -65,6 +71,7 @@ public class YuqueClient {
     }
 
     return new YuqueDocumentDetail(
+        repoId,
         textValue(dataNode, "id"),
         textValue(dataNode, "slug"),
         textValue(dataNode, "title"),
@@ -112,6 +119,22 @@ public class YuqueClient {
     return URI.create(YUQUE_API_BASE_URL + path);
   }
 
+  private JsonNode parseTocYaml(String tocYaml) {
+    if (tocYaml == null || tocYaml.isBlank()) {
+      throw new BadRequestException("语雀知识库目录为空，无法同步");
+    }
+
+    try {
+      JsonNode root = yamlMapper.readTree(tocYaml);
+      if (root == null || !root.isArray()) {
+        throw new BadRequestException("语雀目录结构解析失败");
+      }
+      return root;
+    } catch (IOException exception) {
+      throw new BadRequestException("语雀目录结构解析失败");
+    }
+  }
+
   private String encodePath(String value) {
     return UriUtils.encodePathSegment(value, java.nio.charset.StandardCharsets.UTF_8);
   }
@@ -146,6 +169,7 @@ public class YuqueClient {
   }
 
   public record YuqueDocumentSummary(
+      String repoId,
       String id,
       String slug,
       String title,
@@ -157,6 +181,7 @@ public class YuqueClient {
   }
 
   public record YuqueDocumentDetail(
+      String repoId,
       String id,
       String slug,
       String title,
@@ -166,5 +191,13 @@ public class YuqueClient {
       Instant updatedAt,
       Instant publishedAt
   ) {
+  }
+
+  private String buildDocumentUrl(String repoNamespace, String slug) {
+    if (repoNamespace == null || repoNamespace.isBlank() || slug == null || slug.isBlank()) {
+      return null;
+    }
+
+    return "https://www.yuque.com/%s/%s".formatted(repoNamespace, slug);
   }
 }

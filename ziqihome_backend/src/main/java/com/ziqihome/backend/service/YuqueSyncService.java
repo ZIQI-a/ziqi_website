@@ -18,8 +18,10 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,18 +58,27 @@ public class YuqueSyncService {
       throw new BadRequestException("至少保留一个默认标签");
     }
 
+    Map<String, YuqueClient.YuqueDocumentSummary> documentMap = new LinkedHashMap<>();
+    yuqueClient.listDocuments(request.token(), normalizedRepo)
+        .forEach(document -> documentMap.put(document.id(), document));
+
     int createdCount = 0;
     int updatedCount = 0;
     List<YuqueSyncResultItem> results = new ArrayList<>();
 
     for (YuqueSyncSelectionRequest selection : request.selections()) {
+      YuqueClient.YuqueDocumentSummary summary = documentMap.get(selection.docId().trim());
+      if (summary == null) {
+        throw new BadRequestException("语雀文档不存在或已从当前知识库移除：%s".formatted(selection.docId()));
+      }
+
       YuqueClient.YuqueDocumentDetail detail = yuqueClient.getDocument(
           request.token(),
-          normalizedRepo,
-          selection.slug().trim()
+          summary.repoId(),
+          summary.id()
       );
 
-      BlogPost blogPost = findExistingBlog(normalizedRepo, selection.docId().trim(), selection.slug().trim())
+      BlogPost blogPost = findExistingBlog(normalizedRepo, selection.docId().trim(), summary.slug())
           .orElseGet(BlogPost::new);
       boolean creating = blogPost.getId() == null;
 
