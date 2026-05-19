@@ -12,7 +12,25 @@ interface MarkdownArticleProps {
 export function MarkdownArticle({ markdown }: MarkdownArticleProps) {
   return (
     <div className={styles.article}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          /**
+           * 语雀 CDN 图片对网页 Referer 有防盗链限制，这里主动去掉 Referer，
+           * 避免站内展示语雀外链图片时被 403 拦截。
+           */
+          img: ({ src, alt }) => (
+            <img
+              src={src ?? ''}
+              alt={alt ?? ''}
+              loading="lazy"
+              referrerPolicy="no-referrer"
+            />
+          ),
+        }}
+      >
+        {markdown}
+      </ReactMarkdown>
     </div>
   )
 }
