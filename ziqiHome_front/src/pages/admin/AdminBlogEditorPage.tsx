@@ -3,19 +3,24 @@ import {
   App,
   Button,
   Card,
+  Dropdown,
   Input,
   Spin,
   Typography,
 } from 'antd'
 import {
   ArrowLeftOutlined,
-  BgColorsOutlined,
   BoldOutlined,
   CodeOutlined,
   EyeOutlined,
+  FontSizeOutlined,
+  ItalicOutlined,
   LinkOutlined,
+  MessageOutlined,
   OrderedListOutlined,
   PictureOutlined,
+  StrikethroughOutlined,
+  UnderlineOutlined,
   SaveOutlined,
   UnorderedListOutlined,
 } from '@ant-design/icons'
@@ -36,6 +41,13 @@ interface EditorDraft {
   contentMarkdown: string
 }
 
+const HEADING_LEVELS = [
+  { key: 'h1', label: '一级标题', prefix: '# ', fallbackSelection: '一级标题' },
+  { key: 'h2', label: '二级标题', prefix: '## ', fallbackSelection: '二级标题' },
+  { key: 'h3', label: '三级标题', prefix: '### ', fallbackSelection: '三级标题' },
+  { key: 'h4', label: '四级标题', prefix: '#### ', fallbackSelection: '四级标题' },
+]
+
 function slugify(value: string) {
   const ascii = value
     .normalize('NFKD')
@@ -47,6 +59,9 @@ function slugify(value: string) {
   return ascii || `blog-${Date.now()}`
 }
 
+/**
+ * 从 Markdown 中提取摘要，保证新建草稿时即使没填摘要也有可用的默认内容。
+ */
 function extractSummary(markdown: string) {
   const plainText = markdown
     .replace(/```[\s\S]*?```/g, ' ')
@@ -110,6 +125,8 @@ export function AdminBlogEditorPage() {
   const navigate = useNavigate()
   const { id } = useParams()
   const textareaRef = useRef<TextAreaRef>(null)
+  const previewBodyRef = useRef<HTMLDivElement | null>(null)
+  const syncSourceRef = useRef<'editor' | 'preview' | null>(null)
   const [draft, setDraft] = useState<EditorDraft>({ title: '', contentMarkdown: '' })
   const [existingBlog, setExistingBlog] = useState<BlogAdminItem | null>(null)
   const [loading, setLoading] = useState(Boolean(id))
@@ -146,20 +163,34 @@ export function AdminBlogEditorPage() {
     setDraft((current) => ({ ...current, ...patch }))
   }
 
-  function insertSnippet(snippet: string, fallbackSelection = '') {
+  /**
+   * 用统一的选区写入逻辑处理 Markdown 包裹和片段插入，避免不同按钮各自维护光标行为。
+   */
+  function applySelectionTransform(
+    transform: (selectedText: string) => {
+      insertion: string
+      selectionStartOffset?: number
+      selectionEndOffset?: number
+    },
+    fallbackSelection = '',
+  ) {
     const textarea = textareaRef.current?.resizableTextArea?.textArea
 
     if (!textarea) {
-      updateDraft({
-        contentMarkdown: `${draft.contentMarkdown}${draft.contentMarkdown ? '\n' : ''}${snippet}`,
-      })
+      const selectedText = fallbackSelection
+      const { insertion } = transform(selectedText)
+      updateDraft({ contentMarkdown: `${draft.contentMarkdown}${draft.contentMarkdown ? '\n' : ''}${insertion}` })
       return
     }
 
     const start = textarea.selectionStart
     const end = textarea.selectionEnd
     const selectedText = draft.contentMarkdown.slice(start, end) || fallbackSelection
-    const insertion = snippet.replace('{selection}', selectedText)
+    const {
+      insertion,
+      selectionStartOffset = insertion.length,
+      selectionEndOffset = insertion.length,
+    } = transform(selectedText)
     const nextMarkdown =
       draft.contentMarkdown.slice(0, start) +
       insertion +
@@ -169,8 +200,66 @@ export function AdminBlogEditorPage() {
 
     requestAnimationFrame(() => {
       textarea.focus()
-      const cursor = start + insertion.length
-      textarea.setSelectionRange(cursor, cursor)
+      textarea.setSelectionRange(start + selectionStartOffset, start + selectionEndOffset)
+    })
+  }
+
+  function wrapSelection(prefix: string, suffix = prefix, fallbackSelection = '') {
+    applySelectionTransform(
+      (selectedText) => {
+        const resolvedSelection = selectedText || fallbackSelection
+        return {
+          insertion: `${prefix}${resolvedSelection}${suffix}`,
+          selectionStartOffset: prefix.length,
+          selectionEndOffset: prefix.length + resolvedSelection.length,
+        }
+      },
+      fallbackSelection,
+    )
+  }
+
+  /**
+   * 用于插入整段 Markdown 结构，适合标题、列表、代码块等块级内容。
+   */
+  function insertBlock(blockBuilder: (selectedText: string) => string, fallbackSelection = '') {
+    applySelectionTransform(
+      (selectedText) => ({
+        insertion: blockBuilder(selectedText || fallbackSelection),
+      }),
+      fallbackSelection,
+    )
+  }
+
+  function insertHeading(prefix: string, fallbackSelection: string) {
+    insertBlock((selectedText) => `\n${prefix}${selectedText}\n`, fallbackSelection)
+  }
+
+  /**
+   * 双栏编辑时按滚动比例同步两个面板，保证正文和预览大致处于对应位置。
+   */
+  function syncPaneScroll(source: 'editor' | 'preview') {
+    const textarea = textareaRef.current?.resizableTextArea?.textArea
+    const previewBody = previewBodyRef.current
+
+    if (!textarea || !previewBody) {
+      return
+    }
+
+    if (syncSourceRef.current && syncSourceRef.current !== source) {
+      return
+    }
+
+    syncSourceRef.current = source
+    const fromElement = source === 'editor' ? textarea : previewBody
+    const targetElement = source === 'editor' ? previewBody : textarea
+    const maxScrollTop = fromElement.scrollHeight - fromElement.clientHeight
+    const scrollRatio = maxScrollTop > 0 ? fromElement.scrollTop / maxScrollTop : 0
+    const targetMaxScrollTop = targetElement.scrollHeight - targetElement.clientHeight
+
+    targetElement.scrollTop = targetMaxScrollTop > 0 ? targetMaxScrollTop * scrollRatio : 0
+
+    requestAnimationFrame(() => {
+      syncSourceRef.current = null
     })
   }
 
@@ -215,13 +304,17 @@ export function AdminBlogEditorPage() {
   }, [draft.contentMarkdown])
 
   const toolbarActions = [
-    { label: 'H2', icon: <BgColorsOutlined />, handler: () => insertSnippet('\n## {selection}\n', '二级标题') },
-    { label: '加粗', icon: <BoldOutlined />, handler: () => insertSnippet('**{selection}**', '重点内容') },
-    { label: '无序列表', icon: <UnorderedListOutlined />, handler: () => insertSnippet('\n- {selection}\n', '列表项') },
-    { label: '有序列表', icon: <OrderedListOutlined />, handler: () => insertSnippet('\n1. {selection}\n', '列表项') },
-    { label: '代码块', icon: <CodeOutlined />, handler: () => insertSnippet('\n```ts\n{selection}\n```\n', 'console.log("hello")') },
-    { label: '链接', icon: <LinkOutlined />, handler: () => insertSnippet('[{selection}](https://example.com)', '链接文本') },
-    { label: '图片', icon: <PictureOutlined />, handler: () => insertSnippet('![{selection}](https://example.com/image.png)', '图片描述') },
+    { label: '加粗', icon: <BoldOutlined />, handler: () => wrapSelection('**', '**', '重点内容') },
+    { label: '斜体', icon: <ItalicOutlined />, handler: () => wrapSelection('*', '*', '斜体内容') },
+    { label: '删除线', icon: <StrikethroughOutlined />, handler: () => wrapSelection('~~', '~~', '删除线内容') },
+    { label: '行内代码', icon: <CodeOutlined />, handler: () => wrapSelection('`', '`', 'inlineCode') },
+    { label: '引用', icon: <MessageOutlined />, handler: () => insertBlock((selectedText) => `\n> ${selectedText}\n`, '引用内容') },
+    { label: '无序列表', icon: <UnorderedListOutlined />, handler: () => insertBlock((selectedText) => `\n- ${selectedText}\n`, '列表项') },
+    { label: '有序列表', icon: <OrderedListOutlined />, handler: () => insertBlock((selectedText) => `\n1. ${selectedText}\n`, '列表项') },
+    { label: '代码块', icon: <FontSizeOutlined />, handler: () => insertBlock((selectedText) => `\n\`\`\`ts\n${selectedText}\n\`\`\`\n`, 'console.log("hello")') },
+    { label: '链接', icon: <LinkOutlined />, handler: () => wrapSelection('[', '](https://example.com)', '链接文本') },
+    { label: '图片', icon: <PictureOutlined />, handler: () => insertBlock((selectedText) => `![${selectedText}](https://example.com/image.png)`, '图片描述') },
+    { label: '下划线标记', icon: <UnderlineOutlined />, handler: () => wrapSelection('<u>', '</u>', '强调内容') },
   ]
 
   if (loading) {
@@ -269,6 +362,21 @@ export function AdminBlogEditorPage() {
         </header>
 
         <div className={styles.toolbar}>
+          <Dropdown
+            menu={{
+              items: HEADING_LEVELS.map((level) => ({
+                key: level.key,
+                label: level.label,
+                onClick: () => insertHeading(level.prefix, level.fallbackSelection),
+              })),
+            }}
+            trigger={['click']}
+          >
+            <Button icon={<FontSizeOutlined />} className={styles.headingButton}>
+              标题
+            </Button>
+          </Dropdown>
+
           {toolbarActions.map((action) => (
             <Button key={action.label} icon={action.icon} onClick={action.handler}>
               {action.label}
@@ -284,22 +392,17 @@ export function AdminBlogEditorPage() {
               ref={textareaRef}
               value={draft.contentMarkdown}
               onChange={(event) => updateDraft({ contentMarkdown: event.target.value })}
+              onScroll={() => syncPaneScroll('editor')}
               placeholder="在这里输入 Markdown 正文..."
               className={styles.editor}
             />
           </div>
 
           <div className={styles.previewPane}>
-            <div className={styles.previewHeader}>
+            <div className={styles.previewMeta}>
               <Typography.Title level={4} className={styles.previewTitle}>
                 实时预览
               </Typography.Title>
-              <Typography.Text type="secondary">
-                {existingBlog ? '当前为正文编辑模式，其他字段请回列表页设置。' : '新建页仅保留标题和正文，其他字段会自动生成草稿值。'}
-              </Typography.Text>
-            </div>
-
-            <div className={styles.previewMeta}>
               <Typography.Title level={2} className={styles.previewArticleTitle}>
                 {draft.title.trim() || '未命名文章'}
               </Typography.Title>
@@ -308,14 +411,12 @@ export function AdminBlogEditorPage() {
               </Typography.Text>
             </div>
 
-            <div className={styles.previewBody}>
-              {draft.contentMarkdown.trim() ? (
-                <MarkdownArticle markdown={draft.contentMarkdown} />
-              ) : (
-                <Typography.Paragraph className={styles.emptyPreview}>
-                  输入 Markdown 后，这里会实时显示排版效果。
-                </Typography.Paragraph>
-              )}
+            <div
+              ref={previewBodyRef}
+              className={styles.previewBody}
+              onScroll={() => syncPaneScroll('preview')}
+            >
+              <MarkdownArticle markdown={draft.contentMarkdown || ' '} />
             </div>
           </div>
         </div>
