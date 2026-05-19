@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useDeferredValue, useEffect, useState } from 'react'
 import {
   App,
   Button,
@@ -26,6 +26,7 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons'
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
+import { MarkdownArticle } from '../../components/MarkdownArticle'
 import dayjs from 'dayjs'
 import { ApiError, adminClient } from '../../api/adminClient'
 import type {
@@ -161,6 +162,17 @@ export function AdminBlogsPage() {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [editingBlog, setEditingBlog] = useState<BlogAdminItem | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const titleValue = Form.useWatch('title', form) ?? ''
+  const summaryValue = Form.useWatch('summary', form) ?? ''
+  const categoryValue = Form.useWatch('category', form) ?? ''
+  const coverValue = Form.useWatch('cover', form) ?? ''
+  const tagsValue = Form.useWatch('tags', form) ?? ''
+  const contentMarkdownValue = Form.useWatch('contentMarkdown', form) ?? ''
+  const contentModeValue = Form.useWatch('contentMode', form) ?? 'LOCAL'
+  const sourceLabelValue = Form.useWatch('sourceLabel', form) ?? ''
+  const sourceUrlValue = Form.useWatch('sourceUrl', form) ?? ''
+  const deferredMarkdown = useDeferredValue(contentMarkdownValue)
+  const previewTags = parseListInput(tagsValue)
 
   useEffect(() => {
     void loadBlogs()
@@ -415,7 +427,7 @@ export function AdminBlogsPage() {
         title={editingBlog === null ? '新建博客' : `编辑博客 · ${editingBlog.title}`}
         open={drawerOpen}
         onClose={closeDrawer}
-        width={720}
+        width={1180}
         destroyOnHidden
         extra={
           <Space>
@@ -426,130 +438,192 @@ export function AdminBlogsPage() {
           </Space>
         }
       >
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={toFormValues(null)}
-          className={styles.form}
-        >
-          <Form.Item
-            label="slug"
-            name="slug"
-            rules={[{ required: true, message: '请输入 slug' }]}
+        <div className={styles.editorLayout}>
+          <Form
+            form={form}
+            layout="vertical"
+            initialValues={toFormValues(null)}
+            className={styles.form}
           >
-            <Input placeholder="react-routing-notes" />
-          </Form.Item>
+            <Form.Item
+              label="slug"
+              name="slug"
+              rules={[{ required: true, message: '请输入 slug' }]}
+            >
+              <Input placeholder="react-routing-notes" />
+            </Form.Item>
 
-          <Form.Item
-            label="标题"
-            name="title"
-            rules={[{ required: true, message: '请输入标题' }]}
-          >
-            <Input />
-          </Form.Item>
+            <Form.Item
+              label="标题"
+              name="title"
+              rules={[{ required: true, message: '请输入标题' }]}
+            >
+              <Input />
+            </Form.Item>
 
-          <Form.Item
-            label="发布日期"
-            name="publishDate"
-            rules={[{ required: true, message: '请选择发布日期' }]}
-          >
-            <DatePicker className={styles.fullControl} />
-          </Form.Item>
+            <Form.Item
+              label="发布日期"
+              name="publishDate"
+              rules={[{ required: true, message: '请选择发布日期' }]}
+            >
+              <DatePicker className={styles.fullControl} />
+            </Form.Item>
 
-          <Form.Item
-            label="分类"
-            name="category"
-            rules={[{ required: true, message: '请输入分类' }]}
-          >
-            <Input />
-          </Form.Item>
+            <Form.Item
+              label="分类"
+              name="category"
+              rules={[{ required: true, message: '请输入分类' }]}
+            >
+              <Input />
+            </Form.Item>
 
-          <Form.Item
-            label="封面 URL"
-            name="cover"
-            rules={[
-              { required: true, message: '请输入封面地址' },
-              { type: 'url', message: '请输入有效的 URL' },
-            ]}
-          >
-            <Input />
-          </Form.Item>
+            <Form.Item
+              label="封面 URL"
+              name="cover"
+              rules={[
+                { required: true, message: '请输入封面地址' },
+                { type: 'url', message: '请输入有效的 URL' },
+              ]}
+            >
+              <Input />
+            </Form.Item>
 
-          <Form.Item
-            label="内容模式"
-            name="contentMode"
-            rules={[{ required: true, message: '请选择内容模式' }]}
-          >
-            <Select options={contentModeOptions} />
-          </Form.Item>
+            <Form.Item
+              label="内容模式"
+              name="contentMode"
+              rules={[{ required: true, message: '请选择内容模式' }]}
+            >
+              <Select options={contentModeOptions} />
+            </Form.Item>
 
-          <Form.Item
-            label="来源类型"
-            name="sourceType"
-            rules={[{ required: true, message: '请选择来源类型' }]}
-          >
-            <Select options={sourceTypeOptions} />
-          </Form.Item>
+            <Form.Item
+              label="来源类型"
+              name="sourceType"
+              rules={[{ required: true, message: '请选择来源类型' }]}
+            >
+              <Select options={sourceTypeOptions} />
+            </Form.Item>
 
-          <Form.Item
-            label="来源名称"
-            name="sourceLabel"
-            extra="例如：语雀、CSDN、掘金。原创文章可留空。"
-          >
-            <Input />
-          </Form.Item>
+            <Form.Item
+              label="来源名称"
+              name="sourceLabel"
+              extra="例如：语雀、CSDN、掘金。原创文章可留空。"
+            >
+              <Input />
+            </Form.Item>
 
-          <Form.Item
-            label="原文链接"
-            name="sourceUrl"
-            rules={[{ type: 'url', message: '请输入有效的 URL' }]}
-            extra="外链文章或保留出处时填写。"
-          >
-            <Input placeholder="https://www.yuque.com/..." />
-          </Form.Item>
+            <Form.Item
+              label="原文链接"
+              name="sourceUrl"
+              rules={[{ type: 'url', message: '请输入有效的 URL' }]}
+              extra="外链文章或保留出处时填写。"
+            >
+              <Input placeholder="https://www.yuque.com/..." />
+            </Form.Item>
 
-          <Form.Item
-            label="排序值"
-            name="sortOrder"
-            rules={[{ required: true, message: '请输入排序值' }]}
-          >
-            <InputNumber className={styles.fullControl} />
-          </Form.Item>
+            <Form.Item
+              label="排序值"
+              name="sortOrder"
+              rules={[{ required: true, message: '请输入排序值' }]}
+            >
+              <InputNumber className={styles.fullControl} />
+            </Form.Item>
 
-          <Form.Item
-            label="摘要"
-            name="summary"
-            rules={[{ required: true, message: '请输入摘要' }]}
-          >
-            <TextArea rows={4} />
-          </Form.Item>
+            <Form.Item
+              label="摘要"
+              name="summary"
+              rules={[{ required: true, message: '请输入摘要' }]}
+            >
+              <TextArea rows={4} />
+            </Form.Item>
 
-          <Form.Item
-            label="标签"
-            name="tags"
-            rules={[{ required: true, message: '请至少填写一个标签' }]}
-            extra="一行一个，提交前会转换成数组。"
-          >
-            <TextArea rows={5} placeholder={'React\nRouter\n学习记录'} />
-          </Form.Item>
+            <Form.Item
+              label="标签"
+              name="tags"
+              rules={[{ required: true, message: '请至少填写一个标签' }]}
+              extra="一行一个，提交前会转换成数组。"
+            >
+              <TextArea rows={5} placeholder={'React\nRouter\n学习记录'} />
+            </Form.Item>
 
-          <Form.Item
-            label="Markdown 正文"
-            name="contentMarkdown"
-            rules={[{ required: true, message: '请输入文章正文' }]}
-            extra="当前阶段直接保存 Markdown 原文，后续再接入专用编辑器。"
-          >
-            <TextArea rows={14} placeholder={'# 标题\n\n这里开始写正文...'} />
-          </Form.Item>
+            <Form.Item
+              label="Markdown 正文"
+              name="contentMarkdown"
+              rules={[{ required: true, message: '请输入文章正文' }]}
+              extra="支持 GFM：标题、列表、表格、引用、代码块和图片。"
+            >
+              <TextArea
+                rows={18}
+                className={styles.markdownEditor}
+                placeholder={'# 标题\n\n这里开始写正文...\n\n- 列表项\n- 第二项'}
+              />
+            </Form.Item>
 
-          <Form.Item
-            label="发布状态"
-            name="published"
-            valuePropName="checked"
-          >
-            <Switch checkedChildren="已发布" unCheckedChildren="未发布" />
-          </Form.Item>
-        </Form>
+            <Form.Item
+              label="发布状态"
+              name="published"
+              valuePropName="checked"
+            >
+              <Switch checkedChildren="已发布" unCheckedChildren="未发布" />
+            </Form.Item>
+          </Form>
+
+          <aside className={styles.previewPanel}>
+            <div className={styles.previewHeader}>
+              <Typography.Title level={4} className={styles.previewTitle}>
+                实时预览
+              </Typography.Title>
+              <Typography.Text type="secondary">
+                与前台详情页使用同一套 Markdown 渲染规则
+              </Typography.Text>
+            </div>
+
+            <div className={styles.previewMeta}>
+              <Typography.Title level={2} className={styles.previewPostTitle}>
+                {titleValue.trim() || '未命名文章'}
+              </Typography.Title>
+              <Typography.Paragraph className={styles.previewSummary}>
+                {summaryValue.trim() || '这里会展示文章摘要。'}
+              </Typography.Paragraph>
+              <div className={styles.previewInfoRow}>
+                <span>{categoryValue.trim() || '未分类'}</span>
+                <span>{contentModeValue === 'EXTERNAL' ? '外链文章' : '本站文章'}</span>
+                {sourceLabelValue.trim() ? <span>{sourceLabelValue.trim()}</span> : null}
+                {sourceUrlValue.trim() ? (
+                  <a href={sourceUrlValue.trim()} target="_blank" rel="noreferrer">
+                    原文链接
+                  </a>
+                ) : null}
+              </div>
+              {coverValue.trim() ? (
+                <img className={styles.previewCover} src={coverValue.trim()} alt={titleValue || '封面'} />
+              ) : null}
+              {previewTags.length > 0 ? (
+                <div className={styles.previewTags}>
+                  {previewTags.map((tag) => (
+                    <span key={tag}>{tag}</span>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div className={styles.previewBody}>
+              {contentModeValue === 'EXTERNAL' ? (
+                <Typography.Paragraph className={styles.previewHint}>
+                  当前文章会优先作为外链分发，站内正文仍可作为备份或导入草稿保留。
+                </Typography.Paragraph>
+              ) : null}
+
+              {deferredMarkdown.trim() ? (
+                <MarkdownArticle markdown={deferredMarkdown} />
+              ) : (
+                <Typography.Paragraph className={styles.previewHint}>
+                  输入 Markdown 后，这里会实时显示排版效果。
+                </Typography.Paragraph>
+              )}
+            </div>
+          </aside>
+        </div>
       </Drawer>
     </section>
   )

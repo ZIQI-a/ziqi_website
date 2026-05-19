@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { siteClient } from '../api/siteClient'
+import { MarkdownArticle } from '../components/MarkdownArticle'
 import { PageHeader } from '../components/PageHeader'
 import type { BlogPostDetail } from '../types/content'
 import styles from './BlogDetailPage.module.css'
@@ -78,13 +79,7 @@ export function BlogDetailPage() {
         ))}
       </div>
 
-      <div className={styles.content}>
-        {post.contentMarkdown.split('\n').map((line, index) => (
-          <p key={`${index}-${line}`}>
-            {line.trim().length === 0 ? '\u00A0' : line}
-          </p>
-        ))}
-      </div>
+      <MarkdownArticle markdown={post.contentMarkdown} />
 
       <Link to="/blog" className={styles.backLink}>
         返回博客列表
