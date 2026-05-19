@@ -1,10 +1,8 @@
 .page {
   display: grid;
-  min-height: calc(100vh - 176px);
 }
 
 .shell {
-  height: 100%;
   overflow: hidden;
   border-radius: 28px;
   background:
@@ -15,7 +13,6 @@
 .shell :global(.ant-card-body) {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
   padding: 0;
 }
 
@@ -57,7 +54,8 @@
   flex: 1;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
-  min-height: 0;
+  height: calc(100vh - 300px);
+  min-height: 560px;
 }
 
 .editorPane,
@@ -74,18 +72,12 @@
   height: 100%;
 }
 
-.editor :global(.ant-input-affix-wrapper),
-.editor :global(.ant-input-outlined) {
-  height: 100%;
-}
-
-.editor :global(.ant-input) {
+.editor :global(.ant-input-textarea) {
   height: 100%;
 }
 
 .editor :global(textarea) {
   height: 100% !important;
-  min-height: 100% !important;
   padding: 24px !important;
   border: none !important;
   border-radius: 0 !important;
@@ -97,28 +89,15 @@
 }
 
 .previewPane {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 18px;
   padding: 24px;
   background: rgba(255, 255, 255, 0.02);
 }
 
-.previewMeta {
-  display: grid;
-  gap: 8px;
-}
-
-.previewTitle,
-.previewArticleTitle {
-  margin: 0 !important;
-}
-
 .previewBody {
+  height: 100%;
   overflow: auto;
   min-height: 0;
   padding-right: 8px;
-  scrollbar-gutter: stable;
 }
 
 .errorText {
@@ -134,22 +113,19 @@
 }
 
 @media (max-width: 1120px) {
-  .page {
-    min-height: auto;
-  }
-
   .workspace {
     grid-template-columns: 1fr;
+    height: auto;
   }
 
   .editorPane {
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    min-height: 60vh;
+    min-height: 48vh;
   }
 
   .previewPane {
-    min-height: 60vh;
+    min-height: 48vh;
   }
 }
 
