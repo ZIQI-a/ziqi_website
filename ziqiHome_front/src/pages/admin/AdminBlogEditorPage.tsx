@@ -495,7 +495,7 @@ export function AdminBlogEditorPage() {
           <div className={styles.editorPane}>
             <TextArea
               ref={textareaRef}
-              autoSize={false}
+              autoSize={{ minRows: 50 }}
               value={draft.contentMarkdown}
               onChange={(event) =>
                 updateDraft({ contentMarkdown: event.target.value })
