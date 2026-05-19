@@ -1,7 +1,8 @@
 package com.ziqihome.backend.controller;
 
 import com.ziqihome.backend.domain.ProjectStatus;
-import com.ziqihome.backend.dto.blog.BlogPostResponse;
+import com.ziqihome.backend.dto.blog.BlogSiteDetailResponse;
+import com.ziqihome.backend.dto.blog.BlogSiteSummaryResponse;
 import com.ziqihome.backend.dto.contact.ContactLinkResponse;
 import com.ziqihome.backend.dto.moment.MomentCategoryResponse;
 import com.ziqihome.backend.dto.moment.MomentResponse;
@@ -13,6 +14,7 @@ import com.ziqihome.backend.service.MomentService;
 import com.ziqihome.backend.service.ProjectService;
 import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,8 +44,13 @@ public class SiteContentController {
   }
 
   @GetMapping("/blogs")
-  public List<BlogPostResponse> listSiteBlogs() {
+  public List<BlogSiteSummaryResponse> listSiteBlogs() {
     return blogPostService.listPublishedBlogs();
+  }
+
+  @GetMapping("/blogs/{slug}")
+  public BlogSiteDetailResponse getSiteBlog(@PathVariable String slug) {
+    return blogPostService.getPublishedBlogBySlug(slug);
   }
 
   @GetMapping("/projects")

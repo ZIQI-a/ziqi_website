@@ -21,12 +21,33 @@ export interface ProfileInfo {
 
 export interface BlogPostSummary {
   id: string
+  slug: string
   title: string
   date: string
   category: string
   summary: string
   tags: string[]
   cover: string
+  contentMode: 'LOCAL' | 'EXTERNAL' | 'HYBRID'
+  sourceType: string
+  sourceLabel?: string
+  sourceUrl?: string
+}
+
+export interface BlogPostDetail {
+  id: string
+  slug: string
+  title: string
+  date: string
+  category: string
+  summary: string
+  tags: string[]
+  cover: string
+  contentMarkdown: string
+  contentMode: 'LOCAL' | 'EXTERNAL' | 'HYBRID'
+  sourceType: string
+  sourceLabel?: string
+  sourceUrl?: string
 }
 
 export interface ProjectSummary {

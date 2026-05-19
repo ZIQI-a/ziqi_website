@@ -3,6 +3,8 @@ package com.ziqihome.backend.service;
 import com.ziqihome.backend.domain.BlogPost;
 import com.ziqihome.backend.dto.blog.BlogPostRequest;
 import com.ziqihome.backend.dto.blog.BlogPostResponse;
+import com.ziqihome.backend.dto.blog.BlogSiteDetailResponse;
+import com.ziqihome.backend.dto.blog.BlogSiteSummaryResponse;
 import com.ziqihome.backend.exception.ResourceNotFoundException;
 import com.ziqihome.backend.mapper.BlogPostMapper;
 import com.ziqihome.backend.repository.BlogPostRepository;
@@ -31,11 +33,18 @@ public class BlogPostService {
   }
 
   @Transactional(readOnly = true)
-  public List<BlogPostResponse> listPublishedBlogs() {
+  public List<BlogSiteSummaryResponse> listPublishedBlogs() {
     return blogPostRepository.findAllByPublishedTrueOrderBySortOrderAscPublishDateDescIdDesc()
         .stream()
-        .map(blogPostMapper::toResponse)
+        .map(blogPostMapper::toSiteSummary)
         .toList();
+  }
+
+  @Transactional(readOnly = true)
+  public BlogSiteDetailResponse getPublishedBlogBySlug(String slug) {
+    BlogPost blogPost = blogPostRepository.findBySlugAndPublishedTrue(slug)
+        .orElseThrow(() -> new ResourceNotFoundException("博客不存在，slug=" + slug));
+    return blogPostMapper.toSiteDetail(blogPost);
   }
 
   public BlogPostResponse createBlog(BlogPostRequest request) {

@@ -11,6 +11,11 @@
 - `category`
 - `summary`
 - `cover`
+- `content_markdown`
+- `content_mode`
+- `source_type`
+- `source_label`
+- `source_url`
 - `published`
 - `sort_order`
 - `created_at`

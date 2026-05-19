@@ -4,6 +4,8 @@ import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -43,6 +45,23 @@ public class BlogPost {
 
   @Column(nullable = false, length = 255)
   private String cover;
+
+  @Column(nullable = false, columnDefinition = "MEDIUMTEXT")
+  private String contentMarkdown = "";
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  private BlogContentMode contentMode = BlogContentMode.LOCAL;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  private BlogSourceType sourceType = BlogSourceType.ORIGINAL;
+
+  @Column(length = 80)
+  private String sourceLabel;
+
+  @Column(length = 255)
+  private String sourceUrl;
 
   @Column(nullable = false)
   private Boolean published = true;
@@ -128,6 +147,46 @@ public class BlogPost {
 
   public void setCover(String cover) {
     this.cover = cover;
+  }
+
+  public String getContentMarkdown() {
+    return contentMarkdown;
+  }
+
+  public void setContentMarkdown(String contentMarkdown) {
+    this.contentMarkdown = contentMarkdown;
+  }
+
+  public BlogContentMode getContentMode() {
+    return contentMode;
+  }
+
+  public void setContentMode(BlogContentMode contentMode) {
+    this.contentMode = contentMode;
+  }
+
+  public BlogSourceType getSourceType() {
+    return sourceType;
+  }
+
+  public void setSourceType(BlogSourceType sourceType) {
+    this.sourceType = sourceType;
+  }
+
+  public String getSourceLabel() {
+    return sourceLabel;
+  }
+
+  public void setSourceLabel(String sourceLabel) {
+    this.sourceLabel = sourceLabel;
+  }
+
+  public String getSourceUrl() {
+    return sourceUrl;
+  }
+
+  public void setSourceUrl(String sourceUrl) {
+    this.sourceUrl = sourceUrl;
   }
 
   public Boolean getPublished() {

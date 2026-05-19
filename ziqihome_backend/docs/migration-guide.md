@@ -12,6 +12,7 @@
 - `V6__create_moments_tables.sql`：moments 和分类表
 - `V7__seed_initial_moments.sql`：moments 初始化数据
 - `V8__seed_default_admin_user.sql`：补充默认管理员账号 `admin-reset`
+- `V9__extend_blog_post_for_full_articles.sql`：扩展博客正文、内容模式和原文来源字段
 
 ## 重要规则
 

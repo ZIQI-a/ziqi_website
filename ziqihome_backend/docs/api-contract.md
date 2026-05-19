@@ -3,6 +3,7 @@
 ## 公开接口
 
 - `GET /api/site/blogs`
+- `GET /api/site/blogs/{slug}`
 - `GET /api/site/projects`
   - Query：
     - `status` 可选，按项目状态筛选，取值来自 `ProjectStatus`：`构思中`、`开发中`、`已完成`、`已发布`
@@ -77,6 +78,7 @@ moment 分类：
 ## 校验规则
 
 - 标题、名称、平台名、描述、分类不能为空
+- 博客正文不能为空；外链文章建议补 `source_url`
 - 用户账号、密码、昵称不能为空
 - 用户密码长度由 `UserPasswordRules` 统一约束
 - `cover`、`profileUrl`、`iconUrl` 必须是 `http/https` URL

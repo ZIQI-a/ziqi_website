@@ -2,6 +2,8 @@ package com.ziqihome.backend;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ziqihome.backend.domain.BlogContentMode;
+import com.ziqihome.backend.domain.BlogSourceType;
 import com.ziqihome.backend.dto.blog.BlogPostRequest;
 import com.ziqihome.backend.service.BlogPostService;
 import java.time.LocalDate;
@@ -27,7 +29,12 @@ class BlogPostServiceTest {
         "测试",
         "用于验证 service 层是否能正确写入博客与标签。",
         "https://example.com/blog-cover.jpg",
+        "# Service Test Blog\n\n这里是测试正文。",
         List.of("Spring Boot", "CRUD"),
+        BlogContentMode.LOCAL,
+        BlogSourceType.ORIGINAL,
+        null,
+        null,
         true,
         7
     );
@@ -43,7 +50,12 @@ class BlogPostServiceTest {
         "测试更新",
         "验证更新后不会保留旧标签。",
         "https://example.com/blog-cover-updated.jpg",
+        "# Service Test Blog Updated\n\n这里是更新后的正文。",
         List.of("Updated"),
+        BlogContentMode.HYBRID,
+        BlogSourceType.CSDN,
+        "CSDN",
+        "https://blog.csdn.net/example/article/details/1",
         false,
         3
     );
@@ -51,6 +63,7 @@ class BlogPostServiceTest {
     var updated = blogPostService.updateBlog(created.id(), updateRequest);
     assertThat(updated.title()).isEqualTo("Service Test Blog Updated");
     assertThat(updated.tags()).containsExactly("Updated");
+    assertThat(updated.sourceLabel()).isEqualTo("CSDN");
     assertThat(updated.published()).isFalse();
     assertThat(blogPostService.listPublishedBlogs())
         .noneMatch(blog -> blog.id().equals(created.id()));

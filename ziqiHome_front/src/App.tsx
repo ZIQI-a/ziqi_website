@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { RequireAdminAuth } from "./auth/RequireAdminAuth";
 import { MainLayout } from "./components/MainLayout";
 import { BlogPage } from "./pages/BlogPage";
+import { BlogDetailPage } from "./pages/BlogDetailPage";
 import { ContactPage } from "./pages/ContactPage";
 import { HomePage } from "./pages/HomePage";
 import { LatestPage } from "./pages/LatestPage";
@@ -55,6 +56,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/latest" element={<LatestPage />} />
         <Route path="/blog" element={<BlogPage />} />
+        <Route path="/blog/:slug" element={<BlogDetailPage />} />
         <Route path="/projects" element={<ProjectsPage />} />
         <Route path="/contact" element={<ContactPage />} />
       </Route>

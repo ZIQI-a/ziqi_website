@@ -1,5 +1,7 @@
 package com.ziqihome.backend.dto.blog;
 
+import com.ziqihome.backend.domain.BlogContentMode;
+import com.ziqihome.backend.domain.BlogSourceType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -32,8 +34,23 @@ public record BlogPostRequest(
     @Pattern(regexp = "https?://.+", message = "封面地址必须是 http 或 https URL")
     String cover,
 
+    @NotBlank(message = "正文不能为空")
+    String contentMarkdown,
+
     @NotEmpty(message = "至少保留一个标签")
     List<@NotBlank(message = "标签不能为空") @Size(max = 60, message = "标签长度不能超过 60") String> tags,
+
+    @NotNull(message = "内容模式不能为空")
+    BlogContentMode contentMode,
+
+    @NotNull(message = "来源类型不能为空")
+    BlogSourceType sourceType,
+
+    @Size(max = 80, message = "来源名称长度不能超过 80")
+    String sourceLabel,
+
+    @Pattern(regexp = "^https?://.+$", message = "原文地址必须是 http 或 https URL")
+    String sourceUrl,
 
     @NotNull(message = "发布状态不能为空")
     Boolean published,

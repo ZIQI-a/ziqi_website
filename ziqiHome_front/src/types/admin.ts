@@ -3,6 +3,8 @@
  */
 export type ProjectStatus = string
 export type UserRole = string
+export type BlogContentMode = 'LOCAL' | 'EXTERNAL' | 'HYBRID'
+export type BlogSourceType = 'ORIGINAL' | 'YUQUE' | 'CSDN' | 'EXTERNAL'
 
 export interface MomentCategoryAdminItem {
   id: number
@@ -75,7 +77,12 @@ export interface BlogAdminItem {
   category: string
   summary: string
   cover: string
+  contentMarkdown: string
   tags: string[]
+  contentMode: BlogContentMode
+  sourceType: BlogSourceType
+  sourceLabel: string | null
+  sourceUrl: string | null
   published: boolean
   sortOrder: number
   createdAt: string
@@ -89,7 +96,12 @@ export interface BlogAdminPayload {
   category: string
   summary: string
   cover: string
+  contentMarkdown: string
   tags: string[]
+  contentMode: BlogContentMode
+  sourceType: BlogSourceType
+  sourceLabel: string | null
+  sourceUrl: string | null
   published: boolean
   sortOrder: number
 }

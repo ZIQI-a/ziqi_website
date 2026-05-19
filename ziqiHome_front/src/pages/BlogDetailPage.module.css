@@ -1,0 +1,56 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.statePanel {
+  padding: 48px 24px;
+  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.08));
+  border-radius: 24px;
+  text-align: center;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--color-text-secondary, rgba(255, 255, 255, 0.68));
+}
+
+.metaRow a {
+  color: inherit;
+}
+
+.cover {
+  width: 100%;
+  max-height: 360px;
+  object-fit: cover;
+  border-radius: 24px;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tags span {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.content {
+  display: grid;
+  gap: 14px;
+  line-height: 1.9;
+}
+
+.content p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.backLink {
+  color: inherit;
+}

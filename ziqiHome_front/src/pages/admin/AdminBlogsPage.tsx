@@ -10,6 +10,7 @@ import {
   Input,
   InputNumber,
   Popconfirm,
+  Select,
   Space,
   Spin,
   Switch,
@@ -27,7 +28,12 @@ import {
 import { AdminPageHeader } from '../../components/admin/AdminPageHeader'
 import dayjs from 'dayjs'
 import { ApiError, adminClient } from '../../api/adminClient'
-import type { BlogAdminItem, BlogAdminPayload } from '../../types/admin'
+import type {
+  BlogAdminItem,
+  BlogAdminPayload,
+  BlogContentMode,
+  BlogSourceType,
+} from '../../types/admin'
 import styles from './AdminBlogsPage.module.css'
 
 const { TextArea } = Input
@@ -39,10 +45,28 @@ const emptyForm: BlogAdminPayload = {
   category: '',
   summary: '',
   cover: '',
+  contentMarkdown: '',
   tags: [],
+  contentMode: 'LOCAL',
+  sourceType: 'ORIGINAL',
+  sourceLabel: '',
+  sourceUrl: '',
   published: true,
   sortOrder: 0,
 }
+
+const contentModeOptions: Array<{ label: string; value: BlogContentMode }> = [
+  { label: '本站正文', value: 'LOCAL' },
+  { label: '外链文章', value: 'EXTERNAL' },
+  { label: '本站正文 + 原文出处', value: 'HYBRID' },
+]
+
+const sourceTypeOptions: Array<{ label: string; value: BlogSourceType }> = [
+  { label: '原创', value: 'ORIGINAL' },
+  { label: '语雀导入', value: 'YUQUE' },
+  { label: 'CSDN', value: 'CSDN' },
+  { label: '其他外部来源', value: 'EXTERNAL' },
+]
 
 interface BlogFormValues {
   slug: string
@@ -51,7 +75,12 @@ interface BlogFormValues {
   category: string
   summary: string
   cover: string
+  contentMarkdown: string
   tags: string
+  contentMode: BlogContentMode
+  sourceType: BlogSourceType
+  sourceLabel: string
+  sourceUrl: string
   published: boolean
   sortOrder: number
 }
@@ -77,7 +106,12 @@ function toFormValues(blog: BlogAdminItem | null): BlogFormValues {
     category: source.category,
     summary: source.summary,
     cover: source.cover,
+    contentMarkdown: source.contentMarkdown,
     tags: formatListInput(source.tags),
+    contentMode: source.contentMode,
+    sourceType: source.sourceType,
+    sourceLabel: source.sourceLabel ?? '',
+    sourceUrl: source.sourceUrl ?? '',
     published: source.published,
     sortOrder: source.sortOrder,
   }
@@ -94,7 +128,12 @@ function toPayload(values: BlogFormValues): BlogAdminPayload {
     category: values.category.trim(),
     summary: values.summary.trim(),
     cover: values.cover.trim(),
+    contentMarkdown: values.contentMarkdown.trim(),
     tags: parseListInput(values.tags),
+    contentMode: values.contentMode,
+    sourceType: values.sourceType,
+    sourceLabel: values.sourceLabel.trim() || null,
+    sourceUrl: values.sourceUrl.trim() || null,
     published: values.published,
     sortOrder: values.sortOrder,
   }
@@ -239,6 +278,9 @@ export function AdminBlogsPage() {
           <Typography.Text type="secondary">
             {blog.category} · {blog.publishDate}
           </Typography.Text>
+          <Typography.Text type="secondary">
+            {blog.contentMode === 'EXTERNAL' ? '外链文章' : '本站文章'}
+          </Typography.Text>
         </div>
       ),
     },
@@ -373,7 +415,7 @@ export function AdminBlogsPage() {
         title={editingBlog === null ? '新建博客' : `编辑博客 · ${editingBlog.title}`}
         open={drawerOpen}
         onClose={closeDrawer}
-        width={560}
+        width={720}
         destroyOnHidden
         extra={
           <Space>
@@ -434,6 +476,39 @@ export function AdminBlogsPage() {
           </Form.Item>
 
           <Form.Item
+            label="内容模式"
+            name="contentMode"
+            rules={[{ required: true, message: '请选择内容模式' }]}
+          >
+            <Select options={contentModeOptions} />
+          </Form.Item>
+
+          <Form.Item
+            label="来源类型"
+            name="sourceType"
+            rules={[{ required: true, message: '请选择来源类型' }]}
+          >
+            <Select options={sourceTypeOptions} />
+          </Form.Item>
+
+          <Form.Item
+            label="来源名称"
+            name="sourceLabel"
+            extra="例如：语雀、CSDN、掘金。原创文章可留空。"
+          >
+            <Input />
+          </Form.Item>
+
+          <Form.Item
+            label="原文链接"
+            name="sourceUrl"
+            rules={[{ type: 'url', message: '请输入有效的 URL' }]}
+            extra="外链文章或保留出处时填写。"
+          >
+            <Input placeholder="https://www.yuque.com/..." />
+          </Form.Item>
+
+          <Form.Item
             label="排序值"
             name="sortOrder"
             rules={[{ required: true, message: '请输入排序值' }]}
@@ -456,6 +531,15 @@ export function AdminBlogsPage() {
             extra="一行一个，提交前会转换成数组。"
           >
             <TextArea rows={5} placeholder={'React\nRouter\n学习记录'} />
+          </Form.Item>
+
+          <Form.Item
+            label="Markdown 正文"
+            name="contentMarkdown"
+            rules={[{ required: true, message: '请输入文章正文' }]}
+            extra="当前阶段直接保存 Markdown 原文，后续再接入专用编辑器。"
+          >
+            <TextArea rows={14} placeholder={'# 标题\n\n这里开始写正文...'} />
           </Form.Item>
 
           <Form.Item

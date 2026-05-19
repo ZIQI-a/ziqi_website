@@ -1,4 +1,5 @@
 import type {
+  BlogPostDetail,
   BlogPostSummary,
   ContactLinkSummary,
   MomentCategorySummary,
@@ -17,10 +18,14 @@ interface SiteBlogResponse {
   summary: string
   cover: string
   tags: string[]
-  published: boolean
-  sortOrder: number
-  createdAt: string
-  updatedAt: string
+  contentMode: BlogPostSummary['contentMode']
+  sourceType: string
+  sourceLabel: string | null
+  sourceUrl: string | null
+}
+
+interface SiteBlogDetailResponse extends SiteBlogResponse {
+  contentMarkdown: string
 }
 
 interface SiteProjectResponse {
@@ -100,12 +105,35 @@ function buildQuery(params: Record<string, string | number | boolean | undefined
 function mapBlogSummary(blog: SiteBlogResponse): BlogPostSummary {
   return {
     id: blog.slug || String(blog.id),
+    slug: blog.slug,
     title: blog.title,
     date: blog.publishDate,
     category: blog.category,
     summary: blog.summary,
     tags: blog.tags,
     cover: blog.cover,
+    contentMode: blog.contentMode,
+    sourceType: blog.sourceType,
+    sourceLabel: blog.sourceLabel ?? undefined,
+    sourceUrl: blog.sourceUrl ?? undefined,
+  }
+}
+
+function mapBlogDetail(blog: SiteBlogDetailResponse): BlogPostDetail {
+  return {
+    id: blog.slug || String(blog.id),
+    slug: blog.slug,
+    title: blog.title,
+    date: blog.publishDate,
+    category: blog.category,
+    summary: blog.summary,
+    tags: blog.tags,
+    cover: blog.cover,
+    contentMarkdown: blog.contentMarkdown,
+    contentMode: blog.contentMode,
+    sourceType: blog.sourceType,
+    sourceLabel: blog.sourceLabel ?? undefined,
+    sourceUrl: blog.sourceUrl ?? undefined,
   }
 }
 
@@ -166,6 +194,10 @@ export const siteClient = {
   async listBlogs() {
     const data = await request<SiteBlogResponse[]>('/api/site/blogs')
     return data.map(mapBlogSummary)
+  },
+  async getBlog(slug: string) {
+    const data = await request<SiteBlogDetailResponse>(`/api/site/blogs/${slug}`)
+    return mapBlogDetail(data)
   },
   async listProjects(options?: { status?: string }) {
     const data = await request<SiteProjectResponse[]>(
