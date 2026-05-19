@@ -57,6 +57,9 @@ export function AdminLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { session, logout } = useAuth()
+  const selectedKey = location.pathname.startsWith('/admin/blogs')
+    ? '/admin/blogs'
+    : location.pathname
 
   return (
     <ConfigProvider theme={adminTheme}>
@@ -65,7 +68,7 @@ export function AdminLayout() {
           <header className={styles.header}>
             <Menu
               mode="horizontal"
-              selectedKeys={[location.pathname]}
+              selectedKeys={[selectedKey]}
               className={styles.topNav}
               items={adminNavItems.map((item) => ({
                 key: item.key,

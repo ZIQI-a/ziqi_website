@@ -92,6 +92,9 @@ export const adminClient = {
   listBlogs() {
     return request<BlogAdminItem[]>('/api/admin/blogs')
   },
+  getBlog(id: number) {
+    return request<BlogAdminItem>(`/api/admin/blogs/${id}`)
+  },
   createBlog(payload: BlogAdminPayload) {
     return request<BlogAdminItem>('/api/admin/blogs', {
       method: 'POST',

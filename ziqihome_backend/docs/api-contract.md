@@ -30,6 +30,7 @@
 博客：
 
 - `GET /api/admin/blogs`
+- `GET /api/admin/blogs/{id}`
 - `POST /api/admin/blogs`
 - `PUT /api/admin/blogs/{id}`
 - `DELETE /api/admin/blogs/{id}`

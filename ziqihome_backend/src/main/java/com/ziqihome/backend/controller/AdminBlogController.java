@@ -31,6 +31,11 @@ public class AdminBlogController {
     return blogPostService.listAdminBlogs();
   }
 
+  @GetMapping("/{id}")
+  public BlogPostResponse getBlog(@PathVariable Long id) {
+    return blogPostService.getAdminBlog(id);
+  }
+
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public BlogPostResponse createBlog(@Valid @RequestBody BlogPostRequest request) {

@@ -33,6 +33,11 @@ public class BlogPostService {
   }
 
   @Transactional(readOnly = true)
+  public BlogPostResponse getAdminBlog(Long id) {
+    return blogPostMapper.toResponse(getBlogOrThrow(id));
+  }
+
+  @Transactional(readOnly = true)
   public List<BlogSiteSummaryResponse> listPublishedBlogs() {
     return blogPostRepository.findAllByPublishedTrueOrderBySortOrderAscPublishDateDescIdDesc()
         .stream()

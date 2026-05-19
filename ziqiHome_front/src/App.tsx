@@ -24,6 +24,11 @@ const AdminBlogsPage = lazy(async () => {
   return { default: module.AdminBlogsPage };
 });
 
+const AdminBlogEditorPage = lazy(async () => {
+  const module = await import("./pages/admin/AdminBlogEditorPage");
+  return { default: module.AdminBlogEditorPage };
+});
+
 const AdminMomentsPage = lazy(async () => {
   const module = await import("./pages/admin/AdminMomentsPage");
   return { default: module.AdminMomentsPage };
@@ -90,6 +95,22 @@ function App() {
           element={
             <Suspense fallback={null}>
               <AdminBlogsPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="blogs/new"
+          element={
+            <Suspense fallback={null}>
+              <AdminBlogEditorPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="blogs/:id/editor"
+          element={
+            <Suspense fallback={null}>
+              <AdminBlogEditorPage />
             </Suspense>
           }
         />

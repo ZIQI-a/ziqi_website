@@ -1,0 +1,134 @@
+.page {
+  display: grid;
+}
+
+.shell {
+  overflow: hidden;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(245, 199, 107, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+}
+
+.header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.titleInput :global(input) {
+  height: 48px;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+  min-height: 68vh;
+}
+
+.editorPane,
+.previewPane {
+  min-width: 0;
+}
+
+.editorPane {
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.editor {
+  height: 100%;
+}
+
+.editor :global(textarea) {
+  min-height: 68vh !important;
+  padding: 24px !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.98rem;
+  line-height: 1.9;
+  resize: none !important;
+}
+
+.previewPane {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 18px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.previewHeader,
+.previewMeta {
+  display: grid;
+  gap: 8px;
+}
+
+.previewTitle,
+.previewArticleTitle {
+  margin: 0 !important;
+}
+
+.previewBody {
+  overflow: auto;
+  min-height: 0;
+  padding-right: 8px;
+}
+
+.emptyPreview {
+  color: var(--color-text-muted) !important;
+}
+
+.errorText {
+  margin: 0 !important;
+  padding: 12px 20px 0;
+  color: #ff7875 !important;
+}
+
+.loadingState {
+  display: grid;
+  place-items: center;
+  min-height: 50vh;
+}
+
+@media (max-width: 1120px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .editorPane {
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+}
+
+@media (max-width: 840px) {
+  .header {
+    grid-template-columns: 1fr;
+  }
+
+  .headerActions {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}

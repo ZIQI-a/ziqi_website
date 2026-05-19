@@ -6,7 +6,7 @@
 
 - 公开站点：主页、最新动态、博客列表/详情、项目列表、联系平台页
 - 后台管理：博客、项目、动态 moments、联系平台、用户管理
-  其中博客管理已支持 Markdown 正文编辑和实时预览
+  其中博客管理已拆分为“正文编辑页 + 文章信息设置”，正文编辑支持 Markdown 实时预览
 - 登录鉴权：`/admin/login` 登录，`/admin/*` 通过路由守卫保护
 - 接口联动：公开页通过 `/api/site/*` 获取数据，管理页通过 `/api/admin/*` 做 CRUD
 - 主题系统：默认暗色，支持亮色切换
@@ -20,6 +20,7 @@
 - `react-router-dom`：公开站点和管理端路由
 - `CSS Modules`：公开站点和局部组件样式
 - `Ant Design`：仅用于 `/admin` 管理端
+- `react-markdown + remark-gfm`：Markdown 渲染和实时预览
 - `ESLint`：基础代码检查
 
 ## 目录说明
@@ -78,6 +79,8 @@ npm run preview  # 预览构建产物
 - `/admin/login`
 - `/admin`
 - `/admin/blogs`
+- `/admin/blogs/new`
+- `/admin/blogs/:id/editor`
 - `/admin/moments`
 - `/admin/projects`
 - `/admin/contact-links`
