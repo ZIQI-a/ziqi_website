@@ -1,10 +1,10 @@
-import { Link } from 'react-router-dom'
-import type { BlogPostSummary } from '../types/content'
-import styles from './BlogCard.module.css'
+import { Link } from "react-router-dom";
+import type { BlogPostSummary } from "../types/content";
+import styles from "./BlogCard.module.css";
 
 interface BlogCardProps {
-  post: BlogPostSummary
-  onTagClick?: (tag: string) => void
+  post: BlogPostSummary;
+  onTagClick?: (tag: string) => void;
 }
 
 export function BlogCard({ post, onTagClick }: BlogCardProps) {
@@ -25,34 +25,39 @@ export function BlogCard({ post, onTagClick }: BlogCardProps) {
               type="button"
               className={styles.tagButton}
               onClick={(e) => {
-                e.preventDefault()
-                onTagClick?.(tag)
+                e.preventDefault();
+                onTagClick?.(tag);
               }}
             >
               {tag}
             </button>
           ))}
         </div>
-        {post.sourceLabel || post.contentMode === 'EXTERNAL' ? (
+        {post.sourceLabel || post.contentMode === "EXTERNAL" ? (
           <p className={styles.meta}>
-            <span>{post.sourceLabel ?? '外部文章'}</span>
+            <span>{post.sourceLabel ?? "外部文章"}</span>
           </p>
         ) : null}
       </div>
     </>
-  )
+  );
 
   /**
    * 博客列表统一改为整卡可点击，避免只有标题可点击导致命中区域过小。
    */
-  if (post.contentMode === 'EXTERNAL' && post.sourceUrl) {
+  if (post.contentMode === "EXTERNAL" && post.sourceUrl) {
     return (
       <article className={styles.card}>
-        <a href={post.sourceUrl} target="_blank" rel="noreferrer" className={styles.cardLink}>
+        <a
+          href={post.sourceUrl}
+          target="_blank"
+          rel="noreferrer"
+          className={styles.cardLink}
+        >
           {cardBody}
         </a>
       </article>
-    )
+    );
   }
 
   return (
@@ -61,5 +66,5 @@ export function BlogCard({ post, onTagClick }: BlogCardProps) {
         {cardBody}
       </Link>
     </article>
-  )
+  );
 }

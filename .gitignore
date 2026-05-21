@@ -1,6 +1,7 @@
 # Root workspace metadata
 .DS_Store
 .vscode/
+.qoder
 
 # Historical backup metadata kept only for local fallback
 .git_backups/

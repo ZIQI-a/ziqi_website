@@ -1,10 +1,10 @@
-import React from 'react'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
-import styles from './MarkdownArticle.module.css'
+import React from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import styles from "./MarkdownArticle.module.css";
 
 interface MarkdownArticleProps {
-  markdown: string
+  markdown: string;
 }
 
 /**
@@ -14,10 +14,10 @@ interface MarkdownArticleProps {
 function slugifyHeading(text: string) {
   return text
     .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^\w\u4e00-\u9fff-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\u4e00-\u9fff-]/g, "")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 }
 
 /**
@@ -25,8 +25,8 @@ function slugifyHeading(text: string) {
  */
 function textFromChildren(children: React.ReactNode) {
   return React.Children.toArray(children)
-    .map((child) => (typeof child === 'string' ? child : ''))
-    .join('')
+    .map((child) => (typeof child === "string" ? child : ""))
+    .join("");
 }
 
 /**
@@ -39,19 +39,31 @@ export function MarkdownArticle({ markdown }: MarkdownArticleProps) {
         remarkPlugins={[remarkGfm]}
         components={{
           h1: ({ children, ...props }) => {
-            const text = textFromChildren(children)
-            const id = slugifyHeading(text)
-            return <h1 id={id} {...props}>{children}</h1>
+            const text = textFromChildren(children);
+            const id = slugifyHeading(text);
+            return (
+              <h1 id={id} {...props}>
+                {children}
+              </h1>
+            );
           },
           h2: ({ children, ...props }) => {
-            const text = textFromChildren(children)
-            const id = slugifyHeading(text)
-            return <h2 id={id} {...props}>{children}</h2>
+            const text = textFromChildren(children);
+            const id = slugifyHeading(text);
+            return (
+              <h2 id={id} {...props}>
+                {children}
+              </h2>
+            );
           },
           h3: ({ children, ...props }) => {
-            const text = textFromChildren(children)
-            const id = slugifyHeading(text)
-            return <h3 id={id} {...props}>{children}</h3>
+            const text = textFromChildren(children);
+            const id = slugifyHeading(text);
+            return (
+              <h3 id={id} {...props}>
+                {children}
+              </h3>
+            );
           },
           /**
            * 语雀 CDN 图片对网页 Referer 有防盗链限制，这里主动去掉 Referer，
@@ -59,8 +71,8 @@ export function MarkdownArticle({ markdown }: MarkdownArticleProps) {
            */
           img: ({ src, alt }) => (
             <img
-              src={src ?? ''}
-              alt={alt ?? ''}
+              src={src ?? ""}
+              alt={alt ?? ""}
               loading="lazy"
               referrerPolicy="no-referrer"
             />
@@ -70,5 +82,5 @@ export function MarkdownArticle({ markdown }: MarkdownArticleProps) {
         {markdown}
       </ReactMarkdown>
     </div>
-  )
+  );
 }

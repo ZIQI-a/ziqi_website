@@ -40,7 +40,10 @@ export function BlogPage() {
 
   // 从数据中提取分类和标签列表
   const categories = useMemo(
-    () => [ALL_CATEGORY, ...Array.from(new Set(posts.map((p) => p.category))).sort()],
+    () => [
+      ALL_CATEGORY,
+      ...Array.from(new Set(posts.map((p) => p.category))).sort(),
+    ],
     [posts],
   );
 
@@ -82,7 +85,9 @@ export function BlogPage() {
   }
 
   const hasActiveFilters =
-    searchText.trim() !== "" || activeCategory !== ALL_CATEGORY || activeTag !== null;
+    searchText.trim() !== "" ||
+    activeCategory !== ALL_CATEGORY ||
+    activeTag !== null;
 
   return (
     <div className={styles.page}>
@@ -182,9 +187,16 @@ export function BlogPage() {
               <p>当前筛选条件下没有找到匹配的文章。</p>
             </section>
           ) : (
-            <section className={styles.grid} key={`${activeCategory}-${activeTag}`}>
+            <section
+              className={styles.grid}
+              key={`${activeCategory}-${activeTag}`}
+            >
               {filteredPosts.map((post) => (
-                <BlogCard key={post.id} post={post} onTagClick={handleTagClick} />
+                <BlogCard
+                  key={post.id}
+                  post={post}
+                  onTagClick={handleTagClick}
+                />
               ))}
             </section>
           )}
