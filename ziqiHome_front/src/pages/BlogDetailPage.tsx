@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { siteClient } from '../api/siteClient'
 import { MarkdownArticle } from '../components/MarkdownArticle'
+import { BlogPostToc } from '../components/BlogPostToc'
+import { extractTocHeadings } from '../utils/tocUtils'
 import { PageHeader } from '../components/PageHeader'
 import type { BlogPostDetail } from '../types/content'
 import styles from './BlogDetailPage.module.css'
@@ -33,6 +35,11 @@ export function BlogDetailPage() {
     void loadBlog()
   }, [slug])
 
+  const tocHeadings = useMemo(
+    () => (post ? extractTocHeadings(post.contentMarkdown) : []),
+    [post],
+  )
+
   if (loading) {
     return <section className={styles.statePanel}>正在加载文章...</section>
   }
@@ -43,54 +50,60 @@ export function BlogDetailPage() {
 
   if (post.contentMode === 'EXTERNAL' && post.sourceUrl) {
     return (
-      <section className={styles.page}>
-        <PageHeader eyebrow="Blog Redirect" title={post.title} description={post.summary} />
-        <div className={styles.statePanel}>
-          <p>这篇文章托管在外部平台。</p>
-          <p>
-            <a href={post.sourceUrl} target="_blank" rel="noreferrer">
-              前往{post.sourceLabel ?? '原文'}
-            </a>
-          </p>
-        </div>
+      <section className={styles.pageLayout}>
+        <article className={styles.articleContent}>
+          <PageHeader eyebrow="Blog Redirect" title={post.title} description={post.summary} />
+          <div className={styles.statePanel}>
+            <p>这篇文章托管在外部平台。</p>
+            <p>
+              <a href={post.sourceUrl} target="_blank" rel="noreferrer">
+                前往{post.sourceLabel ?? '原文'}
+              </a>
+            </p>
+          </div>
+        </article>
       </section>
     )
   }
 
   return (
-    <article className={styles.page}>
-      <img className={styles.cover} src={post.cover} alt={post.title} />
+    <div className={styles.pageLayout}>
+      <article className={styles.articleContent}>
+        <img className={styles.cover} src={post.cover} alt={post.title} loading="lazy" />
 
-      <section className={styles.articleShell}>
-        <div className={styles.actionRow}>
-          <Link to="/blog" className={styles.actionButton}>
-            返回博客列表
-          </Link>
-          {post.sourceUrl ? (
-            <a href={post.sourceUrl} target="_blank" rel="noreferrer" className={styles.actionButton}>
-              查看{post.sourceLabel ?? '原文'}
-            </a>
-          ) : null}
-        </div>
-
-        <header className={styles.articleHeader}>
-          <div className={styles.metaRow}>
-            <span>{post.category}</span>
-            <span>{post.date}</span>
+        <section className={styles.articleShell}>
+          <div className={styles.actionRow}>
+            <Link to="/blog" className={styles.actionButton}>
+              返回博客列表
+            </Link>
+            {post.sourceUrl ? (
+              <a href={post.sourceUrl} target="_blank" rel="noreferrer" className={styles.actionButton}>
+                查看{post.sourceLabel ?? '原文'}
+              </a>
+            ) : null}
           </div>
 
-          <h1 className={styles.title}>{post.title}</h1>
-          <p className={styles.summary}>{post.summary}</p>
+          <header className={styles.articleHeader}>
+            <div className={styles.metaRow}>
+              <span>{post.category}</span>
+              <span>{post.date}</span>
+            </div>
 
-          <div className={styles.tags}>
-            {post.tags.map((tag) => (
-              <span key={tag}>{tag}</span>
-            ))}
-          </div>
-        </header>
+            <h1 className={styles.title}>{post.title}</h1>
+            <p className={styles.summary}>{post.summary}</p>
 
-        <MarkdownArticle markdown={post.contentMarkdown} />
-      </section>
-    </article>
+            <div className={styles.tags}>
+              {post.tags.map((tag) => (
+                <span key={tag}>{tag}</span>
+              ))}
+            </div>
+          </header>
+
+          <MarkdownArticle markdown={post.contentMarkdown} />
+        </section>
+      </article>
+
+      <BlogPostToc headings={tocHeadings} />
+    </div>
   )
 }

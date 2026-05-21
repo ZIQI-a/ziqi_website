@@ -1,0 +1,81 @@
+.toc {
+  position: sticky;
+  top: 108px;
+  align-self: start;
+  display: grid;
+  gap: 14px;
+  padding: 22px 20px;
+  border: 1px solid var(--color-line);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+  box-shadow: var(--shadow-soft);
+  max-height: calc(100vh - 148px);
+  overflow: hidden auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+
+.tocTitle {
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tocList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.tocItem {
+  display: grid;
+  padding: 0;
+  line-height: 1.45;
+}
+
+.tocLevel1 {
+  padding-left: 0;
+}
+
+.tocLevel2 {
+  padding-left: 14px;
+}
+
+.tocLevel3 {
+  padding-left: 28px;
+}
+
+.tocLink {
+  display: block;
+  padding: 5px 10px;
+  margin: 0 -10px;
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+  border-left: 2px solid transparent;
+}
+
+.tocLink:hover {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-accent-soft) 42%, transparent);
+}
+
+.tocLinkActive {
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent-soft) 62%, transparent);
+  border-left-color: var(--color-accent);
+}
+
+@media (max-width: 960px) {
+  .toc {
+    display: none;
+  }
+}
