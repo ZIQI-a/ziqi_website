@@ -3,6 +3,171 @@
   gap: 28px;
 }
 
+/* ---------- 筛选栏 ---------- */
+
+.filterBar {
+  display: grid;
+  gap: 16px;
+  padding: 20px 24px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  box-shadow: var(--shadow-soft);
+  animation: contentReveal 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 搜索框 */
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  border: 1px solid var(--color-line);
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.searchWrap:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+.searchIcon {
+  color: var(--color-text-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.searchInput::placeholder {
+  color: var(--color-text-muted);
+  opacity: 0.65;
+}
+
+.searchClear {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-line) 60%, transparent);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.searchClear:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}
+
+/* 分类筛选 */
+.categoryRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.categoryChip {
+  padding: 6px 16px;
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.18s ease,
+    box-shadow 0.2s ease;
+}
+
+.categoryChip:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(255, 177, 24, 0.1);
+}
+
+.categoryChipActive {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(255, 177, 24, 0.22);
+}
+
+/* 标签筛选 */
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.tagChip {
+  padding: 5px 14px;
+  border: 1px solid color-mix(in srgb, var(--color-accent-soft) 70%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent-soft) 42%, transparent);
+  color: var(--color-accent);
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.18s ease,
+    box-shadow 0.2s ease;
+}
+
+.tagChip:hover {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 24%, var(--color-accent-soft));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(255, 177, 24, 0.12);
+}
+
+.tagChipActive {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(255, 177, 24, 0.26);
+}
+
+/* 结果提示 */
+.filterHint {
+  margin: 0;
+  padding: 6px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+  line-height: 1;
+}
+
+/* ---------- 状态面板 ---------- */
 .statePanel {
   padding: 28px 24px;
   border: 1px solid var(--color-line);

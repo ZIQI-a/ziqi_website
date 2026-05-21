@@ -4,9 +4,10 @@ import styles from './BlogCard.module.css'
 
 interface BlogCardProps {
   post: BlogPostSummary
+  onTagClick?: (tag: string) => void
 }
 
-export function BlogCard({ post }: BlogCardProps) {
+export function BlogCard({ post, onTagClick }: BlogCardProps) {
   const cardBody = (
     <>
       <img className={styles.cover} src={post.cover} alt={post.title} />
@@ -19,7 +20,17 @@ export function BlogCard({ post }: BlogCardProps) {
         <p className={styles.summary}>{post.summary}</p>
         <div className={styles.tags}>
           {post.tags.map((tag) => (
-            <span key={tag}>{tag}</span>
+            <button
+              key={tag}
+              type="button"
+              className={styles.tagButton}
+              onClick={(e) => {
+                e.preventDefault()
+                onTagClick?.(tag)
+              }}
+            >
+              {tag}
+            </button>
           ))}
         </div>
         {post.sourceLabel || post.contentMode === 'EXTERNAL' ? (
