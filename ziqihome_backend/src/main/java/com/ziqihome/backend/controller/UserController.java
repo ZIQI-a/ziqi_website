@@ -1,10 +1,13 @@
 package com.ziqihome.backend.controller;
 
+import com.ziqihome.backend.auth.AdminSessionKeys;
 import com.ziqihome.backend.dto.user.UserCreateRequest;
 import com.ziqihome.backend.dto.user.UserPasswordRequest;
 import com.ziqihome.backend.dto.user.UserResponse;
 import com.ziqihome.backend.dto.user.UserUpdateRequest;
 import com.ziqihome.backend.service.UserService;
+import com.ziqihome.backend.exception.UnauthorizedException;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -48,9 +51,10 @@ public class UserController {
   @PutMapping("/{id}")
   public UserResponse updateUser(
       @PathVariable Long id,
-      @Valid @RequestBody UserUpdateRequest request
+      @Valid @RequestBody UserUpdateRequest request,
+      HttpSession session
   ) {
-    return userService.updateUser(id, request);
+    return userService.updateUser(id, request, getCurrentAdminId(session));
   }
 
   @PutMapping("/{id}/password")
@@ -65,7 +69,16 @@ public class UserController {
 
   @DeleteMapping("/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteUser(@PathVariable Long id) {
-    userService.deleteUser(id);
+  public void deleteUser(@PathVariable Long id, HttpSession session) {
+    userService.deleteUser(id, getCurrentAdminId(session));
+  }
+
+  private Long getCurrentAdminId(HttpSession session) {
+    Object userId = session.getAttribute(AdminSessionKeys.ADMIN_USER_ID);
+    if (userId instanceof Long currentAdminId) {
+      return currentAdminId;
+    }
+    // 正常请求会先经过拦截器；这里保留防御性校验，避免业务方法收到空操作者。
+    throw new UnauthorizedException("请先登录后台账号");
   }
 }

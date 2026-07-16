@@ -31,6 +31,13 @@ class UserServiceTest {
 
   @Test
   void createAndUpdatePasswordShouldStoreHashedPassword() {
+    var operator = userService.createUser(new UserCreateRequest(
+        "operator-admin",
+        "o1@p2#",
+        "操作管理员",
+        UserRole.ADMIN,
+        true
+    ));
     var created = userService.createUser(new UserCreateRequest(
         "admin-user",
         "a1@b2#",
@@ -48,7 +55,7 @@ class UserServiceTest {
         "新昵称",
         UserRole.ADMIN,
         false
-    ));
+    ), operator.id());
 
     assertThat(updated.nickname()).isEqualTo("新昵称");
     assertThat(updated.enabled()).isFalse();

@@ -1,6 +1,7 @@
 package com.ziqihome.backend.service;
 
 import com.ziqihome.backend.domain.User;
+import com.ziqihome.backend.domain.UserRole;
 import com.ziqihome.backend.dto.user.UserCreateRequest;
 import com.ziqihome.backend.dto.user.UserPasswordRequest;
 import com.ziqihome.backend.dto.user.UserResponse;
@@ -59,8 +60,10 @@ public class UserService {
     return userMapper.toResponse(saveUserWithConflictHandling(user, normalizedUsername));
   }
 
-  public UserResponse updateUser(Long id, UserUpdateRequest request) {
+  public UserResponse updateUser(Long id, UserUpdateRequest request, Long currentAdminId) {
     User user = getUserOrThrow(id);
+    ensureCurrentAdminRemainsUsable(user, request, currentAdminId);
+    ensureEnabledAdminRemains(user, request.role(), request.enabled());
     String normalizedUsername = request.username().trim();
     ensureUsernameAvailable(normalizedUsername, id);
     userMapper.applyUpdateRequest(user, request);
@@ -74,8 +77,13 @@ public class UserService {
     userRepository.save(user);
   }
 
-  public void deleteUser(Long id) {
-    userRepository.delete(getUserOrThrow(id));
+  public void deleteUser(Long id, Long currentAdminId) {
+    User user = getUserOrThrow(id);
+    if (user.getId().equals(currentAdminId)) {
+      throw new ConflictException("不能删除当前登录的管理员账号");
+    }
+    ensureEnabledAdminRemains(user, null, false);
+    userRepository.delete(user);
   }
 
   @Transactional(readOnly = true)
@@ -92,6 +100,38 @@ public class UserService {
 
     if (exists) {
       throw new ConflictException("账号已存在: " + username);
+    }
+  }
+
+  private void ensureCurrentAdminRemainsUsable(
+      User user,
+      UserUpdateRequest request,
+      Long currentAdminId
+  ) {
+    if (!user.getId().equals(currentAdminId)) {
+      return;
+    }
+
+    // 当前会话依赖该管理员，禁止通过资料编辑让自己立即失去后台访问能力。
+    if (!Boolean.TRUE.equals(request.enabled())) {
+      throw new ConflictException("不能停用当前登录的管理员账号");
+    }
+    if (request.role() != UserRole.ADMIN) {
+      throw new ConflictException("不能修改当前登录管理员的角色");
+    }
+  }
+
+  private void ensureEnabledAdminRemains(User user, UserRole nextRole, Boolean nextEnabled) {
+    boolean currentlyEnabledAdmin = user.getRole() == UserRole.ADMIN
+        && Boolean.TRUE.equals(user.getEnabled());
+    boolean remainsEnabledAdmin = nextRole == UserRole.ADMIN
+        && Boolean.TRUE.equals(nextEnabled);
+
+    // 删除、停用或降级启用管理员时，至少要保留另一个可登录的管理员账号。
+    if (currentlyEnabledAdmin
+        && !remainsEnabledAdmin
+        && userRepository.countByRoleAndEnabledTrue(UserRole.ADMIN) <= 1) {
+      throw new ConflictException("至少需要保留一个启用的管理员账号");
     }
   }
 

@@ -1,6 +1,7 @@
 package com.ziqihome.backend.repository;
 
 import com.ziqihome.backend.domain.User;
+import com.ziqihome.backend.domain.UserRole;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,4 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
   boolean existsByUsername(String username);
 
   boolean existsByUsernameAndIdNot(String username, Long id);
+
+  long countByRoleAndEnabledTrue(UserRole role);
 }

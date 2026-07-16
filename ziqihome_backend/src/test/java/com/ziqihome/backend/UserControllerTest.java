@@ -16,6 +16,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import com.ziqihome.backend.service.UserService;
+import com.ziqihome.backend.auth.AdminSessionKeys;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -183,5 +184,29 @@ class UserControllerTest {
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.fieldErrors.password")
             .value("密码长度最小6位，只能包含字母、数字或特殊字符，且不能包含空格"));
+  }
+
+  @Test
+  void currentAdminShouldNotDisableOrDeleteItself() throws Exception {
+    MockHttpSession session = TestAdminSessionFactory.createAuthenticatedSession(userService);
+    Long currentAdminId = (Long) session.getAttribute(AdminSessionKeys.ADMIN_USER_ID);
+
+    mockMvc.perform(put("/api/admin/users/{id}", currentAdminId)
+            .session(session)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                  "username": "session-admin",
+                  "nickname": "当前管理员",
+                  "role": "ADMIN",
+                  "enabled": false
+                }
+                """))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.message").value("不能停用当前登录的管理员账号"));
+
+    mockMvc.perform(delete("/api/admin/users/{id}", currentAdminId).session(session))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.message").value("不能删除当前登录的管理员账号"));
   }
 }
