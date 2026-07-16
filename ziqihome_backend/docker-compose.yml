@@ -1,0 +1,62 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ziqihome-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ziqihome
+      MYSQL_USER: ziqihome
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      TZ: Asia/Shanghai
+    ports:
+      # 仅允许服务器本机访问 MySQL，便于通过 SSH 隧道或本机工具维护。
+      - "127.0.0.1:3308:3306"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - ziqihome_net
+
+  backend:
+    image: eclipse-temurin:21-jre
+    container_name: ziqihome-backend
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    working_dir: /app
+    volumes:
+      - ./app.jar:/app/app.jar
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/ziqihome?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+      DB_USERNAME: ziqihome
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      APP_CORS_ALLOWED_ORIGINS: ${APP_CORS_ALLOWED_ORIGINS}
+      # 容器内统一监听 8080，与下方端口映射保持一致。
+      SERVER_PORT: 8080
+      TZ: Asia/Shanghai
+    command: java -Xms128m -Xmx512m -jar /app/app.jar
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks:
+      - ziqihome_net
+
+  adminer:
+    image: adminer:4
+    container_name: ziqihome-adminer
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      # Adminer 只绑定回环地址，不直接暴露到公网。
+      - "127.0.0.1:8083:8080"
+    networks:
+      - ziqihome_net
+
+volumes:
+  mysql_data:
+
+networks:
+  ziqihome_net:
