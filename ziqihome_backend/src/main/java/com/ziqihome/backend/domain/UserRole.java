@@ -1,7 +1,7 @@
 package com.ziqihome.backend.domain;
 
 /**
- * 当前后台用户先只保留单一管理员角色，后续如果扩展编辑、访客等角色，可直接在这里追加。
+ * ADMIN 当前用于管理后台；USER 为后续社区普通账号预留，暂不具备后台访问权限。
  */
 public enum UserRole {
   ADMIN,

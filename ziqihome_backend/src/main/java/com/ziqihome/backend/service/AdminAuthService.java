@@ -2,6 +2,7 @@ package com.ziqihome.backend.service;
 
 import com.ziqihome.backend.auth.AdminSessionKeys;
 import com.ziqihome.backend.domain.User;
+import com.ziqihome.backend.domain.UserRole;
 import com.ziqihome.backend.dto.auth.AuthLoginRequest;
 import com.ziqihome.backend.dto.auth.AuthUserResponse;
 import com.ziqihome.backend.exception.UnauthorizedException;
@@ -40,6 +41,11 @@ public class AdminAuthService {
       throw new UnauthorizedException("账号已停用，无法登录");
     }
 
+    // USER 为后续社区账号预留；当前管理后台只允许 ADMIN 建立管理会话。
+    if (user.getRole() != UserRole.ADMIN) {
+      throw new UnauthorizedException("当前账号没有后台管理权限");
+    }
+
     user.setLastLoginAt(Instant.now());
     User savedUser = userRepository.save(user);
     session.setAttribute(AdminSessionKeys.ADMIN_USER_ID, savedUser.getId());
@@ -60,6 +66,11 @@ public class AdminAuthService {
 
     if (!Boolean.TRUE.equals(user.getEnabled())) {
       throw new UnauthorizedException("账号已停用，无法继续访问");
+    }
+
+    // /auth/me 不经过管理拦截器，因此这里也必须独立校验管理员角色。
+    if (user.getRole() != UserRole.ADMIN) {
+      throw new UnauthorizedException("当前账号没有后台管理权限");
     }
 
     return toAuthUserResponse(user);

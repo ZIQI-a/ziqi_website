@@ -88,7 +88,7 @@ moment 分类：
 - `imageUrl`、`link` 允许为空；非空时必须是 `http/https` URL
 - 博客标签、项目技术栈、项目亮点至少保留一项
 - 项目状态必须来自 `ProjectStatus`
-- 用户角色当前仅支持 `ADMIN`
+- 管理端当前仅创建和使用 `ADMIN`；`USER` 为后续社区账号预留，不能登录或访问管理后台
 
 ## 错误响应
 

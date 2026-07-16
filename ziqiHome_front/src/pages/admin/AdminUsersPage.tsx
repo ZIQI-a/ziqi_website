@@ -52,6 +52,7 @@ interface PasswordFormValues {
 
 const defaultRole = 'ADMIN'
 
+// 当前后台只创建管理员；普通 USER 角色为后续社区功能预留，暂不在管理端开放。
 const userRoleOptions = [{ label: 'ADMIN', value: defaultRole }]
 
 /**

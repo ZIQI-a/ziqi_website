@@ -1,6 +1,7 @@
 package com.ziqihome.backend.auth;
 
 import com.ziqihome.backend.exception.UnauthorizedException;
+import com.ziqihome.backend.domain.UserRole;
 import com.ziqihome.backend.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,7 +60,8 @@ public class AdminAuthInterceptor implements HandlerInterceptor {
 
     // 每次进入管理接口都确认用户仍存在且仍启用，避免停用账号继续使用旧会话。
     boolean canAccess = userRepository.findById(userId)
-        .map(user -> Boolean.TRUE.equals(user.getEnabled()))
+        // USER 角色为后续社区功能预留，当前不能访问任何管理接口。
+        .map(user -> Boolean.TRUE.equals(user.getEnabled()) && user.getRole() == UserRole.ADMIN)
         .orElse(false);
 
     if (!canAccess) {

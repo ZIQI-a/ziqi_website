@@ -15,7 +15,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MvcResult;
+
+import com.ziqihome.backend.auth.AdminSessionKeys;
 
 /**
  * 登录、获取当前用户和退出登录的闭环测试单独放在这里，避免 CRUD 测试混进鉴权断言。
@@ -88,6 +91,45 @@ class AdminAuthControllerTest {
             .content(loginBody))
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.message").value("账号或密码错误"));
+  }
+
+  @Test
+  void userRoleShouldNotLoginToAdmin() throws Exception {
+    userService.createUser(new UserCreateRequest(
+        "community-user",
+        "a1@b2#",
+        "社区用户",
+        UserRole.USER,
+        true
+    ));
+
+    mockMvc.perform(post("/api/admin/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                  "username": "community-user",
+                  "password": "a1@b2#"
+                }
+                """))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.message").value("当前账号没有后台管理权限"));
+  }
+
+  @Test
+  void userRoleSessionShouldNotAccessAdminRoute() throws Exception {
+    var user = userService.createUser(new UserCreateRequest(
+        "community-session-user",
+        "a1@b2#",
+        "社区会话用户",
+        UserRole.USER,
+        true
+    ));
+    MockHttpSession session = new MockHttpSession();
+    session.setAttribute(AdminSessionKeys.ADMIN_USER_ID, user.id());
+
+    mockMvc.perform(get("/api/admin/users").session(session))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.message").value("登录状态已失效，请重新登录"));
   }
 
   @Test

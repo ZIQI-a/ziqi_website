@@ -43,6 +43,7 @@
 - `AdminAuthInterceptor` 拦截 `/api/admin/**`
 - `/api/admin/auth/**` 排除拦截
 - 用户被禁用或删除后，旧 session 会失效
+- 当前只有 `ADMIN` 能建立管理会话；`USER` 仅作为后续社区账号扩展位保留
 
 当前不是完整 RBAC，多角色权限后续再扩展。
 
