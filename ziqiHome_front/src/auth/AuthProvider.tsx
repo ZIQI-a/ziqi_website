@@ -1,10 +1,11 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { authClient, AuthApiError } from '../api/authClient'
 import {
   AuthContext,
   type AuthContextValue,
   type AuthSession,
 } from './authStore'
+import { ADMIN_SESSION_EXPIRED_EVENT } from './sessionEvents'
 
 /**
  * AuthProvider 只保存管理端会话状态，不在公开站首屏主动请求 /auth/me。
@@ -13,6 +14,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null)
   const [isInitializing, setIsInitializing] = useState(false)
   const [hasCheckedSession, setHasCheckedSession] = useState(false)
+
+  useEffect(() => {
+    function handleSessionExpired() {
+      // 后端已经判定会话无效，本地立即清空状态，由路由守卫跳回登录页。
+      setSession(null)
+      setHasCheckedSession(true)
+      setIsInitializing(false)
+    }
+
+    window.addEventListener(ADMIN_SESSION_EXPIRED_EVENT, handleSessionExpired)
+    return () => window.removeEventListener(ADMIN_SESSION_EXPIRED_EVENT, handleSessionExpired)
+  }, [])
 
   async function refreshSession() {
     setIsInitializing(true)

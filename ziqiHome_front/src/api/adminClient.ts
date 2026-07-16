@@ -19,6 +19,7 @@ import type {
   YuqueSyncPreviewPayload,
   YuqueSyncPreviewResponse,
 } from '../types/admin'
+import { ADMIN_SESSION_EXPIRED_EVENT } from '../auth/sessionEvents'
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '')
 
@@ -48,6 +49,11 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   })
 
   if (!response.ok) {
+    if (response.status === 401) {
+      // 业务页面不直接操作认证状态，统一通知 AuthProvider 处理会话失效。
+      window.dispatchEvent(new Event(ADMIN_SESSION_EXPIRED_EVENT))
+    }
+
     const errorBody = (await response.json().catch(() => ({}))) as ApiErrorShape
     throw new ApiError(errorBody.message ?? '请求失败，请稍后重试', errorBody.fieldErrors)
   }
