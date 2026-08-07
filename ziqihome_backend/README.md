@@ -99,7 +99,8 @@ mvn spring-boot:run
 
 公开接口：
 
-- `GET /api/site/blogs`
+- `GET /api/site/blogs`，支持 `keyword`、`category`、重复 `tags` 查询参数
+- `GET /api/site/blogs/filter-options`，返回已发布博客的分类和标签筛选项
 - `GET /api/site/blogs/{slug}`
 - `GET /api/site/projects`，支持 `status` 查询参数
 - `GET /api/site/contact-links`

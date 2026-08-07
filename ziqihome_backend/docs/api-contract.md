@@ -3,6 +3,12 @@
 ## 公开接口
 
 - `GET /api/site/blogs`
+  - Query：
+    - `keyword` 可选，忽略大小写匹配标题、摘要或标签
+    - `category` 可选，按分类名称精确筛选
+    - `tags` 可选且可重复传递；传入多个标签时只返回同时包含全部标签的文章
+- `GET /api/site/blogs/filter-options`
+  - 返回全部已发布文章的去重分类和标签，供公开博客页构建稳定筛选项
 - `GET /api/site/blogs/{slug}`
 - `GET /api/site/projects`
   - Query：

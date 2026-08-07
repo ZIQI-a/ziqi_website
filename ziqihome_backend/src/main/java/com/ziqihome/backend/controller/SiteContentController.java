@@ -1,6 +1,7 @@
 package com.ziqihome.backend.controller;
 
 import com.ziqihome.backend.domain.ProjectStatus;
+import com.ziqihome.backend.dto.blog.BlogFilterOptionsResponse;
 import com.ziqihome.backend.dto.blog.BlogSiteDetailResponse;
 import com.ziqihome.backend.dto.blog.BlogSiteSummaryResponse;
 import com.ziqihome.backend.dto.contact.ContactLinkResponse;
@@ -44,8 +45,17 @@ public class SiteContentController {
   }
 
   @GetMapping("/blogs")
-  public List<BlogSiteSummaryResponse> listSiteBlogs() {
-    return blogPostService.listPublishedBlogs();
+  public List<BlogSiteSummaryResponse> listSiteBlogs(
+      @RequestParam(required = false) String keyword,
+      @RequestParam(required = false) String category,
+      @RequestParam(required = false) List<String> tags
+  ) {
+    return blogPostService.listPublishedBlogs(keyword, category, tags);
+  }
+
+  @GetMapping("/blogs/filter-options")
+  public BlogFilterOptionsResponse listSiteBlogFilterOptions() {
+    return blogPostService.listPublishedBlogFilterOptions();
   }
 
   @GetMapping("/blogs/{slug}")
