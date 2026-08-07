@@ -61,7 +61,6 @@ export function BlogDetailPage() {
           <PageHeader
             eyebrow="Blog Redirect"
             title={post.title}
-            description={post.summary}
           />
           <div className={styles.statePanel}>
             <p>这篇文章托管在外部平台。</p>

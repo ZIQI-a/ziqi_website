@@ -82,7 +82,6 @@ export function ProjectsPage() {
       <PageHeader
         eyebrow="Projects Works"
         title="项目工坊"
-        description="每一次想法，每一次迭代，都是构建未来的脚印"
       />
 
       {projectList.length > 0 ? (

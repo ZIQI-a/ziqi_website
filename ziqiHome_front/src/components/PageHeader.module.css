@@ -6,6 +6,12 @@
   animation: headerReveal 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+.headerStart {
+  justify-items: start;
+  padding: 0;
+  text-align: left;
+}
+
 .eyebrow {
   display: inline-block;
   margin-bottom: 14px;
@@ -21,13 +27,6 @@
   font-family: var(--font-display);
   font-size: clamp(1rem, 3.2vw, 2rem);
   line-height: 1;
-}
-
-.description {
-  max-width: 54ch;
-  margin: 18px 0 0;
-  color: var(--color-text-muted);
-  line-height: 1.85;
 }
 
 @keyframes headerReveal {

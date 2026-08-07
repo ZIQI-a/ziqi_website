@@ -27,7 +27,8 @@
 ## 当前内容来源
 
 - 首页个人基础信息仍来自 `src/data/siteContent.ts`
-- 博客列表来自 `/api/site/blogs`
+- 博客列表来自 `/api/site/blogs`，关键词、分类和多标签通过查询参数交给后端组合筛选
+- 博客分类和标签筛选项来自 `/api/site/blogs/filter-options`，不再由当前结果集临时推导
 - 项目列表来自 `/api/site/projects`
 - 联系平台来自 `/api/site/contact-links`
 - moments 和分类来自 `/api/site/moments`、`/api/site/moments/categories`

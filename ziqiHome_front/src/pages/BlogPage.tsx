@@ -1,206 +1,314 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BlogCard } from "../components/BlogCard";
 import { PageHeader } from "../components/PageHeader";
 import { siteClient } from "../api/siteClient";
-import type { BlogPostSummary } from "../types/content";
+import type {
+  BlogFilterOptions,
+  BlogPostSummary,
+} from "../types/content";
 import styles from "./BlogPage.module.css";
 
 const ALL_CATEGORY = "全部";
+const EMPTY_FILTER_OPTIONS: BlogFilterOptions = { categories: [], tags: [] };
 
 export function BlogPage() {
   const [posts, setPosts] = useState<BlogPostSummary[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [filterOptions, setFilterOptions] =
+    useState<BlogFilterOptions>(EMPTY_FILTER_OPTIONS);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  // 筛选状态
   const [searchText, setSearchText] = useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = useState("");
   const [activeCategory, setActiveCategory] = useState(ALL_CATEGORY);
-  const [activeTag, setActiveTag] = useState<string | null>(null);
-
-  async function loadBlogs() {
-    setLoading(true);
-    setError(null);
-
-    try {
-      const data = await siteClient.listBlogs();
-      setPosts(data);
-    } catch (loadError) {
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : "博客内容加载失败，请稍后重试",
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [activeTags, setActiveTags] = useState<string[]>([]);
+  const requestIdRef = useRef(0);
+  const skipFirstFilterRequestRef = useRef(true);
+  const filterMenuRef = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
-    void loadBlogs();
+    let cancelled = false;
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+
+    async function loadInitialContent() {
+      setInitialLoading(true);
+      setError(null);
+
+      try {
+        // 文章与稳定筛选项并行加载，避免前端再从结果集推导分类和标签。
+        const [blogPosts, options] = await Promise.all([
+          siteClient.listBlogs(),
+          siteClient.listBlogFilterOptions(),
+        ]);
+
+        if (cancelled || requestId !== requestIdRef.current) {
+          return;
+        }
+
+        setPosts(blogPosts);
+        setFilterOptions(options);
+      } catch (loadError) {
+        if (!cancelled) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "博客内容加载失败，请稍后重试",
+          );
+        }
+      } finally {
+        if (!cancelled && requestId === requestIdRef.current) {
+          setInitialLoading(false);
+        }
+      }
+    }
+
+    void loadInitialContent();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // 从数据中提取分类和标签列表
-  const categories = useMemo(
-    () => [
-      ALL_CATEGORY,
-      ...Array.from(new Set(posts.map((p) => p.category))).sort(),
-    ],
-    [posts],
-  );
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedKeyword(searchText.trim());
+    }, 300);
 
-  const allTags = useMemo(
-    () => Array.from(new Set(posts.flatMap((p) => p.tags))).sort(),
-    [posts],
-  );
+    return () => window.clearTimeout(timer);
+  }, [searchText]);
 
-  // 多层筛选：搜索 + 分类 + 标签
-  const filteredPosts = useMemo(() => {
-    let result = posts;
-
-    // 搜索过滤
-    if (searchText.trim()) {
-      const keyword = searchText.trim().toLowerCase();
-      result = result.filter(
-        (post) =>
-          post.title.toLowerCase().includes(keyword) ||
-          post.summary.toLowerCase().includes(keyword) ||
-          post.tags.some((tag) => tag.toLowerCase().includes(keyword)),
-      );
+  useEffect(() => {
+    if (skipFirstFilterRequestRef.current) {
+      skipFirstFilterRequestRef.current = false;
+      return;
     }
 
-    // 分类过滤
-    if (activeCategory !== ALL_CATEGORY) {
-      result = result.filter((post) => post.category === activeCategory);
+    const requestId = requestIdRef.current + 1;
+    requestIdRef.current = requestId;
+    setRefreshing(true);
+    setError(null);
+
+    async function loadFilteredBlogs() {
+      try {
+        const data = await siteClient.listBlogs({
+          keyword: debouncedKeyword || undefined,
+          category:
+            activeCategory === ALL_CATEGORY ? undefined : activeCategory,
+          tags: activeTags.length > 0 ? activeTags : undefined,
+        });
+
+        // 快速输入或连续切换筛选时，只接受最后一次请求的响应。
+        if (requestId === requestIdRef.current) {
+          setPosts(data);
+        }
+      } catch (loadError) {
+        if (requestId === requestIdRef.current) {
+          setError(
+            loadError instanceof Error
+              ? loadError.message
+              : "博客内容加载失败，请稍后重试",
+          );
+        }
+      } finally {
+        if (requestId === requestIdRef.current) {
+          setRefreshing(false);
+        }
+      }
     }
 
-    // 标签过滤
-    if (activeTag) {
-      result = result.filter((post) => post.tags.includes(activeTag));
+    void loadFilteredBlogs();
+  }, [activeCategory, activeTags, debouncedKeyword]);
+
+  useEffect(() => {
+    function closeFilterMenu(event: PointerEvent) {
+      if (
+        filterMenuRef.current?.open &&
+        !filterMenuRef.current.contains(event.target as Node)
+      ) {
+        filterMenuRef.current.open = false;
+      }
     }
 
-    return result;
-  }, [posts, searchText, activeCategory, activeTag]);
+    document.addEventListener("pointerdown", closeFilterMenu);
+    return () => document.removeEventListener("pointerdown", closeFilterMenu);
+  }, []);
 
-  function handleTagClick(tag: string) {
-    setActiveTag((prev) => (prev === tag ? null : tag));
+  function handleTagToggle(tag: string) {
+    setActiveTags((currentTags) =>
+      currentTags.includes(tag)
+        ? currentTags.filter((activeTag) => activeTag !== tag)
+        : [...currentTags, tag],
+    );
+  }
+
+  function handleSearchClear() {
+    setSearchText("");
+    setDebouncedKeyword("");
+  }
+
+  function clearAllFilters() {
+    handleSearchClear();
+    setActiveCategory(ALL_CATEGORY);
+    setActiveTags([]);
   }
 
   const hasActiveFilters =
     searchText.trim() !== "" ||
     activeCategory !== ALL_CATEGORY ||
-    activeTag !== null;
+    activeTags.length > 0;
+  const categories = [ALL_CATEGORY, ...filterOptions.categories];
 
   return (
     <div className={styles.page}>
-      <PageHeader
-        eyebrow="Blog Archive"
-        title="博客笔记"
-        description="一些感想"
-      />
+      <section className={styles.titleRow} aria-label="博客标题与搜索">
+        <PageHeader eyebrow="Blog Archive" title="博客笔记" align="start" />
 
-      {loading ? (
+        <div className={styles.searchWrap}>
+          <svg
+            className={styles.searchIcon}
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle cx="11" cy="11" r="6.5" />
+            <path d="m16 16 4 4" />
+          </svg>
+          <input
+            type="search"
+            className={styles.searchInput}
+            placeholder="搜索文章、标签或关键词"
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
+            aria-label="搜索博客"
+          />
+          {searchText ? (
+            <button
+              type="button"
+              className={styles.searchClear}
+              onClick={handleSearchClear}
+              aria-label="清除搜索"
+            >
+              ✕
+            </button>
+          ) : null}
+        </div>
+      </section>
+
+      {!initialLoading ? (
+        <section className={styles.toolbar} aria-label="博客筛选">
+          <div className={styles.categoryTabs} role="tablist">
+            {categories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                role="tab"
+                aria-selected={activeCategory === category}
+                className={`${styles.categoryTab} ${
+                  activeCategory === category ? styles.categoryTabActive : ""
+                }`}
+                onClick={() => setActiveCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+
+          {filterOptions.tags.length > 0 ? (
+            <details
+              ref={filterMenuRef}
+              className={styles.filterMenu}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && filterMenuRef.current) {
+                  filterMenuRef.current.open = false;
+                }
+              }}
+            >
+              <summary className={styles.filterSummary}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 6h16M7 12h10M10 18h4" />
+                </svg>
+                <span>筛选</span>
+                {activeTags.length > 0 ? (
+                  <span className={styles.filterCount}>{activeTags.length}</span>
+                ) : null}
+              </summary>
+
+              <div className={styles.filterPopover}>
+                <div className={styles.filterPopoverHeader}>
+                  <strong>按标签筛选</strong>
+                  {activeTags.length > 0 ? (
+                    <button type="button" onClick={() => setActiveTags([])}>
+                      清空
+                    </button>
+                  ) : null}
+                </div>
+                <div className={styles.tagOptions}>
+                  {filterOptions.tags.map((tag) => (
+                    <label
+                      key={tag}
+                      className={`${styles.tagOption} ${
+                        activeTags.includes(tag) ? styles.tagOptionActive : ""
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={activeTags.includes(tag)}
+                        onChange={() => handleTagToggle(tag)}
+                      />
+                      <span>{tag}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </details>
+          ) : null}
+        </section>
+      ) : null}
+
+      <div className={styles.requestStatus} aria-live="polite">
+        {refreshing ? "正在更新文章…" : error && posts.length > 0 ? error : ""}
+      </div>
+
+      {initialLoading ? (
         <section className={styles.statePanel}>
           <p>正在加载博客内容...</p>
         </section>
-      ) : error ? (
+      ) : error && posts.length === 0 ? (
         <section className={styles.statePanel}>
           <p>{error}</p>
         </section>
       ) : posts.length === 0 ? (
         <section className={styles.statePanel}>
-          <p>当前还没有已发布的博客内容。</p>
+          <p>
+            {hasActiveFilters
+              ? "当前筛选条件下没有找到匹配的文章。"
+              : "当前还没有已发布的博客内容。"}
+          </p>
+          {hasActiveFilters ? (
+            <button
+              type="button"
+              className={styles.resetButton}
+              onClick={clearAllFilters}
+            >
+              清除全部筛选
+            </button>
+          ) : null}
         </section>
       ) : (
-        <>
-          {/* 筛选栏 */}
-          <section className={styles.filterBar}>
-            {/* 搜索框 */}
-            <div className={styles.searchWrap}>
-              <span className={styles.searchIcon} aria-hidden="true">
-                ⌕
-              </span>
-              <input
-                type="text"
-                className={styles.searchInput}
-                placeholder="搜索标题、摘要、标签..."
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-              {searchText ? (
-                <button
-                  type="button"
-                  className={styles.searchClear}
-                  onClick={() => setSearchText("")}
-                  aria-label="清除搜索"
-                >
-                  ✕
-                </button>
-              ) : null}
-            </div>
-
-            {/* 分类筛选 */}
-            <div className={styles.categoryRow}>
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  className={`${styles.categoryChip} ${
-                    activeCategory === cat ? styles.categoryChipActive : ""
-                  }`}
-                  onClick={() => setActiveCategory(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-
-            {/* 标签筛选 */}
-            {allTags.length > 0 ? (
-              <div className={styles.tagRow}>
-                {allTags.map((tag) => (
-                  <button
-                    key={tag}
-                    type="button"
-                    className={`${styles.tagChip} ${
-                      activeTag === tag ? styles.tagChipActive : ""
-                    }`}
-                    onClick={() => handleTagClick(tag)}
-                  >
-                    {tag}
-                  </button>
-                ))}
-              </div>
-            ) : null}
-
-            {/* 筛选结果提示 */}
-            {hasActiveFilters ? (
-              <p className={styles.filterHint}>
-                {filteredPosts.length === 0
-                  ? "没有匹配的文章，试试调整筛选条件"
-                  : `找到 ${filteredPosts.length} 篇${activeCategory !== ALL_CATEGORY ? `「${activeCategory}」` : ""}文章`}
-              </p>
-            ) : null}
-          </section>
-
-          {/* 文章列表 */}
-          {filteredPosts.length === 0 ? (
-            <section className={styles.statePanel}>
-              <p>当前筛选条件下没有找到匹配的文章。</p>
-            </section>
-          ) : (
-            <section
-              className={styles.grid}
-              key={`${activeCategory}-${activeTag}`}
-            >
-              {filteredPosts.map((post) => (
-                <BlogCard
-                  key={post.id}
-                  post={post}
-                  onTagClick={handleTagClick}
-                />
-              ))}
-            </section>
-          )}
-        </>
+        <section
+          className={`${styles.grid} ${refreshing ? styles.gridRefreshing : ""}`}
+          aria-busy={refreshing}
+        >
+          {posts.map((post, index) => (
+            <BlogCard
+              key={post.id}
+              post={post}
+              variant={
+                index === 0 ? "featured" : index < 3 ? "compact" : "standard"
+              }
+              onTagClick={handleTagToggle}
+            />
+          ))}
+        </section>
       )}
     </div>
   );

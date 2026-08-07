@@ -1,4 +1,5 @@
 import type {
+  BlogFilterOptions,
   BlogPostDetail,
   BlogPostSummary,
   ContactLinkSummary,
@@ -102,6 +103,28 @@ function buildQuery(params: Record<string, string | number | boolean | undefined
   return queryString ? `?${queryString}` : ''
 }
 
+/**
+ * 博客标签使用重复查询参数传递，让后端按多标签交集执行筛选。
+ */
+function buildBlogQuery(options?: {
+  keyword?: string
+  category?: string
+  tags?: string[]
+}) {
+  const query = new URLSearchParams()
+
+  if (options?.keyword) {
+    query.set('keyword', options.keyword)
+  }
+  if (options?.category) {
+    query.set('category', options.category)
+  }
+  options?.tags?.forEach((tag) => query.append('tags', tag))
+
+  const queryString = query.toString()
+  return queryString ? `?${queryString}` : ''
+}
+
 function mapBlogSummary(blog: SiteBlogResponse): BlogPostSummary {
   return {
     id: blog.slug || String(blog.id),
@@ -191,9 +214,18 @@ function mapMomentCategorySummary(
  * 公开站点只消费后端已经筛过 published 的接口，避免前台再接触管理端数据形态。
  */
 export const siteClient = {
-  async listBlogs() {
-    const data = await request<SiteBlogResponse[]>('/api/site/blogs')
+  async listBlogs(options?: {
+    keyword?: string
+    category?: string
+    tags?: string[]
+  }) {
+    const data = await request<SiteBlogResponse[]>(
+      `/api/site/blogs${buildBlogQuery(options)}`,
+    )
     return data.map(mapBlogSummary)
+  },
+  async listBlogFilterOptions() {
+    return request<BlogFilterOptions>('/api/site/blogs/filter-options')
   },
   async getBlog(slug: string) {
     const data = await request<SiteBlogDetailResponse>(`/api/site/blogs/${slug}`)

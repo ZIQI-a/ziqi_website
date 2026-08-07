@@ -34,6 +34,14 @@ export interface BlogPostSummary {
   sourceUrl?: string
 }
 
+/**
+ * 博客筛选项由后端基于全部已发布文章生成，页面只负责展示和选择。
+ */
+export interface BlogFilterOptions {
+  categories: string[]
+  tags: string[]
+}
+
 export interface BlogPostDetail {
   id: string
   slug: string
