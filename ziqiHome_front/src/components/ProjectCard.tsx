@@ -5,6 +5,7 @@ import styles from "./ProjectCard.module.css";
 
 interface ProjectCardProps {
   project: ProjectSummary;
+  variant: "vertical" | "horizontal";
 }
 
 function createCoverPalette(title: string) {
@@ -24,34 +25,45 @@ function createCoverPalette(title: string) {
   };
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, variant }: ProjectCardProps) {
   const [showFallbackCover, setShowFallbackCover] = useState(!project.cover);
   const palette = createCoverPalette(project.name);
+  const visibleStack = project.stack.slice(0, 3);
+  const hiddenStackCount = Math.max(
+    project.stack.length - visibleStack.length,
+    0,
+  );
 
   return (
-    <article className={styles.card}>
-      {showFallbackCover ? (
-        <div
-          className={styles.coverFallback}
-          aria-label={`${project.name} 默认封面`}
-          style={
-            {
-              "--cover-primary": palette.primary,
-              "--cover-secondary": palette.secondary,
-              "--cover-glow": palette.glow,
-            } as CSSProperties
-          }
-        >
-          <strong className={styles.coverFallbackTitle}>{project.name}</strong>
-        </div>
-      ) : (
-        <img
-          className={styles.cover}
-          src={project.cover}
-          alt={project.name}
-          onError={() => setShowFallbackCover(true)}
-        />
-      )}
+    <article
+      className={`${styles.card} ${
+        variant === "horizontal" ? styles.horizontal : styles.vertical
+      }`}
+    >
+      <div className={styles.coverFrame}>
+        {showFallbackCover ? (
+          <div
+            className={styles.coverFallback}
+            aria-label={`${project.name} 默认封面`}
+            style={
+              {
+                "--cover-primary": palette.primary,
+                "--cover-secondary": palette.secondary,
+                "--cover-glow": palette.glow,
+              } as CSSProperties
+            }
+          >
+            <strong className={styles.coverFallbackTitle}>{project.name}</strong>
+          </div>
+        ) : (
+          <img
+            className={styles.cover}
+            src={project.cover}
+            alt={project.name}
+            onError={() => setShowFallbackCover(true)}
+          />
+        )}
+      </div>
 
       <div className={styles.body}>
         <div className={styles.header}>
@@ -60,30 +72,36 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <p>{project.description}</p>
         </div>
 
-        <div className={styles.stack}>
-          {project.stack.map((item) => (
-            <span key={item}>{item}</span>
-          ))}
+        <div className={styles.footerRow}>
+          <div className={styles.stack} aria-label="项目技术栈">
+            {visibleStack.map((item) => (
+              <span key={item}>{item}</span>
+            ))}
+            {hiddenStackCount > 0 ? <span>+{hiddenStackCount}</span> : null}
+          </div>
+
+          {project.link ? (
+            <a
+              className={styles.entryLink}
+              href={project.link}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`查看项目：${project.name}`}
+            >
+              <span aria-hidden="true">→</span>
+            </a>
+          ) : (
+            <button
+              type="button"
+              className={styles.entryDisabled}
+              aria-label={`${project.name} 暂未开放`}
+              title="项目暂未开放"
+              disabled
+            >
+              <span aria-hidden="true">→</span>
+            </button>
+          )}
         </div>
-
-        <ul className={styles.highlights}>
-          {project.highlights.map((highlight) => (
-            <li key={highlight}>{highlight}</li>
-          ))}
-        </ul>
-
-        {project.link ? (
-          <a
-            className={styles.link}
-            href={project.link}
-            target="_blank"
-            rel="noreferrer"
-          >
-            查看项目链接
-          </a>
-        ) : (
-          <span className={styles.pending}>当前版本先展示概要信息</span>
-        )}
       </div>
     </article>
   );

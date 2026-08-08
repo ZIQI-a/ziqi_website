@@ -1,11 +1,28 @@
 import { useEffect, useRef, useState } from "react";
-import { PageHeader } from "../components/PageHeader";
 import { ProjectCard } from "../components/ProjectCard";
 import { siteClient } from "../api/siteClient";
 import type { ProjectSummary } from "../types/content";
 import styles from "./ProjectsPage.module.css";
 
 const allStatusValue = "全部";
+
+/**
+ * 根据当前结果数量决定卡片形态，确保筛选后不会留下突兀的半行空位。
+ */
+function getProjectCardLayout(index: number, total: number) {
+  const leadingVerticalCount = total >= 3 ? 3 : 0;
+  const variant = index < leadingVerticalCount ? "vertical" : "horizontal";
+  const horizontalCount = total - leadingVerticalCount;
+  const isLastUnpairedHorizontal =
+    variant === "horizontal" &&
+    horizontalCount % 2 === 1 &&
+    index === total - 1;
+
+  return {
+    variant,
+    fullWidth: total === 1 || isLastUnpairedHorizontal,
+  } as const;
+}
 
 export function ProjectsPage() {
   const [projectList, setProjectList] = useState<ProjectSummary[]>([]);
@@ -79,14 +96,14 @@ export function ProjectsPage() {
 
   return (
     <div className={styles.page}>
-      <PageHeader
-        eyebrow="Projects Works"
-        title="项目工坊"
-      />
+      <header className={styles.pageHeader}>
+        <div className={styles.headingGroup}>
+          <span className={styles.eyebrow}>Project Index</span>
+          <h1>项目工坊</h1>
+        </div>
 
-      {projectList.length > 0 ? (
-        <section className={styles.toolbar} aria-label="项目状态筛选">
-          <div className={styles.statusFilters}>
+        {projectList.length > 0 ? (
+          <div className={styles.statusFilters} aria-label="项目状态筛选">
             {statusOptions.map((status) => (
               <button
                 key={status}
@@ -94,14 +111,15 @@ export function ProjectsPage() {
                 className={`${styles.statusFilter} ${
                   activeStatus === status ? styles.statusFilterActive : ""
                 }`}
+                aria-pressed={activeStatus === status}
                 onClick={() => handleStatusChange(status)}
               >
                 {status}
               </button>
             ))}
           </div>
-        </section>
-      ) : null}
+        ) : null}
+      </header>
 
       {loading ? (
         <section className={styles.statePanel}>
@@ -117,12 +135,22 @@ export function ProjectsPage() {
         </section>
       ) : (
         <section key={activeStatus} className={styles.list}>
-          {projectList.map((project) => (
-            <ProjectCard
-              key={`${project.id}-${project.cover}`}
-              project={project}
-            />
-          ))}
+          {projectList.map((project, index) => {
+            const layout = getProjectCardLayout(index, projectList.length);
+
+            return (
+              <div
+                key={`${project.id}-${project.cover}`}
+                className={`${styles.projectItem} ${
+                  layout.variant === "vertical"
+                    ? styles.verticalItem
+                    : styles.horizontalItem
+                } ${layout.fullWidth ? styles.fullWidthItem : ""}`}
+              >
+                <ProjectCard project={project} variant={layout.variant} />
+              </div>
+            );
+          })}
         </section>
       )}
     </div>
