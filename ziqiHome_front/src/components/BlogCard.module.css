@@ -189,6 +189,11 @@
 .compact .cover,
 .standard .cover {
   order: 2;
+  align-self: stretch;
+  width: calc(100% - 14px);
+  height: auto;
+  margin: 14px 14px 14px 0;
+  border-radius: 14px;
 }
 
 .compact .content,
@@ -261,11 +266,20 @@
     min-height: 0;
   }
 
-  .cover,
+  .featured .cover {
+    order: 1;
+    height: 190px;
+    margin: 0;
+    border-radius: 0;
+  }
+
   .compact .cover,
   .standard .cover {
     order: 1;
-    height: 190px;
+    width: calc(100% - 32px);
+    height: 180px;
+    margin: 16px 16px 0;
+    border-radius: 14px;
   }
 
   .content,

@@ -157,6 +157,8 @@ export function BlogPage() {
     activeCategory !== ALL_CATEGORY ||
     activeTags.length > 0;
   const categories = [ALL_CATEGORY, ...filterOptions.categories];
+  const leadPosts = posts.slice(0, 3);
+  const standardPosts = posts.slice(3);
 
   return (
     <div className={styles.page}>
@@ -295,19 +297,36 @@ export function BlogPage() {
         </section>
       ) : (
         <section
-          className={`${styles.grid} ${refreshing ? styles.gridRefreshing : ""}`}
+          className={`${styles.articleGrid} ${
+            refreshing ? styles.articleGridRefreshing : ""
+          }`}
           aria-busy={refreshing}
         >
-          {posts.map((post, index) => (
-            <BlogCard
-              key={post.id}
-              post={post}
-              variant={
-                index === 0 ? "featured" : index < 3 ? "compact" : "standard"
-              }
-              onTagClick={handleTagToggle}
-            />
-          ))}
+          {/* 前三篇保留重点稿 + 两篇紧凑稿的非对称编辑式布局。 */}
+          <div className={styles.leadGrid}>
+            {leadPosts.map((post, index) => (
+              <BlogCard
+                key={post.id}
+                post={post}
+                variant={index === 0 ? "featured" : "compact"}
+                onTagClick={handleTagToggle}
+              />
+            ))}
+          </div>
+
+          {/* 后续标准卡片使用独立等宽网格，不继承重点区的列宽比例。 */}
+          {standardPosts.length > 0 ? (
+            <div className={styles.standardGrid}>
+              {standardPosts.map((post) => (
+                <BlogCard
+                  key={post.id}
+                  post={post}
+                  variant="standard"
+                  onTagClick={handleTagToggle}
+                />
+              ))}
+            </div>
+          ) : null}
         </section>
       )}
     </div>
