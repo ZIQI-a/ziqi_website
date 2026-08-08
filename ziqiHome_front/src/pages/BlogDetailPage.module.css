@@ -12,7 +12,7 @@
 
 .articleContent {
   display: grid;
-  gap: 22px;
+  gap: 18px;
   min-width: 0;
 }
 
@@ -24,14 +24,50 @@
 }
 
 .articleShell {
-  display: grid;
-  gap: 24px;
   padding: clamp(22px, 3vw, 34px);
   border: 1px solid var(--color-line);
   border-radius: 28px;
   background:
     linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 95%, transparent), color-mix(in srgb, var(--color-surface-strong) 88%, transparent));
   box-shadow: var(--shadow-soft);
+}
+
+.articleHero {
+  position: relative;
+  min-height: clamp(360px, 42vw, 480px);
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 30px;
+  background: var(--color-surface-strong);
+  box-shadow: 0 26px 68px rgba(0, 0, 0, 0.2);
+}
+
+.articleHero::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(3, 10, 24, 0.2) 0%, rgba(3, 10, 24, 0.35) 38%, rgba(3, 10, 24, 0.92) 100%),
+    linear-gradient(90deg, rgba(3, 10, 24, 0.45), transparent 72%);
+  content: "";
+  pointer-events: none;
+}
+
+.heroImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: inherit;
+  flex-direction: column;
+  padding: clamp(22px, 3.4vw, 36px);
 }
 
 .actionRow {
@@ -46,11 +82,12 @@
   justify-content: center;
   min-height: 44px;
   padding: 0 18px;
-  border: 1px solid color-mix(in srgb, var(--color-line) 92%, transparent);
+  border: 1px solid rgba(255, 255, 255, 0.26);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-surface-strong) 84%, transparent);
-  color: var(--color-text);
+  background: rgba(3, 10, 24, 0.48);
+  color: rgba(255, 255, 255, 0.96);
   text-decoration: none;
+  backdrop-filter: blur(12px);
   transition:
     transform 0.2s ease,
     border-color 0.2s ease,
@@ -60,47 +97,46 @@
 
 .actionButton:hover {
   transform: translateY(-1px);
-  border-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-line));
-  background: color-mix(in srgb, var(--color-accent-soft) 62%, var(--color-surface-strong));
-  color: var(--color-text);
+  border-color: color-mix(in srgb, var(--color-accent) 72%, white);
+  background: rgba(3, 10, 24, 0.7);
+  color: #fff;
+}
+
+.actionButton:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
 }
 
 .articleHeader {
   display: grid;
-  gap: 16px;
+  gap: 14px;
+  max-width: 760px;
+  margin-top: auto;
 }
 
 .metaRow {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  color: var(--color-text-muted);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 0.92rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
+.metaRow span {
+  color: color-mix(in srgb, var(--color-accent) 88%, white);
+  font-weight: 700;
+}
+
 .title {
   margin: 0;
-  color: var(--color-text);
+  color: #fff;
+  font-family: var(--font-display);
   line-height: 1.18;
-  font-size: clamp(2.4rem, 5vw, 4.4rem);
-}
-
-.cover {
-  width: 100%;
-  max-height: min(48vh, 520px);
-  object-fit: cover;
-  border-radius: 32px;
-  border: 1px solid var(--color-line);
-  box-shadow: 0 26px 68px rgba(0, 0, 0, 0.18);
-}
-
-.summary {
-  margin: 0;
-  max-width: 74ch;
-  color: var(--color-text-muted);
-  line-height: 1.9;
+  font-size: clamp(2.15rem, 4.6vw, 4.1rem);
+  text-wrap: balance;
+  text-shadow: 0 3px 24px rgba(0, 0, 0, 0.48);
 }
 
 .tags {
@@ -112,9 +148,11 @@
 .tags span {
   padding: 7px 12px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-accent-soft) 72%, transparent);
-  color: var(--color-accent);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(3, 10, 24, 0.5);
+  color: color-mix(in srgb, var(--color-accent) 88%, white);
   font-size: 0.88rem;
+  backdrop-filter: blur(10px);
 }
 
 @media (max-width: 960px) {
@@ -129,11 +167,22 @@
     border-radius: 22px;
   }
 
-  .cover {
+  .articleHero {
+    min-height: 400px;
     border-radius: 24px;
   }
 
   .actionButton {
-    width: 100%;
+    min-height: 40px;
+    padding: 0 14px;
+    font-size: 0.86rem;
+  }
+
+  .heroContent {
+    padding: 20px 18px;
+  }
+
+  .title {
+    font-size: clamp(2rem, 11vw, 3.15rem);
   }
 }

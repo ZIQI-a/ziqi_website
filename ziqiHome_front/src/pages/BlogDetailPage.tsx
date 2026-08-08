@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { siteClient } from "../api/siteClient";
 import { MarkdownArticle } from "../components/MarkdownArticle";
@@ -16,6 +16,11 @@ export function BlogDetailPage() {
   const [post, setPost] = useState<BlogPostDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useLayoutEffect(() => {
+    // React Router 会保留上一页滚动位置，文章切换时需在绘制前回到页面顶部。
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [slug]);
 
   useEffect(() => {
     async function loadBlog() {
@@ -58,10 +63,7 @@ export function BlogDetailPage() {
     return (
       <section className={styles.pageLayout}>
         <article className={styles.articleContent}>
-          <PageHeader
-            eyebrow="Blog Redirect"
-            title={post.title}
-          />
+          <PageHeader eyebrow="Blog Redirect" title={post.title} />
           <div className={styles.statePanel}>
             <p>这篇文章托管在外部平台。</p>
             <p>
@@ -78,46 +80,48 @@ export function BlogDetailPage() {
   return (
     <div className={styles.pageLayout}>
       <article className={styles.articleContent}>
-        <img
-          className={styles.cover}
-          src={post.cover}
-          alt={post.title}
-          loading="lazy"
-        />
+        <header className={styles.articleHero}>
+          <img
+            className={styles.heroImage}
+            src={post.cover}
+            alt={post.title}
+          />
+
+          <div className={styles.heroContent}>
+            <div className={styles.actionRow}>
+              <Link to="/blog" className={styles.actionButton}>
+                返回博客列表
+              </Link>
+              {post.sourceUrl ? (
+                <a
+                  href={post.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.actionButton}
+                >
+                  查看{post.sourceLabel ?? "原文"}
+                </a>
+              ) : null}
+            </div>
+
+            <div className={styles.articleHeader}>
+              <div className={styles.metaRow}>
+                <span>{post.category}</span>
+                <time dateTime={post.date}>{post.date}</time>
+              </div>
+
+              <h1 className={styles.title}>{post.title}</h1>
+
+              <div className={styles.tags}>
+                {post.tags.map((tag) => (
+                  <span key={tag}>{tag}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </header>
 
         <section className={styles.articleShell}>
-          <div className={styles.actionRow}>
-            <Link to="/blog" className={styles.actionButton}>
-              返回博客列表
-            </Link>
-            {post.sourceUrl ? (
-              <a
-                href={post.sourceUrl}
-                target="_blank"
-                rel="noreferrer"
-                className={styles.actionButton}
-              >
-                查看{post.sourceLabel ?? "原文"}
-              </a>
-            ) : null}
-          </div>
-
-          <header className={styles.articleHeader}>
-            <div className={styles.metaRow}>
-              <span>{post.category}</span>
-              <span>{post.date}</span>
-            </div>
-
-            <h1 className={styles.title}>{post.title}</h1>
-            <p className={styles.summary}>{post.summary}</p>
-
-            <div className={styles.tags}>
-              {post.tags.map((tag) => (
-                <span key={tag}>{tag}</span>
-              ))}
-            </div>
-          </header>
-
           <MarkdownArticle markdown={post.contentMarkdown} />
         </section>
       </article>
