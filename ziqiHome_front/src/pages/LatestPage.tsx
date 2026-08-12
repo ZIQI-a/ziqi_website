@@ -1,26 +1,22 @@
 import { useEffect, useRef, useState } from "react";
+import type { SyntheticEvent } from "react";
 import { siteClient } from "../api/siteClient";
 import type { MomentCategorySummary, MomentSummary } from "../types/content";
 import styles from "./LatestPage.module.css";
 
 const allCategoryId = "all";
 
-type LatestContentCache = {
-  featuredMoments: MomentSummary[];
-  textMoments: MomentSummary[];
-};
-
 /**
- * 最新页以 moments 为中心，既展示纯文字近况，也展示带图记录。
+ * 瞬间页使用统一帖子流承载图文和纯文字内容，保持后端返回的置顶与时间顺序。
  */
 export function LatestPage() {
-  const [featuredMoments, setFeaturedMoments] = useState<MomentSummary[]>([]);
-  const [textMoments, setTextMoments] = useState<MomentSummary[]>([]);
+  const [moments, setMoments] = useState<MomentSummary[]>([]);
   const [categories, setCategories] = useState<MomentCategorySummary[]>([]);
   const [activeCategoryId, setActiveCategoryId] = useState(allCategoryId);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const contentCacheRef = useRef(new Map<string, LatestContentCache>());
+  const contentCacheRef = useRef(new Map<string, MomentSummary[]>());
   const contentRequestIdRef = useRef(0);
 
   useEffect(() => {
@@ -36,6 +32,7 @@ export function LatestPage() {
       const categoryData = await siteClient.listMomentCategories();
       setCategories(categoryData);
     } catch {
+      // 分类失败不阻断全部帖子，页面仍保留“全部”入口。
       setCategories([]);
     }
   }
@@ -46,80 +43,75 @@ export function LatestPage() {
     contentRequestIdRef.current = requestId;
 
     if (cachedContent) {
-      // 分类内容已请求过时直接回填缓存，切回分类不再触发接口和 loading 替换。
-      setFeaturedMoments(cachedContent.featuredMoments);
-      setTextMoments(cachedContent.textMoments);
+      // 已访问分类直接回填缓存，避免重复请求和整页加载闪烁。
+      setMoments(cachedContent);
       setError(null);
       setLoading(false);
+      setRefreshing(false);
       return;
     }
 
-    setLoading(contentCacheRef.current.size === 0);
+    const hasVisibleContent = contentCacheRef.current.size > 0;
+    setLoading(!hasVisibleContent);
+    setRefreshing(hasVisibleContent);
     setError(null);
 
     try {
-      const momentQuery =
-        categoryId === allCategoryId ? undefined : { categoryId };
+      const data = await siteClient.listMoments(
+        categoryId === allCategoryId ? undefined : { categoryId },
+      );
 
-      // 图文和纯文字由后端按 hasImage 参数拆开返回，前端只负责展示。
-      const [featuredData, textData] = await Promise.all([
-        siteClient.listMoments({
-          ...momentQuery,
-          hasImage: true,
-        }),
-        siteClient.listMoments({
-          ...momentQuery,
-          hasImage: false,
-        }),
-      ]);
-
+      // 快速切换分类时只接收最后一次请求，避免旧响应覆盖新结果。
       if (requestId !== contentRequestIdRef.current) {
         return;
       }
 
-      contentCacheRef.current.set(categoryId, {
-        featuredMoments: featuredData,
-        textMoments: textData,
-      });
-      setFeaturedMoments(featuredData);
-      setTextMoments(textData);
+      contentCacheRef.current.set(categoryId, data);
+      setMoments(data);
     } catch (loadError) {
-      setError(
-        loadError instanceof Error
-          ? loadError.message
-          : "最新内容加载失败，请稍后重试",
-      );
+      if (requestId === contentRequestIdRef.current) {
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : "瞬间内容加载失败，请稍后重试",
+        );
+      }
     } finally {
       if (requestId === contentRequestIdRef.current) {
         setLoading(false);
+        setRefreshing(false);
       }
     }
   }
 
   function handleCategoryChange(categoryId: string) {
-    if (categoryId === activeCategoryId) {
-      return;
+    if (categoryId !== activeCategoryId) {
+      setActiveCategoryId(categoryId);
     }
-
-    setActiveCategoryId(categoryId);
   }
 
-  const hasMoments = featuredMoments.length + textMoments.length > 0;
+  // 图片资源失效时隐藏图片自身，保证文字帖子仍保持完整结构。
+  function handleMomentImageError(event: SyntheticEvent<HTMLImageElement>) {
+    event.currentTarget.hidden = true;
+  }
 
   return (
     <div className={styles.page}>
-      <section className={styles.heroPanel}>
-        <div className={styles.heroCopy}>
-          <span className={styles.heroEyebrow}>Moments Feed</span>
-          <h2>时间记忆</h2>
+      <header className={styles.pageHeader}>
+        <div className={styles.headingGroup}>
+          <span className={styles.eyebrow}>Moments</span>
+          <h1>瞬间</h1>
         </div>
 
-        <div className={styles.filterBar} aria-label="最新内容分类筛选">
+        <div className={styles.categoryFilters} aria-label="瞬间分类筛选">
           <button
             type="button"
-            className={`${styles.filterChip} ${
-              activeCategoryId === allCategoryId ? styles.filterChipActive : ""
+            className={`${styles.categoryFilter} ${
+              activeCategoryId === allCategoryId
+                ? styles.categoryFilterActive
+                : ""
             }`}
+            aria-pressed={activeCategoryId === allCategoryId}
             onClick={() => handleCategoryChange(allCategoryId)}
           >
             全部
@@ -129,97 +121,83 @@ export function LatestPage() {
             <button
               key={category.id}
               type="button"
-              className={`${styles.filterChip} ${
-                activeCategoryId === category.id ? styles.filterChipActive : ""
+              className={`${styles.categoryFilter} ${
+                activeCategoryId === category.id
+                  ? styles.categoryFilterActive
+                  : ""
               }`}
+              aria-pressed={activeCategoryId === category.id}
               onClick={() => handleCategoryChange(category.id)}
             >
               {category.name}
             </button>
           ))}
         </div>
-      </section>
+      </header>
+
+      <div className={styles.requestStatus} aria-live="polite">
+        {refreshing ? "正在更新瞬间内容" : ""}
+      </div>
 
       {loading ? (
         <section className={styles.statePanel}>
-          <p>正在加载最新内容...</p>
+          <p>正在加载瞬间内容...</p>
         </section>
-      ) : error ? (
+      ) : error && moments.length === 0 ? (
         <section className={styles.statePanel}>
           <p>{error}</p>
         </section>
-      ) : !hasMoments ? (
+      ) : moments.length === 0 ? (
         <section className={styles.statePanel}>
-          <p>哦吼，走丢喽！！！</p>
+          <p>这个分类下暂时还没有瞬间。</p>
         </section>
       ) : (
         <>
-          <section
-            key={`featured-${activeCategoryId}`}
-            className={styles.sectionBlock}
-          >
-            <div className={styles.sectionHeading}>
-              <span>且看且珍惜</span>
-              <h3>生活切片</h3>
-            </div>
-
-            {featuredMoments.length === 0 ? (
-              <div className={styles.emptyPanel}>
-                <p>这个分类下暂时没有图文内容。</p>
-              </div>
-            ) : (
-              <div className={styles.gallery}>
-                {featuredMoments.map((moment, index) => (
-                  <article
-                    key={moment.id}
-                    className={`${styles.galleryCard} ${
-                      index === 0 ? styles.galleryCardFeatured : ""
-                    }`}
-                  >
-                    <img
-                      src={moment.imageUrl}
-                      alt={moment.imageAlt || `${moment.categoryName} 图片记录`}
-                    />
-                    <div className={styles.galleryOverlay} />
-                    <div className={styles.galleryMeta}>
-                      <span>{moment.categoryName}</span>
-                      <h4>{formatMomentDate(moment.createdAt)}</h4>
-                      <p>{moment.content}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            )}
-          </section>
+          {error ? (
+            <section className={styles.inlineError} role="status">
+              <p>{error}，已保留上一次加载的内容。</p>
+            </section>
+          ) : null}
 
           <section
-            key={`text-${activeCategoryId}`}
-            className={styles.sectionBlock}
+            key={activeCategoryId}
+            className={`${styles.momentFeed} ${
+              refreshing ? styles.momentFeedRefreshing : ""
+            }`}
+            aria-label="瞬间帖子流"
+            aria-busy={refreshing}
           >
-            <div className={styles.sectionHeading}>
-              <span>enenen</span>
-              <h3>随笔</h3>
-            </div>
+            {moments.map((moment) => (
+              <article key={moment.id} className={styles.momentCard}>
+                <header className={styles.momentMeta}>
+                  <div className={styles.momentLabels}>
+                    <span className={styles.categoryLabel}>
+                      {moment.categoryName}
+                    </span>
+                    {moment.pinned ? (
+                      <span className={styles.pinnedLabel}>置顶</span>
+                    ) : null}
+                  </div>
 
-            {textMoments.length === 0 ? (
-              <div className={styles.emptyPanel}>
-                <p>这个分类下暂时没有文字动态。</p>
-              </div>
-            ) : (
-              <div className={styles.updates}>
-                {textMoments.map((moment) => (
-                  <article key={moment.id} className={styles.updateCard}>
-                    <div className={styles.updateTop}>
-                      <span>{moment.categoryName}</span>
-                      <time dateTime={moment.createdAt}>
-                        {formatMomentDate(moment.createdAt)}
-                      </time>
-                    </div>
-                    <p>{moment.content}</p>
-                  </article>
-                ))}
-              </div>
-            )}
+                  <time dateTime={moment.createdAt}>
+                    {formatMomentDate(moment.createdAt)}
+                  </time>
+                </header>
+
+                <p className={styles.momentContent}>{moment.content}</p>
+
+                {moment.imageUrl ? (
+                  <img
+                    src={moment.imageUrl}
+                    alt={moment.imageAlt || `${moment.categoryName} 图片记录`}
+                    className={styles.momentImage}
+                    loading="lazy"
+                    decoding="async"
+                    onError={handleMomentImageError}
+                  />
+                ) : null}
+              </article>
+            ))}
           </section>
         </>
       )}
