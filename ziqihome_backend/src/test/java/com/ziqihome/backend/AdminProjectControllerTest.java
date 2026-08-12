@@ -3,6 +3,7 @@ package com.ziqihome.backend;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -105,13 +106,67 @@ class AdminProjectControllerTest {
         .andExpect(jsonPath("$.statusOptions[0]").value("构思中"))
         .andExpect(jsonPath("$.statusOptions[1]").value("开发中"))
         .andExpect(jsonPath("$.statusOptions[2]").value("已完成"))
-        .andExpect(jsonPath("$.statusOptions[3]").value("已发布"))
+        .andExpect(jsonPath("$.statusOptions.length()").value(3))
         .andExpect(jsonPath("$.stackOptions").isArray())
         .andExpect(jsonPath("$..stackOptions[?(@=='React')]").exists())
         .andExpect(jsonPath("$..stackOptions[?(@=='TypeScript')]").exists());
 
     mockMvc.perform(delete("/api/admin/projects/{id}", createdId)
             .session(session))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  void projectValidationShouldRejectInvalidSlugNegativeSortAndDuplicateSlug() throws Exception {
+    MockHttpSession session = TestAdminSessionFactory.createAuthenticatedSession(userService);
+    String validRequest = """
+        {
+          "slug": "validation-test-project",
+          "name": "Validation Test Project",
+          "description": "验证项目业务字段约束。",
+          "status": "开发中",
+          "cover": "https://example.com/validation-cover.jpg",
+          "link": "",
+          "stack": ["React"],
+          "highlights": ["参数校验"],
+          "published": true,
+          "sortOrder": 0
+        }
+        """;
+
+    String response = mockMvc.perform(post("/api/admin/projects")
+            .session(session)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(validRequest))
+        .andExpect(status().isCreated())
+        .andReturn().getResponse().getContentAsString();
+    String createdId = response.replaceAll(".*\"id\":(\\d+).*", "$1");
+
+    mockMvc.perform(post("/api/admin/projects")
+            .session(session)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(validRequest))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.message").value("项目 slug 已存在: validation-test-project"));
+
+    String invalidRequest = validRequest
+        .replace("validation-test-project", "Invalid Slug")
+        .replace("\"sortOrder\": 0", "\"sortOrder\": -1");
+    mockMvc.perform(post("/api/admin/projects")
+            .session(session)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(invalidRequest))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.fieldErrors.slug").exists())
+        .andExpect(jsonPath("$.fieldErrors.sortOrder").exists());
+
+    mockMvc.perform(put("/api/admin/projects/{id}", createdId)
+            .session(session)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(validRequest))
+        .andExpect(status().isOk());
+
+    mockMvc.perform(delete("/api/admin/projects/{id}", createdId).session(session))
         .andExpect(status().isNoContent());
   }
 }

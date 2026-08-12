@@ -48,7 +48,7 @@
 
 - `UserService` 负责密码哈希和账号唯一性
 - `AdminAuthService` 负责登录校验和 session 写入
-- `ProjectService` 负责项目选项和项目 CRUD
+- `ProjectService` 负责项目阶段选项、slug 唯一性、公开筛选项和项目 CRUD
 
 ## repository
 

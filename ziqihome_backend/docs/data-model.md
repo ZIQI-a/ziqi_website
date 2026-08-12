@@ -47,6 +47,8 @@
 
 ### `project_stacks`
 
+`projects.status` 只描述项目阶段（构思中、开发中、已完成），`published` 单独控制公开站可见性。
+
 - `project_id`
 - `stack_order`
 - `stack_item`

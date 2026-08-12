@@ -13,6 +13,8 @@
 - `V7__seed_initial_moments.sql`：moments 初始化数据
 - `V8__seed_default_admin_user.sql`：补充默认管理员账号 `admin-reset`
 - `V9__extend_blog_post_for_full_articles.sql`：扩展博客正文、内容模式和原文来源字段
+- `V10__add_yuque_sync_fields_to_blog_posts.sql`：补充语雀同步追踪字段
+- `V11__separate_project_stage_from_publication.sql`：将旧“已发布”阶段迁移为“已完成”
 
 ## 重要规则
 

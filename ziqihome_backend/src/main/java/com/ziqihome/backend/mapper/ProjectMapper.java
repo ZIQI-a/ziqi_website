@@ -3,7 +3,9 @@ package com.ziqihome.backend.mapper;
 import com.ziqihome.backend.domain.Project;
 import com.ziqihome.backend.dto.project.ProjectRequest;
 import com.ziqihome.backend.dto.project.ProjectResponse;
+import com.ziqihome.backend.dto.project.ProjectSiteSummaryResponse;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,6 +26,18 @@ public class ProjectMapper {
         project.getSortOrder(),
         project.getCreatedAt(),
         project.getUpdatedAt()
+    );
+  }
+
+  public ProjectSiteSummaryResponse toSiteSummary(Project project) {
+    return new ProjectSiteSummaryResponse(
+        project.getSlug(),
+        project.getName(),
+        project.getDescription(),
+        project.getStatus(),
+        project.getCover(),
+        project.getLink(),
+        List.copyOf(project.getStack())
     );
   }
 
@@ -51,8 +65,10 @@ public class ProjectMapper {
 
   private List<String> normalizeList(List<String> source) {
     return source.stream()
+        .filter(Objects::nonNull)
         .map(String::trim)
         .filter(value -> !value.isEmpty())
+        .distinct()
         .toList();
   }
 }

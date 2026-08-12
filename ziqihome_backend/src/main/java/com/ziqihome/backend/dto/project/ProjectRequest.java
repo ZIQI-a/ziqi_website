@@ -4,6 +4,7 @@ import com.ziqihome.backend.domain.ProjectStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 public record ProjectRequest(
     @NotBlank(message = "slug 不能为空")
     @Size(max = 120, message = "slug 长度不能超过 120")
+    @Pattern(regexp = "^[a-z0-9]+(?:-[a-z0-9]+)*$", message = "slug 只能包含小写字母、数字和单个连字符")
     String slug,
 
     @NotBlank(message = "项目名称不能为空")
@@ -41,6 +43,7 @@ public record ProjectRequest(
     Boolean published,
 
     @NotNull(message = "排序值不能为空")
+    @PositiveOrZero(message = "排序值不能小于 0")
     Integer sortOrder
 ) {
 }

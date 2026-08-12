@@ -5,6 +5,9 @@ import com.ziqihome.backend.domain.ProjectStatus;
 import com.ziqihome.backend.dto.project.ProjectFormOptionsResponse;
 import com.ziqihome.backend.dto.project.ProjectRequest;
 import com.ziqihome.backend.dto.project.ProjectResponse;
+import com.ziqihome.backend.dto.project.ProjectSiteFilterOptionsResponse;
+import com.ziqihome.backend.dto.project.ProjectSiteSummaryResponse;
+import com.ziqihome.backend.exception.ConflictException;
 import com.ziqihome.backend.exception.ResourceNotFoundException;
 import com.ziqihome.backend.mapper.ProjectMapper;
 import com.ziqihome.backend.repository.ProjectRepository;
@@ -34,17 +37,28 @@ public class ProjectService {
   }
 
   @Transactional(readOnly = true)
-  public List<ProjectResponse> listPublishedProjects() {
+  public List<ProjectSiteSummaryResponse> listPublishedProjects() {
     return listPublishedProjects(null);
   }
 
   @Transactional(readOnly = true)
-  public List<ProjectResponse> listPublishedProjects(ProjectStatus status) {
+  public List<ProjectSiteSummaryResponse> listPublishedProjects(ProjectStatus status) {
     // 公开项目列表只允许在已发布项目内按状态收窄，避免前端拿到未公开数据。
     return projectRepository.findSiteProjects(status)
         .stream()
-        .map(projectMapper::toResponse)
+        .map(projectMapper::toSiteSummary)
         .toList();
+  }
+
+  @Transactional(readOnly = true)
+  public ProjectSiteFilterOptionsResponse listPublishedProjectFilterOptions() {
+    // 只向公开页暴露确实存在已发布项目的阶段，并保持业务枚举声明顺序。
+    List<ProjectStatus> publishedStatuses = projectRepository.findPublishedStatuses();
+    List<String> statuses = Arrays.stream(ProjectStatus.values())
+        .filter(publishedStatuses::contains)
+        .map(Enum::name)
+        .toList();
+    return new ProjectSiteFilterOptionsResponse(statuses);
   }
 
   @Transactional(readOnly = true)
@@ -61,6 +75,7 @@ public class ProjectService {
   }
 
   public ProjectResponse createProject(ProjectRequest request) {
+    validateUniqueSlug(request.slug(), null);
     Project project = new Project();
     projectMapper.updateEntity(project, request);
     return projectMapper.toResponse(projectRepository.save(project));
@@ -68,6 +83,7 @@ public class ProjectService {
 
   public ProjectResponse updateProject(Long id, ProjectRequest request) {
     Project project = getProjectOrThrow(id);
+    validateUniqueSlug(request.slug(), id);
     projectMapper.updateEntity(project, request);
     return projectMapper.toResponse(projectRepository.save(project));
   }
@@ -79,5 +95,17 @@ public class ProjectService {
   private Project getProjectOrThrow(Long id) {
     return projectRepository.findById(id)
         .orElseThrow(() -> new ResourceNotFoundException("项目不存在，id=" + id));
+  }
+
+  /** 在数据库约束前返回明确业务提示，便于管理表单直接定位重复 slug。 */
+  private void validateUniqueSlug(String slug, Long currentProjectId) {
+    String normalizedSlug = slug.trim();
+    boolean duplicated = currentProjectId == null
+        ? projectRepository.existsBySlug(normalizedSlug)
+        : projectRepository.existsBySlugAndIdNot(normalizedSlug, currentProjectId);
+
+    if (duplicated) {
+      throw new ConflictException("项目 slug 已存在: " + normalizedSlug);
+    }
   }
 }

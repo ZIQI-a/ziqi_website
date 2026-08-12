@@ -26,6 +26,18 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
   Optional<Project> findBySlug(String slug);
 
+  boolean existsBySlug(String slug);
+
+  boolean existsBySlugAndIdNot(String slug, Long id);
+
+  @Query("""
+      select distinct project.status
+      from Project project
+      where project.published = true
+      order by project.status asc
+      """)
+  List<ProjectStatus> findPublishedStatuses();
+
   @Query("""
       select distinct stackItem
       from Project project

@@ -88,6 +88,7 @@ mvn spring-boot:run
 - `V8__seed_default_admin_user.sql`
 - `V9__extend_blog_post_for_full_articles.sql`
 - `V10__add_yuque_sync_fields_to_blog_posts.sql`
+- `V11__separate_project_stage_from_publication.sql`
 
 `V8` 会补一条默认管理员账号：`admin-reset`。初始化密码为 `Admin@123456`，首次登录后建议立即在后台改密。
 `V9` 会把博客从摘要卡片扩展为完整文章模型，新增 Markdown 正文、内容模式和原文来源字段，便于后续接语雀或 CSDN 导入。
@@ -103,6 +104,7 @@ mvn spring-boot:run
 - `GET /api/site/blogs/filter-options`，返回已发布博客的分类和标签筛选项
 - `GET /api/site/blogs/{slug}`
 - `GET /api/site/projects`，支持 `status` 查询参数
+- `GET /api/site/projects/filter-options`，返回已发布项目实际使用的阶段筛选项
 - `GET /api/site/contact-links`
 - `GET /api/site/moments`，支持 `categoryId`、`showOnHome`、`hasImage` 查询参数
 - `GET /api/site/moments/categories`

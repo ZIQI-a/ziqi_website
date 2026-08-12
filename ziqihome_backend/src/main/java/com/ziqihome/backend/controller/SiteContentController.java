@@ -7,7 +7,8 @@ import com.ziqihome.backend.dto.blog.BlogSiteSummaryResponse;
 import com.ziqihome.backend.dto.contact.ContactLinkResponse;
 import com.ziqihome.backend.dto.moment.MomentCategoryResponse;
 import com.ziqihome.backend.dto.moment.MomentResponse;
-import com.ziqihome.backend.dto.project.ProjectResponse;
+import com.ziqihome.backend.dto.project.ProjectSiteFilterOptionsResponse;
+import com.ziqihome.backend.dto.project.ProjectSiteSummaryResponse;
 import com.ziqihome.backend.service.BlogPostService;
 import com.ziqihome.backend.service.ContactLinkService;
 import com.ziqihome.backend.service.MomentCategoryService;
@@ -64,10 +65,15 @@ public class SiteContentController {
   }
 
   @GetMapping("/projects")
-  public List<ProjectResponse> listSiteProjects(
+  public List<ProjectSiteSummaryResponse> listSiteProjects(
       @RequestParam(required = false) ProjectStatus status
   ) {
     return projectService.listPublishedProjects(status);
+  }
+
+  @GetMapping("/projects/filter-options")
+  public ProjectSiteFilterOptionsResponse listSiteProjectFilterOptions() {
+    return projectService.listPublishedProjectFilterOptions();
   }
 
   @GetMapping("/contact-links")

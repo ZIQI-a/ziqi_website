@@ -12,7 +12,10 @@
 - `GET /api/site/blogs/{slug}`
 - `GET /api/site/projects`
   - Query：
-    - `status` 可选，按项目状态筛选，取值来自 `ProjectStatus`：`构思中`、`开发中`、`已完成`、`已发布`
+    - `status` 可选，按项目阶段筛选，取值来自 `ProjectStatus`：`构思中`、`开发中`、`已完成`
+  - 仅返回公开卡片所需的 `slug`、名称、描述、阶段、封面、链接和技术栈
+- `GET /api/site/projects/filter-options`
+  - 返回全部已发布项目实际使用的阶段，供公开项目页构建稳定筛选项
 - `GET /api/site/contact-links`
 - `GET /api/site/moments`
   - Query：
@@ -93,7 +96,9 @@ moment 分类：
 - `cover`、`profileUrl`、`iconUrl` 必须是 `http/https` URL
 - `imageUrl`、`link` 允许为空；非空时必须是 `http/https` URL
 - 博客标签、项目技术栈、项目亮点至少保留一项
-- 项目状态必须来自 `ProjectStatus`
+- 项目阶段必须来自 `ProjectStatus`，是否公开仅由 `published` 控制
+- 项目 slug 仅允许小写字母、数字和单个连字符，且全局唯一
+- 项目排序值不能小于 0；数值越小越靠前，相同排序按 ID 倒序
 - 管理端当前仅创建和使用 `ADMIN`；`USER` 为后续社区账号预留，不能登录或访问管理后台
 - 当前登录管理员不能停用、降级或删除自己，并且系统至少保留一个启用的管理员账号
 
