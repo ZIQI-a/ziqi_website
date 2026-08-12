@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, type SyntheticEvent } from "react";
+import { Link } from "react-router-dom";
 import { siteClient } from "../api/siteClient";
 import { profileInfo } from "../data/siteContent";
 import { HeroSection } from "../components/HeroSection";
 import { ProfileCards } from "../components/ProfileCards";
-import type { MomentCategorySummary, MomentSummary } from "../types/content";
+import type { MomentSummary } from "../types/content";
 import styles from "./HomePage.module.css";
 
 const homeSections = [
@@ -12,34 +13,39 @@ const homeSections = [
   { id: "home-life", label: "生活" },
   { id: "home-latest", label: "瞬间" },
 ];
-const allCategoryId = "全部";
-
-type HomeMomentsCache = {
-  lifeMoments: MomentSummary[];
-  recentUpdates: MomentSummary[];
-};
+const homeStateSections = homeSections.filter(
+  (section) => section.id !== "home-latest",
+);
+const homeImageMomentLimit = 3;
+const homeTextMomentLimit = 2;
 
 export function HomePage() {
   const [activeSection, setActiveSection] = useState(homeSections[0].id);
   const [lifeMoments, setLifeMoments] = useState<MomentSummary[]>([]);
   const [recentUpdates, setRecentUpdates] = useState<MomentSummary[]>([]);
-  const [categories, setCategories] = useState<MomentCategorySummary[]>([]);
-  const [activeCategoryId, setActiveCategoryId] = useState(allCategoryId);
   const [loadingMoments, setLoadingMoments] = useState(true);
   const [momentError, setMomentError] = useState<string | null>(null);
-  const homeMomentsCacheRef = useRef(new Map<string, HomeMomentsCache>());
-  const homeMomentsRequestIdRef = useRef(0);
+  const hasMomentContent =
+    lifeMoments.length > 0 || recentUpdates.length > 0;
+  const showSplitMomentSections =
+    !loadingMoments && !momentError && hasMomentContent;
+  const visibleHomeSections = showSplitMomentSections
+    ? homeSections
+    : homeStateSections;
   const isHeroActive = activeSection === "home-hero";
-  // 滚动监听和当前 section 高亮
+
+  // 通过视口中心线判断当前分区，让侧边导航高亮与阅读位置保持一致。
   useEffect(() => {
-    // 用视口中心线命中 section，而不是按可见面积排序。
+    const trackedSections = showSplitMomentSections
+      ? homeSections
+      : homeStateSections;
+
     const updateActiveSection = () => {
       const viewportCenterY = window.innerHeight * 0.46;
-
-      let matchedSectionId = homeSections[0].id;
+      let matchedSectionId = trackedSections[0].id;
       let minDistance = Number.POSITIVE_INFINITY;
 
-      homeSections.forEach((section) => {
+      trackedSections.forEach((section) => {
         const element = document.getElementById(section.id);
 
         if (!element) {
@@ -82,89 +88,67 @@ export function HomePage() {
       window.removeEventListener("scroll", updateActiveSection);
       window.removeEventListener("resize", updateActiveSection);
     };
-  }, []);
-  // 请求首页 moments 数据
+  }, [showSplitMomentSections]);
+
+  // 首页仅消费后台精选结果，再按内容形态限制首屏展示数量。
   useEffect(() => {
-    void loadHomeMoments(activeCategoryId);
-  }, [activeCategoryId]);
+    let ignoreResult = false;
 
-  async function loadHomeMoments(categoryId: string) {
-    const requestId = homeMomentsRequestIdRef.current + 1;
-    const cachedMoments = homeMomentsCacheRef.current.get(categoryId);
-    homeMomentsRequestIdRef.current = requestId;
-
-    if (cachedMoments) {
-      // 首页分类切回已加载内容时复用缓存，避免重复请求和两块 moments 区域闪烁。
-      setLifeMoments(cachedMoments.lifeMoments);
-      setRecentUpdates(cachedMoments.recentUpdates);
+    async function loadHomeMoments() {
+      setLoadingMoments(true);
       setMomentError(null);
-      setLoadingMoments(false);
-      return;
-    }
 
-    setLoadingMoments(homeMomentsCacheRef.current.size === 0);
-    setMomentError(null);
+      try {
+        const moments = await siteClient.listMoments({ showOnHome: true });
 
-    try {
-      const momentQuery =
-        categoryId === allCategoryId ? undefined : { categoryId };
+        if (ignoreResult) {
+          return;
+        }
 
-      // 首页图文和文字区直接按后端参数拆分，避免前端拉全量后再过滤。
-      const [lifeData, textData, categoryData] = await Promise.all([
-        siteClient.listMoments({
-          ...momentQuery,
-          showOnHome: true,
-          hasImage: true,
-        }),
-        siteClient.listMoments({
-          ...momentQuery,
-          showOnHome: true,
-          hasImage: false,
-        }),
-        siteClient.listMomentCategories(),
-      ]);
+        setLifeMoments(
+          moments
+            .filter((moment) => Boolean(moment.imageUrl))
+            .slice(0, homeImageMomentLimit),
+        );
+        setRecentUpdates(
+          moments
+            .filter((moment) => !moment.imageUrl)
+            .slice(0, homeTextMomentLimit),
+        );
+      } catch (loadError) {
+        if (ignoreResult) {
+          return;
+        }
 
-      if (requestId !== homeMomentsRequestIdRef.current) {
-        return;
-      }
-
-      homeMomentsCacheRef.current.set(categoryId, {
-        lifeMoments: lifeData,
-        recentUpdates: textData,
-      });
-      setLifeMoments(lifeData);
-      setRecentUpdates(textData);
-      setCategories(categoryData);
-    } catch (loadError) {
-      setMomentError(
-        loadError instanceof Error
-          ? loadError.message
-          : "首页 moments 加载失败，请稍后重试",
-      );
-    } finally {
-      if (requestId === homeMomentsRequestIdRef.current) {
-        setLoadingMoments(false);
+        setMomentError(
+          loadError instanceof Error
+            ? loadError.message
+            : "首页精选瞬间加载失败，请稍后再来看看",
+        );
+      } finally {
+        if (!ignoreResult) {
+          setLoadingMoments(false);
+        }
       }
     }
-  }
 
-  function handleCategoryChange(categoryId: string) {
-    if (categoryId === activeCategoryId) {
-      return;
-    }
+    void loadHomeMoments();
 
-    setActiveCategoryId(categoryId);
-  }
+    return () => {
+      ignoreResult = true;
+    };
+  }, []);
 
   return (
     <div className={styles.page}>
       <nav
         className={`${styles.sideNav} ${
-          isHeroActive ? styles.sideNavExpanded : styles.sideNavCompact
+          isHeroActive ? styles.sideNavHidden : styles.sideNavVisible
         }`}
         aria-label="主页分区导航"
+        aria-hidden={isHeroActive}
       >
-        {homeSections.map((section) => (
+        {visibleHomeSections.map((section) => (
           <a
             key={section.id}
             href={`#${section.id}`}
@@ -172,6 +156,7 @@ export function HomePage() {
               activeSection === section.id ? styles.sideNavLinkActive : ""
             }`}
             aria-label={section.label}
+            tabIndex={isHeroActive ? -1 : undefined}
             onClick={() => setActiveSection(section.id)}
           >
             <span className={styles.sideNavDot} aria-hidden="true" />
@@ -188,117 +173,109 @@ export function HomePage() {
         <ProfileCards profile={profileInfo} />
       </section>
 
-      <section id="home-life" className={styles.sectionWrap}>
-        <div className={styles.sectionTitleWrap}>
-          <h2 className={styles.sectionTitle}>生活明朗，万物可爱</h2>
-          <p className={styles.sectionDesc}>
-            年少时曾说，遇见你，就像跋山涉水遇见一轮月亮
-          </p>
-          <div className={styles.lifeTabs}>
-            <button
-              type="button"
-              className={`${styles.lifeTabButton} ${
-                activeCategoryId === allCategoryId ? styles.lifeTabActive : ""
-              }`}
-              onClick={() => handleCategoryChange(allCategoryId)}
-            >
-              全部
-            </button>
+      {!showSplitMomentSections ? (
+        <section
+          id="home-life"
+          className={`${styles.sectionWrap} ${styles.momentsStateSection}`}
+        >
+          <article className={styles.momentsStateCard}>
+            {!momentError ? <span>MOMENTS</span> : null}
+            <p>
+              {loadingMoments
+                ? "正在整理首页精选..."
+                : momentError || "暂时还没有展示到首页的精选瞬间。"}
+            </p>
+          </article>
+        </section>
+      ) : (
+        <>
+          <section id="home-life" className={styles.sectionWrap}>
+            <div className={styles.sectionTitleWrap}>
+              <h2 className={styles.sectionTitle}>生活明朗，万物可爱</h2>
+              <p className={styles.sectionDesc}>
+                年少时曾说，遇见你，就像跋山涉水遇见一轮月亮
+              </p>
+            </div>
 
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                type="button"
-                className={`${styles.lifeTabButton} ${
-                  activeCategoryId === category.id ? styles.lifeTabActive : ""
-                }`}
-                onClick={() => handleCategoryChange(category.id)}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
-        </div>
+            <div className={styles.lifeGrid}>
+              {lifeMoments.length === 0 ? (
+                <article className={styles.lifeStateCard}>
+                  <p>精选里暂时没有图文记录。</p>
+                </article>
+              ) : (
+                lifeMoments.map((moment) => (
+                  <article key={moment.id} className={styles.lifeCard}>
+                    <img
+                      src={moment.imageUrl}
+                      alt={
+                        moment.imageAlt || `${moment.categoryName} 图片记录`
+                      }
+                      loading="lazy"
+                      decoding="async"
+                      onError={handleMomentImageError}
+                    />
+                    <div className={styles.lifeOverlay} />
+                    <div className={styles.lifeMeta}>
+                      <p>{formatMomentDate(moment.createdAt)}</p>
+                      <h3>{moment.categoryName}</h3>
+                      <span>{moment.content}</span>
+                    </div>
+                  </article>
+                ))
+              )}
+            </div>
+          </section>
 
-        <div key={`life-${activeCategoryId}`} className={styles.lifeGrid}>
-          {loadingMoments ? (
-            <article className={styles.lifeStateCard}>
-              <p>正在整理生活记录...</p>
-            </article>
-          ) : momentError ? (
-            <article className={styles.lifeStateCard}>
-              <p>{momentError}</p>
-            </article>
-          ) : lifeMoments.length === 0 ? (
-            <article className={styles.lifeStateCard}>
-              <p>这个分类下暂时没有记录~</p>
-            </article>
-          ) : (
-            lifeMoments.map((moment) => (
-              <article key={moment.id} className={styles.lifeCard}>
-                <img
-                  src={moment.imageUrl}
-                  alt={moment.imageAlt || `${moment.categoryName} 图片记录`}
-                />
-                <div className={styles.lifeOverlay} />
-                <span className={styles.lifeArrow}>↗</span>
-                <div className={styles.lifeMeta}>
-                  <p>{formatMomentDate(moment.createdAt)}</p>
-                  <h3>{moment.categoryName}</h3>
-                  <span>{moment.content}</span>
-                </div>
-              </article>
-            ))
-          )}
-        </div>
-      </section>
+          <section id="home-latest" className={styles.sectionWrap}>
+            <div className={styles.sectionTitleWrap}>
+              <h2 className={styles.sectionTitle}>人间值得，未来可期</h2>
+              <p className={styles.sectionDesc}>
+                我从前一天来，要找的人是你，你往后一天去，不是我要找的人了
+              </p>
+            </div>
 
-      <section id="home-latest" className={styles.sectionWrap}>
-        <div className={styles.sectionTitleWrap}>
-          <h2 className={styles.sectionTitle}>人间值得，未来可期</h2>
-          <p className={styles.sectionDesc}>
-            我从前一天来，要找的人是你，你往后一天去，不是我要找的人了
-          </p>
-        </div>
+            <div className={styles.latestGrid}>
+              {recentUpdates.length === 0 ? (
+                <article
+                  className={`${styles.latestCard} ${styles.latestStateCard}`}
+                >
+                  <span>暂无文字精选</span>
+                  <p>偶尔空白，也算生活留给下一句话的位置。</p>
+                </article>
+              ) : (
+                recentUpdates.map((moment) => (
+                  <article key={moment.id} className={styles.latestCard}>
+                    <div className={styles.latestCardTop}>
+                      <span>{moment.categoryName}</span>
+                      <time dateTime={moment.createdAt}>
+                        {formatMomentDate(moment.createdAt)}
+                      </time>
+                    </div>
+                    <p>{moment.content}</p>
+                  </article>
+                ))
+              )}
+            </div>
 
-        <div key={`latest-${activeCategoryId}`} className={styles.latestGrid}>
-          {loadingMoments ? (
-            <article className={styles.latestCard}>
-              <span>加载中</span>
-              <p>正在同步文字动态...</p>
-            </article>
-          ) : momentError ? (
-            <article className={styles.latestCard}>
-              <span>读取失败</span>
-              <p>{momentError}</p>
-            </article>
-          ) : recentUpdates.length === 0 ? (
-            <article className={styles.latestCard}>
-              <span>暂无内容</span>
-              <p>当前没有需要展示到首页的文字动态。</p>
-            </article>
-          ) : (
-            recentUpdates.map((moment) => (
-              <article key={moment.id} className={styles.latestCard}>
-                <div className={styles.latestCardTop}>
-                  <span>{moment.categoryName}</span>
-                  <time dateTime={moment.createdAt}>
-                    {formatMomentDate(moment.createdAt)}
-                  </time>
-                </div>
-                <p>{moment.content}</p>
-              </article>
-            ))
-          )}
-        </div>
-      </section>
+            <div className={styles.latestMore}>
+              <Link to="/latest" className={styles.latestMoreLink}>
+                查看全部瞬间
+                <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }
 
-/**
- * 首页和最新页统一日期文案，保证公开区的时间表现一致。
- */
+/** 图片资源不可用时隐藏损坏图标，并保留卡片渐变背景和文字信息。 */
+function handleMomentImageError(event: SyntheticEvent<HTMLImageElement>) {
+  event.currentTarget.hidden = true;
+}
+
+/** 首页和瞬间页统一日期文案，保证公开区的时间表现一致。 */
 function formatMomentDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",

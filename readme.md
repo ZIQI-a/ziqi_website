@@ -234,7 +234,7 @@ Moments 用于统一承载纯文字动态和带图动态。
 - 编辑 moment
 - 删除 moment
 
-公开站点永远只消费已发布 moments。首页和最新页会通过 `categoryId`、`showOnHome`、`hasImage` 等参数拿到不同展示区域需要的数据。
+公开站点永远只消费已发布 moments。首页只请求一次 `showOnHome=true` 的后台精选结果，并按后端顺序展示最多三条图文和两条文字；瞬间页通过 `categoryId` 完成分类浏览。`hasImage` 参数继续作为接口能力保留，不参与当前首页的数据拆分。
 
 ### 4.6 Moments 分类管理
 

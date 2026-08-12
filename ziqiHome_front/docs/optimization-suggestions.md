@@ -2,7 +2,7 @@
 
 > 生成日期: 2026-05-21 | 基于现有页面实现审查
 
-> 实施状态：移动端公共导航与 Latest 双列帖子流已按六阶段路线完成；后续顺序以 `roadmap.md` 为准。
+> 实施状态：移动端公共导航、Latest 双列帖子流和首页内容收敛已按六阶段路线完成；后续顺序以 `roadmap.md` 为准。
 
 ---
 
@@ -10,10 +10,9 @@
 
 ### 1. 图片懒加载 — 全站性能
 
-**问题：** 所有 `<img>` 标签缺少 `loading="lazy"`，首页 Life Grid 9+ 张图片同时加载，拖慢首屏。
+**问题：** 部分 `<img>` 标签仍缺少 `loading="lazy"`，会增加非首屏图片的加载开销。首页精选图片已在第三阶段补充懒加载。
 
 **涉及文件：**
-- `src/pages/HomePage.tsx` — lifeCard 图片
 - `src/pages/LatestPage.tsx` — galleryCard 图片
 - `src/components/BlogCard.tsx` — 封面图片
 - `src/pages/BlogDetailPage.tsx` — 封面图片
@@ -129,12 +128,9 @@
 
 ---
 
-### 11. 首页生活卡片点击跳转
+### 11. 首页生活卡片交互语义（已完成）
 
-**问题：** hover 有箭头动画但点击无行为。
-
-**涉及文件：**
-- `src/pages/HomePage.tsx` — lifeCard 包裹 `<Link>`
+**处理：** 第三阶段已移除不可点击卡片的箭头、手型光标和位移反馈，完整 Moments 浏览统一通过“查看全部瞬间”入口进入 `/latest`。
 
 ---
 

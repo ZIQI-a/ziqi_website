@@ -8,7 +8,7 @@
 
 公开站点：
 
-- `/`：主页，承载个人介绍、生活动态和内容分发
+- `/`：主页，承载个人介绍、精选 Moments 和内容分发
 - `/latest`：最新动态，使用双列瀑布帖子流混排图文与纯文字 moments
 - `/blog`：博客列表
 - `/blog/:slug`：博客详情，封面 Hero 承载文章信息并提供正文目录
@@ -28,6 +28,7 @@
 ## 当前内容来源
 
 - 首页个人基础信息仍来自 `src/data/siteContent.ts`
+- 首页 Moments 仅请求 `/api/site/moments?showOnHome=true`，按后端顺序展示最多三条图文和两条文字
 - 博客列表来自 `/api/site/blogs`，关键词、分类和多标签通过查询参数交给后端组合筛选
 - 博客分类和标签筛选项来自 `/api/site/blogs/filter-options`，不再由当前结果集临时推导
 - 项目列表来自 `/api/site/projects`
@@ -47,6 +48,7 @@
 - 暗/亮主题切换
 - `860px` 以下使用单行公共顶栏和两列下拉导航，减少移动端首屏占用
 - Latest 页统一 Moments 数据流、分类缓存及双列瀑布帖子布局
+- 首页收敛为后台精选 Moments 单请求，并在 Hero 之后启用紧凑分区导航
 - 博客详情页、Markdown 正文和文章目录
 - Projects 页紧凑项目总览与响应式卡片布局
 

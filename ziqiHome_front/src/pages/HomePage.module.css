@@ -16,49 +16,57 @@
 
 .sideNav {
   position: fixed;
+  top: 50%;
   left: max(18px, calc((100vw - var(--page-width)) / 2 - 148px));
   z-index: 15;
   display: grid;
   gap: 10px;
+  padding: 22px 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(5, 10, 22, 0.72);
   backdrop-filter: blur(14px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
   transition:
-    top 0.35s ease,
-    transform 0.35s ease,
-    padding 0.35s ease,
+    opacity 0.3s ease,
+    visibility 0.3s ease,
+    transform 0.3s ease,
     border-color 0.35s ease,
     background-color 0.35s ease;
 }
 
-.sideNavExpanded {
-  top: 126px;
-  padding: 18px 16px;
+.sideNavHidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-12px, -50%);
 }
 
-.sideNavCompact {
-  top: 50%;
-  padding: 22px 14px;
-  transform: translateY(-50%);
+.sideNavVisible {
+  visibility: visible;
+  opacity: 1;
+  transform: translate(0, -50%);
+}
+
+[data-theme='light'] .sideNav {
+  border-color: rgba(68, 112, 154, 0.18);
+  background: rgba(245, 251, 255, 0.82);
+  box-shadow: 0 18px 40px rgba(94, 133, 171, 0.2);
 }
 
 .sideNavLink {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
+  width: 22px;
+  min-height: 42px;
   white-space: nowrap;
   color: rgba(255, 255, 255, 0.7);
   font-size: 0.98rem;
   transition:
     color 0.2s ease,
     transform 0.2s ease;
-}
-
-.sideNavExpanded .sideNavLink:hover {
-  color: #fff;
-  transform: translateX(2px);
 }
 
 .sideNavDot {
@@ -95,21 +103,7 @@
   transform: scale(1.38);
 }
 
-.sideNavExpanded .sideNavDot {
-  opacity: 0.68;
-}
-
-.sideNavExpanded .sideNavLinkActive .sideNavDot {
-  opacity: 1;
-}
-
-.sideNavCompact .sideNavLink {
-  justify-content: center;
-  width: 22px;
-  min-height: 42px;
-}
-
-.sideNavCompact .sideNavLabel {
+.sideNavLabel {
   position: absolute;
   top: 50%;
   left: calc(100% + 14px);
@@ -123,28 +117,32 @@
   transform: translateY(-50%) translateX(-6px);
 }
 
-.sideNavCompact .sideNavLink:hover .sideNavLabel,
-.sideNavCompact .sideNavLink:focus-visible .sideNavLabel {
+[data-theme='light'] .sideNavLabel {
+  border-color: rgba(68, 112, 154, 0.18);
+  background: rgba(245, 251, 255, 0.96);
+  color: var(--color-text);
+  box-shadow: 0 12px 30px rgba(94, 133, 171, 0.18);
+}
+
+[data-theme='light'] .sideNavDot {
+  background: rgba(68, 112, 154, 0.38);
+  box-shadow: inset 0 0 0 1px rgba(68, 112, 154, 0.14);
+}
+
+.sideNavLink:hover .sideNavLabel,
+.sideNavLink:focus-visible .sideNavLabel {
   opacity: 1;
   transform: translateY(-50%) translateX(0);
 }
 
-.sideNavCompact .sideNavLink:hover .sideNavDot,
-.sideNavCompact .sideNavLink:focus-visible .sideNavDot {
+.sideNavLink:hover .sideNavDot,
+.sideNavLink:focus-visible .sideNavDot {
   background: rgba(255, 255, 255, 0.78);
   transform: scale(1.05) rotate(45deg);
 }
 
-.sideNavCompact .sideNavLinkActive .sideNavLabel {
+.sideNavLinkActive .sideNavLabel {
   color: var(--color-accent);
-}
-
-.sideNavExpanded .sideNavLabel {
-  opacity: 1;
-}
-
-.sideNavExpanded .sideNavLinkActive .sideNavLabel {
-  transform: translateX(2px);
 }
 
 .heroSection {
@@ -174,43 +172,6 @@
   color: var(--color-text-muted);
   line-height: 1.75;
   text-align: center;
-}
-
-.lifeTabs {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  color: var(--color-text-muted);
-}
-
-.lifeTabButton {
-  padding: 10px 16px;
-  border: 1px solid var(--color-line);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  font: inherit;
-  transition:
-    transform 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    background-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.lifeTabButton:hover {
-  transform: translateY(-1px);
-  border-color: rgba(255, 177, 24, 0.4);
-  color: var(--color-text);
-}
-
-.lifeTabActive {
-  color: #16100f;
-  background: var(--color-accent) !important;
-  box-shadow: 0 12px 28px rgba(255, 177, 24, 0.2);
-  transform: translateY(-1px) scale(1.02);
 }
 
 .lifeGrid {
@@ -243,20 +204,17 @@
   min-height: 300px;
   border-radius: 22px;
   border: 1px solid var(--color-line);
+  background:
+    linear-gradient(145deg, rgba(255, 177, 24, 0.12), transparent 52%),
+    color-mix(in srgb, var(--color-surface) 92%, transparent);
   box-shadow: var(--shadow-soft);
-  cursor: pointer;
   animation: cardRise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
-  transition:
-    transform 0.24s ease,
-    border-color 0.24s ease,
-    box-shadow 0.24s ease;
 }
 
 .lifeCard img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.55s ease;
 }
 
 .lifeOverlay {
@@ -265,26 +223,6 @@
   background:
     linear-gradient(180deg, rgba(4, 10, 24, 0.04), rgba(4, 10, 24, 0.86)),
     linear-gradient(180deg, transparent 35%, rgba(255, 177, 24, 0.12) 100%);
-  transition: opacity 0.35s ease;
-}
-
-.lifeArrow {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 46px;
-  height: 46px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-  font-size: 1.35rem;
-  opacity: 0;
-  transform: translateY(-8px);
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
 }
 
 .lifeMeta {
@@ -313,25 +251,6 @@
   line-height: 1.7;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-}
-
-.lifeCard:hover img {
-  transform: scale(1.08);
-}
-
-.lifeCard:hover {
-  border-color: rgba(255, 177, 24, 0.24);
-  box-shadow: 0 24px 62px rgba(0, 0, 0, 0.3);
-  transform: translateY(-4px);
-}
-
-.lifeCard:hover .lifeArrow {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.lifeCard:hover .lifeOverlay {
-  opacity: 0.92;
 }
 
 .latestGrid {
@@ -413,6 +332,70 @@
   line-height: 1.95;
 }
 
+.latestStateCard {
+  grid-column: 1 / -1;
+}
+
+.latestMore {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+.latestMoreLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 8px 2px;
+  border-bottom: 1px solid rgba(255, 177, 24, 0.58);
+  color: var(--color-accent);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition:
+    gap 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.latestMoreLink:hover,
+.latestMoreLink:focus-visible {
+  gap: 18px;
+  border-color: var(--color-accent);
+}
+
+.momentsStateSection {
+  min-height: 42vh;
+}
+
+.momentsStateCard {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  min-height: 260px;
+  padding: 36px;
+  border: 1px solid var(--color-line);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 177, 24, 0.11), transparent 44%),
+    color-mix(in srgb, var(--color-surface) 92%, transparent);
+  box-shadow: var(--shadow-soft);
+  text-align: center;
+}
+
+.momentsStateCard span {
+  color: var(--color-accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+}
+
+.momentsStateCard p {
+  margin: 14px 0 0;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+
 @keyframes sectionReveal {
   from {
     opacity: 0;
@@ -485,6 +468,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sideNav,
   .sectionWrap,
   .lifeGrid,
   .latestGrid,
@@ -493,11 +477,11 @@
     animation: none;
   }
 
-  .lifeTabButton,
-  .lifeTabButton:hover,
-  .lifeTabActive,
-  .lifeCard:hover,
   .latestCard:hover {
     transform: none;
+  }
+
+  .latestMoreLink {
+    transition: none;
   }
 }
