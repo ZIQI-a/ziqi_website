@@ -105,6 +105,8 @@ mvn spring-boot:run
 - `GET /api/site/blogs/{slug}`
 - `GET /api/site/projects`，支持 `status` 查询参数
 - `GET /api/site/projects/filter-options`，返回已发布项目实际使用的阶段筛选项
+
+语雀同步会优先采用可读的文档描述；描述过短、包含原始链接或结构化数据时，改为从 Markdown 正文提取摘要，避免把同步噪声直接展示到公开博客卡片。
 - `GET /api/site/contact-links`
 - `GET /api/site/moments`，支持 `categoryId`、`showOnHome`、`hasImage` 查询参数
 - `GET /api/site/moments/categories`

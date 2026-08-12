@@ -17,6 +17,7 @@
 
 - 技术栈：`Spring Boot + JPA + Flyway + MySQL`
 - 内容域：博客、项目、联系平台、moments、用户
+- 博客语雀同步会清洗摘要，并对无效描述回退到正文提取结果
 - 公开接口：`/api/site/*`
 - 管理接口：`/api/admin/*`
 - 鉴权：session + Spring MVC interceptor

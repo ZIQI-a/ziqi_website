@@ -227,25 +227,7 @@ public class YuqueSyncService {
   }
 
   private String extractSummary(String markdown, String description) {
-    if (description != null && !description.isBlank()) {
-      return description.trim().substring(0, Math.min(description.trim().length(), 600));
-    }
-
-    String plainText = markdown
-        .replaceAll("```[\\s\\S]*?```", " ")
-        .replaceAll("`([^`]+)`", "$1")
-        .replaceAll("!\\[[^\\]]*]\\([^)]*\\)", " ")
-        .replaceAll("\\[[^\\]]*]\\([^)]*\\)", " ")
-        .replaceAll("^#{1,6}\\s+", "")
-        .replaceAll("[*_>~-]", " ")
-        .replaceAll("\\s+", " ")
-        .trim();
-
-    if (plainText.isEmpty()) {
-      return "这是一篇从语雀同步过来的文章。";
-    }
-
-    return plainText.substring(0, Math.min(plainText.length(), 160));
+    return BlogSummaryFormatter.fromMarkdown(markdown, description);
   }
 
   private String slugify(String slug, String title) {
