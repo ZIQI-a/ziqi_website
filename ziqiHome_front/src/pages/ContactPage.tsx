@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-import { ArrowUpOutlined } from "@ant-design/icons";
-import { PageHeader } from "../components/PageHeader";
+import { useEffect, useState, type SyntheticEvent } from "react";
 import { siteClient } from "../api/siteClient";
 import type { ContactLinkSummary } from "../types/content";
 import styles from "./ContactPage.module.css";
@@ -34,58 +32,72 @@ export function ContactPage() {
 
   return (
     <div className={styles.page}>
-      <PageHeader eyebrow="Contact" title="找我鸭" />
+      <header className={styles.pageHeader}>
+        <span className={styles.eyebrow}>Contact Directory</span>
+        <h1>找我鸭</h1>
+      </header>
 
       {loading ? (
-        <section className={styles.statePanel}>
-          <p>鸡汤来喽哈哈哈！</p>
+        <section className={styles.statePanel} aria-live="polite">
+          <p>正在加载联系平台...</p>
         </section>
       ) : error ? (
-        <section className={styles.statePanel}>
+        <section className={styles.statePanel} role="status">
           <p>{error}</p>
         </section>
       ) : contactLinks.length === 0 ? (
         <section className={styles.statePanel}>
-          <p>哦吼？走丢了？先去别处看看吧！</p>
+          <p>当前还没有已公开的联系平台。</p>
         </section>
       ) : (
-        <section className={styles.grid}>
+        <section className={styles.grid} aria-label="公开联系平台">
           {contactLinks.map((contactLink) => (
-            <article key={contactLink.id} className={styles.card}>
-              <div className={styles.cardTop}>
-                <div className={styles.iconWrap}>
-                  <img
-                    src={contactLink.iconUrl}
-                    alt={`${contactLink.platformName} 图标`}
-                    className={styles.icon}
-                  />
-                </div>
-                <div className={styles.titleWrap}>
-                  <div className={styles.titleRow}>
-                    <div>
-                      <span className={styles.eyebrow}>公开平台</span>
-                      <h3>{contactLink.platformName}</h3>
-                    </div>
-
-                    <a
-                      href={contactLink.profileUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={styles.primaryLink}
-                      aria-label={`访问 ${contactLink.platformName}`}
-                      title={`访问 ${contactLink.platformName}`}
-                    >
-                      <ArrowUpOutlined />
-                    </a>
-                  </div>
-                </div>
+            <a
+              key={contactLink.id}
+              href={contactLink.profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.card}
+              aria-label={`访问 ${contactLink.platformName}`}
+            >
+              <div className={styles.iconWrap} aria-hidden="true">
+                <span className={styles.iconFallback}>
+                  {getPlatformInitial(contactLink.platformName)}
+                </span>
+                <img
+                  src={contactLink.iconUrl}
+                  alt=""
+                  className={styles.icon}
+                  loading="lazy"
+                  decoding="async"
+                  onError={handlePlatformIconError}
+                />
               </div>
 
-              <p>{contactLink.description}</p>
-            </article>
+              <div className={styles.cardContent}>
+                <h2>{contactLink.platformName}</h2>
+                <p>{contactLink.description}</p>
+              </div>
+
+              <span className={styles.cardArrow} aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M7 17 17 7M9 7h8v8" />
+                </svg>
+              </span>
+            </a>
           ))}
         </section>
       )}
     </div>
   );
+}
+
+/** 为失效或暂未加载的平台图标提供稳定的单字符回退。 */
+function getPlatformInitial(platformName: string) {
+  return Array.from(platformName.trim())[0]?.toUpperCase() || "·";
+}
+
+/** 图片失效时隐藏损坏图标，露出下层的平台首字母作为回退。 */
+function handlePlatformIconError(event: SyntheticEvent<HTMLImageElement>) {
+  event.currentTarget.hidden = true;
 }

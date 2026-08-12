@@ -1,17 +1,41 @@
 .page {
   display: grid;
-  gap: 28px;
+  gap: 22px;
+}
+
+.pageHeader {
+  display: grid;
+  gap: 7px;
+  padding: 10px 0 18px;
+  border-bottom: 1px solid var(--color-line);
+  animation: headerReveal 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.eyebrow {
+  color: var(--color-text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.pageHeader h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 3.4vw, 2.8rem);
+  line-height: 1;
 }
 
 .statePanel {
   display: grid;
+  min-height: 148px;
   place-items: center;
-  min-height: 220px;
-  padding: 28px;
-  border-radius: 28px;
+  padding: 24px;
   border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
   background:
-    linear-gradient(135deg, rgba(255, 177, 24, 0.08), transparent 45%),
+    linear-gradient(135deg, var(--color-accent-soft), transparent 48%),
     color-mix(in srgb, var(--color-surface) 94%, transparent);
   box-shadow: var(--shadow-soft);
 }
@@ -19,26 +43,40 @@
 .statePanel p {
   margin: 0;
   color: var(--color-text-muted);
+  line-height: 1.7;
   text-align: center;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
   animation: contentReveal 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .card {
+  position: relative;
   display: grid;
-  gap: 20px;
-  padding: 30px;
-  border-radius: 28px;
+  min-width: 0;
+  min-height: 210px;
+  grid-template-areas:
+    "icon arrow"
+    "content content";
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 22px 16px;
+  overflow: hidden;
+  padding: 22px;
   border: 1px solid var(--color-line);
+  border-radius: 22px;
   background:
-    radial-gradient(circle at top right, rgba(255, 177, 24, 0.16), transparent 35%),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-surface) 96%, transparent), color-mix(in srgb, var(--color-surface-strong) 84%, transparent));
-  box-shadow: var(--shadow-soft);
+    radial-gradient(circle at 100% 0%, var(--color-accent-soft), transparent 38%),
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-surface) 96%, transparent),
+      color-mix(in srgb, var(--color-surface-strong) 86%, transparent)
+    );
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.16);
   animation: cardRise 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
   transition:
     transform 0.24s ease,
@@ -46,88 +84,129 @@
     box-shadow 0.24s ease;
 }
 
-.card:hover {
-  border-color: rgba(255, 177, 24, 0.24);
-  box-shadow: 0 24px 62px rgba(0, 0, 0, 0.26);
+[data-theme='light'] .card {
+  box-shadow: 0 16px 42px rgba(105, 145, 183, 0.14);
+}
+
+.card::after {
+  position: absolute;
+  right: -32px;
+  bottom: -48px;
+  width: 116px;
+  height: 116px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.card:hover,
+.card:focus-visible {
+  border-color: color-mix(in srgb, var(--color-accent) 48%, transparent);
+  box-shadow: 0 22px 52px rgba(0, 0, 0, 0.23);
   transform: translateY(-4px);
 }
 
-.cardTop {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+[data-theme='light'] .card:hover,
+[data-theme='light'] .card:focus-visible {
+  box-shadow: 0 22px 52px rgba(93, 133, 172, 0.22);
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
 }
 
 .iconWrap {
+  position: relative;
+  grid-area: icon;
   display: grid;
+  width: 58px;
+  height: 58px;
+  overflow: hidden;
   place-items: center;
-  width: 68px;
-  height: 68px;
-  border-radius: 22px;
   border: 1px solid var(--color-line);
-  background: color-mix(in srgb, var(--color-surface-strong) 88%, transparent);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--color-surface-strong) 90%, transparent);
+}
+
+.iconFallback {
+  color: var(--color-accent);
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  font-weight: 700;
 }
 
 .icon {
-  width: 34px;
-  height: 34px;
-  object-fit: cover;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  background: color-mix(in srgb, var(--color-surface-strong) 94%, transparent);
+  object-fit: contain;
 }
 
-.titleWrap {
-  display: grid;
-  flex: 1;
+.cardContent {
+  grid-area: content;
+  min-width: 0;
+  align-self: end;
 }
 
-.titleRow {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.eyebrow {
-  font-size: 0.76rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-.card h3 {
-  margin: 0;
-  font-size: 1.6rem;
+.card h2 {
+  overflow-wrap: anywhere;
+  margin: 0 0 9px;
   color: var(--color-text);
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.2vw, 1.85rem);
+  line-height: 1.05;
 }
 
 .card p {
+  display: -webkit-box;
+  overflow: hidden;
   margin: 0;
   color: var(--color-text-muted);
-  line-height: 1.8;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
-.primaryLink {
-  display: inline-grid;
+.cardArrow {
+  grid-area: arrow;
+  display: grid;
+  width: 38px;
+  height: 38px;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  flex-shrink: 0;
-  border: 1px solid rgba(255, 177, 24, 0.26);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--color-accent-soft) 82%, transparent);
+  align-self: start;
+  justify-self: end;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent-soft) 80%, transparent);
   color: var(--color-accent);
-  font-size: 1rem;
   transition:
-    transform 0.2s ease,
     background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
-.primaryLink:hover {
-  transform: translateY(-1px) rotate(6deg);
-  border-color: rgba(255, 177, 24, 0.44);
+.cardArrow svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.card:hover .cardArrow,
+.card:focus-visible .cardArrow {
   background: var(--color-accent);
   color: #16100f;
+  transform: rotate(5deg);
 }
 
 .card:nth-child(2) {
@@ -142,11 +221,23 @@
   animation-delay: 0.12s;
 }
 
+@keyframes headerReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* 联系卡片加载完成后做统一入场动画，避免接口返回时内容突然出现。 */
 @keyframes contentReveal {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(10px);
   }
 
   to {
@@ -158,7 +249,7 @@
 @keyframes cardRise {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.985);
+    transform: translateY(12px) scale(0.985);
   }
 
   to {
@@ -167,20 +258,79 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    gap: 18px;
+  }
+
+  .pageHeader {
+    padding-top: 4px;
+  }
+
   .grid {
     grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .card {
+    min-height: 0;
+    grid-template-areas: "icon content arrow";
+    grid-template-columns: 52px minmax(0, 1fr) 36px;
+    grid-template-rows: auto;
+    gap: 14px;
+    align-items: center;
+    padding: 17px;
+    border-radius: 19px;
+  }
+
+  .iconWrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+  }
+
+  .icon {
+    padding: 10px;
+  }
+
+  .cardContent {
+    align-self: center;
+  }
+
+  .card h2 {
+    margin-bottom: 5px;
+    font-size: 1.35rem;
+  }
+
+  .card p {
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+
+  .cardArrow {
+    width: 36px;
+    height: 36px;
+    align-self: center;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .pageHeader,
   .grid,
   .card {
     animation: none;
   }
 
   .card:hover,
-  .primaryLink:hover {
+  .card:focus-visible,
+  .card:hover .cardArrow,
+  .card:focus-visible .cardArrow {
     transform: none;
   }
 }

@@ -2,7 +2,7 @@
 
 > 生成日期: 2026-05-21 | 基于现有页面实现审查
 
-> 实施状态：移动端公共导航、Latest 双列帖子流和首页内容收敛已按六阶段路线完成；后续顺序以 `roadmap.md` 为准。
+> 实施状态：移动端公共导航、Latest 双列帖子流、首页内容收敛和 Contact 紧凑化已按六阶段路线完成；后续顺序以 `roadmap.md` 为准。
 
 ---
 
@@ -10,14 +10,13 @@
 
 ### 1. 图片懒加载 — 全站性能
 
-**问题：** 部分 `<img>` 标签仍缺少 `loading="lazy"`，会增加非首屏图片的加载开销。首页精选图片已在第三阶段补充懒加载。
+**问题：** 部分 `<img>` 标签仍缺少 `loading="lazy"`，会增加非首屏图片的加载开销。首页精选图片和 Contact 平台图标已补充懒加载。
 
 **涉及文件：**
 - `src/pages/LatestPage.tsx` — galleryCard 图片
 - `src/components/BlogCard.tsx` — 封面图片
 - `src/pages/BlogDetailPage.tsx` — 封面图片
 - `src/components/ProjectCard.tsx` — 封面图片
-- `src/pages/ContactPage.tsx` — 平台图标
 
 **方案：** 所有 `<img>` 添加 `loading="lazy"` 属性。
 
