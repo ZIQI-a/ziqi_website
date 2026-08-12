@@ -5,6 +5,7 @@ import type {
   ContactLinkSummary,
   MomentCategorySummary,
   MomentSummary,
+  ProjectFilterOptions,
   ProjectSummary,
 } from '../types/content'
 
@@ -30,7 +31,6 @@ interface SiteBlogDetailResponse extends SiteBlogResponse {
 }
 
 interface SiteProjectResponse {
-  id: number
   slug: string
   name: string
   description: string
@@ -38,11 +38,6 @@ interface SiteProjectResponse {
   cover: string
   link: string | null
   stack: string[]
-  highlights: string[]
-  published: boolean
-  sortOrder: number
-  createdAt: string
-  updatedAt: string
 }
 
 interface SiteContactLinkResponse {
@@ -162,12 +157,11 @@ function mapBlogDetail(blog: SiteBlogDetailResponse): BlogPostDetail {
 
 function mapProjectSummary(project: SiteProjectResponse): ProjectSummary {
   return {
-    id: project.slug || String(project.id),
+    slug: project.slug,
     name: project.name,
     description: project.description,
     stack: project.stack,
     status: project.status,
-    highlights: project.highlights,
     cover: project.cover,
     link: project.link ?? undefined,
   }
@@ -236,6 +230,9 @@ export const siteClient = {
       `/api/site/projects${buildQuery({ status: options?.status })}`,
     )
     return data.map(mapProjectSummary)
+  },
+  async listProjectFilterOptions() {
+    return request<ProjectFilterOptions>('/api/site/projects/filter-options')
   },
   async listContactLinks() {
     const data = await request<SiteContactLinkResponse[]>('/api/site/contact-links')

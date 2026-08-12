@@ -60,6 +60,8 @@ export function ProjectCard({ project, variant }: ProjectCardProps) {
             className={styles.cover}
             src={project.cover}
             alt={project.name}
+            loading="lazy"
+            decoding="async"
             onError={() => setShowFallbackCover(true)}
           />
         )}
@@ -85,7 +87,7 @@ export function ProjectCard({ project, variant }: ProjectCardProps) {
               className={styles.entryLink}
               href={project.link}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
               aria-label={`查看项目：${project.name}`}
             >
               <span aria-hidden="true">→</span>

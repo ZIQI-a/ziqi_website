@@ -449,7 +449,14 @@ export function AdminProjectsPage() {
           <Form.Item
             label="slug"
             name="slug"
-            rules={[{ required: true, message: "请输入 slug" }]}
+            rules={[
+              { required: true, message: "请输入 slug" },
+              {
+                pattern: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+                message: "仅支持小写字母、数字和单个连字符",
+              },
+            ]}
+            extra="作为项目稳定标识，保存后仍可修改，但不能与现有项目重复。"
           >
             <Input placeholder="personal-archive-admin" />
           </Form.Item>
@@ -476,12 +483,20 @@ export function AdminProjectsPage() {
             />
           </Form.Item>
 
+          <Typography.Paragraph type="secondary" className={styles.stageHint}>
+            状态只表示项目阶段；是否在公开站展示由下方发布开关单独控制。
+          </Typography.Paragraph>
+
           <Form.Item
             label="排序值"
             name="sortOrder"
-            rules={[{ required: true, message: "请输入排序值" }]}
+            rules={[
+              { required: true, message: "请输入排序值" },
+              { type: "number", min: 0, message: "排序值不能小于 0" },
+            ]}
+            extra="数值越小越靠前，相同数值按较新记录优先。"
           >
-            <InputNumber className={styles.fullControl} />
+            <InputNumber min={0} precision={0} className={styles.fullControl} />
           </Form.Item>
 
           <Form.Item
@@ -499,7 +514,7 @@ export function AdminProjectsPage() {
             label="项目链接"
             name="link"
             rules={[
-              { type: "url", warningOnly: true, message: "建议填写有效的 URL" },
+              { type: "url", message: "请输入有效的 URL" },
             ]}
             extra="可为空，留空时前台不展示跳转链接。"
           >

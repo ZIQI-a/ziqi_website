@@ -49,6 +49,14 @@
   color: var(--color-text) !important;
 }
 
+.stageHint {
+  margin: -14px 0 20px !important;
+  padding: 10px 12px;
+  border-left: 3px solid var(--color-accent);
+  background: var(--color-accent-soft);
+  line-height: 1.65;
+}
+
 .stackTag {
   background: var(--color-accent-soft) !important;
   color: var(--color-text) !important;

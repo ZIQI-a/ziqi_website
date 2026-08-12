@@ -34,8 +34,31 @@ export function ProjectsPage() {
   const projectRequestIdRef = useRef(0);
 
   useEffect(() => {
-    void loadProjects();
+    void loadInitialProjectData();
   }, []);
+
+  async function loadInitialProjectData() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const [projects, options] = await Promise.all([
+        siteClient.listProjects(),
+        siteClient.listProjectFilterOptions(),
+      ]);
+      projectCacheRef.current.set(allStatusValue, projects);
+      setProjectList(projects);
+      setStatusOptions([allStatusValue, ...options.statuses]);
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : "项目内容加载失败，请稍后重试",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function loadProjects(status = allStatusValue) {
     const requestId = projectRequestIdRef.current + 1;
@@ -64,14 +87,6 @@ export function ProjectsPage() {
 
       projectCacheRef.current.set(status, data);
       setProjectList(data);
-
-      if (status === allStatusValue) {
-        // 状态筛选项来自后端返回的公开项目集合，后续点击筛选时只传状态参数请求。
-        setStatusOptions([
-          allStatusValue,
-          ...Array.from(new Set(data.map((project) => project.status))),
-        ]);
-      }
     } catch (loadError) {
       setError(
         loadError instanceof Error
@@ -140,7 +155,7 @@ export function ProjectsPage() {
 
             return (
               <div
-                key={`${project.id}-${project.cover}`}
+                key={`${project.slug}-${project.cover}`}
                 className={`${styles.projectItem} ${
                   layout.variant === "vertical"
                     ? styles.verticalItem

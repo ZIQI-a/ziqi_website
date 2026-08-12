@@ -59,14 +59,18 @@ export interface BlogPostDetail {
 }
 
 export interface ProjectSummary {
-  id: string
+  slug: string
   name: string
   description: string
   stack: string[]
   status: string
-  highlights: string[]
   cover: string
   link?: string
+}
+
+/** 公开项目筛选项由后端基于已发布项目生成。 */
+export interface ProjectFilterOptions {
+  statuses: string[]
 }
 
 export interface ContactLinkSummary {
