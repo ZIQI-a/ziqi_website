@@ -159,6 +159,17 @@ export function BlogPage() {
   const categories = [ALL_CATEGORY, ...filterOptions.categories];
   const leadPosts = posts.slice(0, 3);
   const standardPosts = posts.slice(3);
+  const coverUsage = posts.reduce<Map<string, number>>((usage, post) => {
+    const normalizedCover = post.cover.trim();
+    if (normalizedCover) {
+      usage.set(normalizedCover, (usage.get(normalizedCover) ?? 0) + 1);
+    }
+    return usage;
+  }, new Map());
+
+  function hasRepeatedCover(post: BlogPostSummary) {
+    return (coverUsage.get(post.cover.trim()) ?? 0) > 1;
+  }
 
   return (
     <div className={styles.page}>
@@ -310,6 +321,7 @@ export function BlogPage() {
                 post={post}
                 variant={index === 0 ? "featured" : "compact"}
                 onTagClick={handleTagToggle}
+                repeatedCover={hasRepeatedCover(post)}
               />
             ))}
           </div>
@@ -323,6 +335,7 @@ export function BlogPage() {
                   post={post}
                   variant="standard"
                   onTagClick={handleTagToggle}
+                  repeatedCover={hasRepeatedCover(post)}
                 />
               ))}
             </div>

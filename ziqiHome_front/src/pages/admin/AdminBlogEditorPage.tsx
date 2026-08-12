@@ -21,6 +21,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { adminClient, ApiError } from "../../api/adminClient";
 import { MarkdownArticle } from "../../components/MarkdownArticle";
 import type { BlogAdminItem, BlogAdminPayload } from "../../types/admin";
+import {
+  extractBlogSummaryFromMarkdown,
+  getBlogSummaryQuality,
+} from "../../utils/blogPresentation";
 import styles from "./AdminBlogEditorPage.module.css";
 
 const { TextArea } = Input;
@@ -66,23 +70,6 @@ function slugify(value: string) {
   return ascii || `blog-${Date.now()}`;
 }
 
-/**
- * 从 Markdown 中提取摘要，保证新建草稿时即使没填摘要也有可用的默认内容。
- */
-function extractSummary(markdown: string) {
-  const plainText = markdown
-    .replace(/```[\s\S]*?```/g, " ")
-    .replace(/`([^`]+)`/g, "$1")
-    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
-    .replace(/\[[^\]]*]\([^)]*\)/g, " ")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/[*_>~-]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  return plainText.slice(0, 160) || "这是一篇新建中的文章。";
-}
-
 function buildPayload(
   draft: EditorDraft,
   existingBlog: BlogAdminItem | null,
@@ -92,11 +79,18 @@ function buildPayload(
   const normalizedContent = draft.contentMarkdown.trim();
 
   if (existingBlog) {
+    const currentSummary = existingBlog.summary.trim();
+    const summaryQuality = getBlogSummaryQuality(currentSummary);
+
     return {
       ...existingBlog,
       title: normalizedTitle,
       contentMarkdown: normalizedContent,
-      summary: existingBlog.summary.trim() || extractSummary(normalizedContent),
+      // 已有摘要明显不可读时，在用户再次保存正文时自动用正文生成结果修复。
+      summary:
+        summaryQuality === "ready" || summaryQuality === "too-long"
+          ? currentSummary
+          : extractBlogSummaryFromMarkdown(normalizedContent),
       published,
     };
   }
@@ -106,7 +100,7 @@ function buildPayload(
     title: normalizedTitle,
     publishDate: new Date().toISOString().slice(0, 10),
     category: "未分类",
-    summary: extractSummary(normalizedContent),
+    summary: extractBlogSummaryFromMarkdown(normalizedContent),
     cover: DEFAULT_BLOG_COVER,
     contentMarkdown: normalizedContent,
     tags: ["待整理"],

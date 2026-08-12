@@ -38,6 +38,11 @@ import type {
 } from '../../types/admin'
 import styles from './AdminBlogsPage.module.css'
 import { useNavigate } from 'react-router-dom'
+import {
+  getBlogSummaryQuality,
+  getBlogSummaryQualityLabel,
+  normalizeBlogSummary,
+} from '../../utils/blogPresentation'
 
 const { TextArea } = Input
 
@@ -127,7 +132,7 @@ function toPayload(values: BlogFormValues, editingBlog: BlogAdminItem): BlogAdmi
     title: editingBlog.title,
     publishDate: values.publishDate?.format('YYYY-MM-DD') ?? '',
     category: values.category.trim() || '未分类',
-    summary: values.summary.trim() || '这是一篇待补充摘要的文章。',
+    summary: values.summary.trim(),
     cover: values.cover.trim() || editingBlog.cover,
     contentMarkdown: editingBlog.contentMarkdown,
     tags: normalizedTags.length > 0 ? normalizedTags : editingBlog.tags,
@@ -282,14 +287,26 @@ export function AdminBlogsPage() {
       title: '摘要',
       dataIndex: 'summary',
       key: 'summary',
-      render: (summary: string) => (
-        <Typography.Paragraph
-          className={styles.summary}
-          ellipsis={{ rows: 2, tooltip: summary }}
-        >
-          {summary}
-        </Typography.Paragraph>
-      ),
+      render: (summary: string) => {
+        const normalizedSummary = normalizeBlogSummary(summary)
+        const quality = getBlogSummaryQuality(normalizedSummary)
+
+        return (
+          <div className={styles.summaryCell}>
+            {quality !== 'ready' ? (
+              <Tag color="orange" bordered={false} className={styles.summaryQuality}>
+                {getBlogSummaryQualityLabel(quality)}
+              </Tag>
+            ) : null}
+            <Typography.Paragraph
+              className={styles.summary}
+              ellipsis={{ rows: 2, tooltip: normalizedSummary }}
+            >
+              {normalizedSummary}
+            </Typography.Paragraph>
+          </div>
+        )
+      },
     },
     {
       title: '标签',
@@ -514,9 +531,25 @@ export function AdminBlogsPage() {
           <Form.Item
             label="摘要"
             name="summary"
-            rules={[{ required: true, message: '请输入摘要' }]}
+            extra="建议 12–180 字，说明文章解决的问题；避免粘贴 JSON、下载地址或原始链接。"
+            rules={[
+              { required: true, message: '请输入摘要' },
+              {
+                warningOnly: true,
+                validator: async (_, value: string) => {
+                  if (!value?.trim()) {
+                    return
+                  }
+
+                  const quality = getBlogSummaryQuality(value)
+                  if (quality !== 'ready') {
+                    throw new Error(getBlogSummaryQualityLabel(quality))
+                  }
+                },
+              },
+            ]}
           >
-            <TextArea rows={4} />
+            <TextArea rows={4} maxLength={600} showCount />
           </Form.Item>
 
           <Form.Item

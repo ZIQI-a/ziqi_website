@@ -31,6 +31,7 @@
 - 首页 Moments 仅请求 `/api/site/moments?showOnHome=true`，按后端顺序展示最多三条图文和两条文字
 - 博客列表来自 `/api/site/blogs`，关键词、分类和多标签通过查询参数交给后端组合筛选
 - 博客分类和标签筛选项来自 `/api/site/blogs/filter-options`，不再由当前结果集临时推导
+- 博客列表会替换明显无效的摘要，并为重复默认封面添加稳定文章编号；封面失败时显示基于 slug 的渐变兜底
 - 项目列表来自 `/api/site/projects`，阶段筛选项来自 `/api/site/projects/filter-options`
 - 联系平台来自 `/api/site/contact-links`
 - moments 和分类来自 `/api/site/moments`、`/api/site/moments/categories`
@@ -53,6 +54,7 @@
 - Projects 页紧凑项目总览与响应式卡片布局
 - Projects 业务阶段与公开状态解耦，管理端统一 slug、排序和发布校验
 - Contact 页三列平台总览、整卡外链与图标失败回退
+- Blog 重点卡片留白、摘要质量提示和默认封面辨识优化
 
 ## 当前非目标
 
