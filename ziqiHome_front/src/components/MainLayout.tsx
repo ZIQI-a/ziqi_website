@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { siteClient } from "../api/siteClient";
 import type { ContactLinkSummary } from "../types/content";
@@ -15,6 +15,19 @@ const navItems = [
 export function MainLayout() {
   const location = useLocation();
   const isHomePage = location.pathname === "/";
+  const headerRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const [mobileMenuState, setMobileMenuState] = useState(() => ({
+    pathname: location.pathname,
+    isOpen: false,
+  }));
+
+  // 在渲染阶段同步路由快照，确保前进、后退等导航也不会保留旧菜单状态。
+  if (mobileMenuState.pathname !== location.pathname) {
+    setMobileMenuState({ pathname: location.pathname, isOpen: false });
+  }
+
+  const isMobileMenuOpen = mobileMenuState.isOpen;
   const [footerContactLinks, setFooterContactLinks] = useState<
     ContactLinkSummary[]
   >([]);
@@ -30,6 +43,43 @@ export function MainLayout() {
     document.documentElement.style.colorScheme = theme;
     localStorage.setItem("ziqi-theme", theme);
   }, [theme]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) {
+      return undefined;
+    }
+
+    // 支持点击 Header 外部和 Escape 键关闭菜单，兼顾触屏与键盘操作。
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        event.target instanceof Node &&
+        !headerRef.current?.contains(event.target)
+      ) {
+        setMobileMenuState((currentState) => ({
+          ...currentState,
+          isOpen: false,
+        }));
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileMenuState((currentState) => ({
+          ...currentState,
+          isOpen: false,
+        }));
+        menuButtonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     let ignore = false;
@@ -57,16 +107,31 @@ export function MainLayout() {
   return (
     <div className={`${styles.shell} ${isHomePage ? styles.shellHome : ""}`}>
       <header
+        ref={headerRef}
         className={`${styles.header} ${isHomePage ? styles.headerOverlay : ""}`}
       >
         <div className={styles.navWrap}>
-          <NavLink to="/" end className={styles.brand}>
+          <NavLink
+            to="/"
+            end
+            className={styles.brand}
+            onClick={() =>
+              setMobileMenuState((currentState) => ({
+                ...currentState,
+                isOpen: false,
+              }))
+            }
+          >
             <span className={styles.brandText}>
               <strong>ZIQI</strong>HandSome
             </span>
           </NavLink>
 
-          <nav className={styles.nav} aria-label="主导航">
+          <nav
+            id="primary-navigation"
+            className={`${styles.nav} ${isMobileMenuOpen ? styles.navOpen : ""}`}
+            aria-label="主导航"
+          >
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -74,6 +139,12 @@ export function MainLayout() {
                 end={item.end}
                 className={({ isActive }) =>
                   `${styles.navLink} ${isActive ? styles.navLinkActive : ""}`
+                }
+                onClick={() =>
+                  setMobileMenuState((currentState) => ({
+                    ...currentState,
+                    isOpen: false,
+                  }))
                 }
               >
                 {item.label}
@@ -95,7 +166,31 @@ export function MainLayout() {
               }
             >
               <span>{theme === "dark" ? "☾" : "☀"}</span>
-              <span>{theme === "dark" ? "暗色" : "亮色"}</span>
+              <span className={styles.themeLabel}>
+                {theme === "dark" ? "暗色" : "亮色"}
+              </span>
+            </button>
+
+            <button
+              ref={menuButtonRef}
+              type="button"
+              className={`${styles.menuButton} ${isMobileMenuOpen ? styles.menuButtonOpen : ""}`}
+              onClick={() =>
+                setMobileMenuState((currentState) => ({
+                  pathname: location.pathname,
+                  isOpen:
+                    currentState.pathname === location.pathname
+                      ? !currentState.isOpen
+                      : true,
+                }))
+              }
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="primary-navigation"
+              aria-label={isMobileMenuOpen ? "关闭主导航" : "打开主导航"}
+            >
+              <span className={styles.menuLine} />
+              <span className={styles.menuLine} />
+              <span className={styles.menuLine} />
             </button>
           </div>
         </div>
