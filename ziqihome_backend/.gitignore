@@ -9,4 +9,4 @@
 # Local environment overrides
 .env
 .env.*
-application-local.yml
+src/main/resources/application-local.yml

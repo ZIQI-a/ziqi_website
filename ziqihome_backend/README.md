@@ -64,7 +64,7 @@ export DB_USERNAME='root'
 export DB_PASSWORD='你的数据库密码'
 ```
 
-也可以在仓库外或本地私有文件 `application-local.yml` 中覆盖配置。
+也可以在仓库外或本地私有文件 `src/main/resources/application-local.yml` 中覆盖配置。
 
 3. 启动服务：
 
